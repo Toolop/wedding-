@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker port *)",
+      "Bash(curl -s -X POST http://localhost:8090/api/wishes -H \"Content-Type: application/json\" -d '{\"name\":\"Test Guest\",\"attendance\":\"hadir\",\"guest_count\":2,\"message\":\"Selamat menempuh hidup baru!\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s \"http://localhost:8090/api/wishes?page=1&limit=5\")",
+      "Bash(pip install *)",
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('/home/toolop/wedding/Generated Image July 11, 2026 - 8_29PM.png'\\); print\\(im.size, im.mode\\)\")",
+      "Bash(command -v chromium chromium-browser google-chrome)",
+      "Bash(npm ls *)",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:8081 npm run dev)"
+    ]
+  }
+}
