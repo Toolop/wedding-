@@ -1,7 +1,19 @@
 "use client";
 
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ReactNode, useSyncExternalStore } from "react";
 import type { Settings } from "@/lib/types";
+
+const PORTAL_ID = "flo-portal";
+const noopSubscribe = () => () => {};
+
+/** the themed portal node; null until ThemeProvider has mounted it */
+export function usePortalRoot() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => document.getElementById(PORTAL_ID),
+    () => null
+  );
+}
 
 export default function ThemeProvider({
   settings,
@@ -22,8 +34,10 @@ export default function ThemeProvider({
   } as CSSProperties;
 
   return (
-    <div style={style} className="min-h-screen">
+    <div style={style} className="h-[100dvh] overflow-hidden">
       {children}
+      {/* pop-ups render here: outside the hero's stacking context, inside the theme vars */}
+      <div id={PORTAL_ID} />
     </div>
   );
 }
