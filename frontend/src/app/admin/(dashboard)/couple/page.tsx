@@ -1,8 +1,14 @@
 "use client";
 
+import { UserRound } from "lucide-react";
+import { toast } from "sonner";
+import { useAdminData } from "@/components/admin/admin-data";
+import { CropUploadButton } from "@/components/admin/crop-upload-button";
 import { FieldGrid, SaveBar, useSettingsDraft, type FieldDef } from "@/components/admin/settings-form";
 import { PageHeader } from "@/components/admin/site-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { adminUpload, mediaUrl } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 const KEYS = [
   "groom_name",
@@ -37,18 +43,64 @@ const QUOTE: FieldDef<Key>[] = [
   { key: "quote_author", label: "Sumber kutipan", placeholder: "QS. Ar-Rum: 21" },
 ];
 
+function PortraitSlot({ who, label, image }: { who: "groom" | "bride"; label: string; image: string }) {
+  const { refresh } = useAdminData();
+
+  const upload = async (file: File) => {
+    const token = getToken();
+    if (!token) throw new Error("not signed in");
+    try {
+      // the upload endpoint writes the new URL into settings itself
+      await adminUpload(token, file, who);
+      await refresh();
+      toast.success(`Foto ${label.toLowerCase()} diperbarui`);
+    } catch (err) {
+      toast.error("Gagal mengunggah foto");
+      throw err;
+    }
+  };
+
+  return (
+    <div className="mb-6 flex items-center gap-4">
+      <div className="size-24 shrink-0 overflow-hidden rounded-full border bg-muted">
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={mediaUrl(image)} alt={`Foto ${label}`} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <UserRound className="size-8" />
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          {image ? "Foto tampil bulat di kartu mempelai." : "Belum ada foto."}
+        </p>
+        <CropUploadButton
+          label={image ? "Ganti foto" : "Unggah foto"}
+          title={`Atur foto ${label.toLowerCase()}`}
+          round
+          onCropped={upload}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function CouplePage() {
+  const { settings } = useAdminData();
   const { draft, set, dirty, saving, save, reset } = useSettingsDraft(KEYS);
 
   return (
     <>
-      <PageHeader title="Mempelai" description="Nama, orang tua, dan kutipan yang tampil di undangan." />
+      <PageHeader title="Mempelai" description="Foto, nama, orang tua, dan kutipan yang tampil di undangan." />
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Mempelai pria</CardTitle>
           </CardHeader>
           <CardContent>
+            <PortraitSlot who="groom" label="Mempelai pria" image={settings.groom_photo} />
             <FieldGrid fields={GROOM} draft={draft} set={set} />
           </CardContent>
         </Card>
@@ -57,6 +109,7 @@ export default function CouplePage() {
             <CardTitle>Mempelai wanita</CardTitle>
           </CardHeader>
           <CardContent>
+            <PortraitSlot who="bride" label="Mempelai wanita" image={settings.bride_photo} />
             <FieldGrid fields={BRIDE} draft={draft} set={set} />
           </CardContent>
         </Card>

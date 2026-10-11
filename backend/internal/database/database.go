@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"wedding-backend/internal/config"
@@ -53,13 +54,16 @@ func Connect(cfg *config.Config) *gorm.DB {
 		&models.StoryEvent{},
 		&models.GalleryImage{},
 		&models.Wish{},
+		&models.GiftAccount{},
+		&models.GiftConfirmation{},
+		&models.Guest{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 
 	// Supabase serves the public schema over its REST API; RLS with no policies
 	// shuts that path. This API connects as the tables' owner, which bypasses RLS.
-	for _, table := range []string{"settings", "story_events", "gallery_images", "wishes"} {
+	for _, table := range []string{"settings", "story_events", "gallery_images", "wishes", "gift_accounts", "gift_confirmations", "guests"} {
 		if err := db.Exec("ALTER TABLE " + table + " ENABLE ROW LEVEL SECURITY").Error; err != nil {
 			log.Printf("could not enable RLS on %s: %v", table, err)
 		}
@@ -89,6 +93,8 @@ func seedDefaults(db *gorm.DB) {
 	db.Model(&models.Settings{}).
 		Where("couple_image = '' OR couple_image IS NULL").
 		Update("couple_image", "/images/couple.jpg")
+
+	migrateLegacyGiftAccount(db)
 
 	var count int64
 	db.Model(&models.Settings{}).Count(&count)
@@ -150,5 +156,34 @@ func seedDefaults(db *gorm.DB) {
 			Icon:        "church",
 			SortOrder:   4,
 		})
+	}
+}
+
+// migrateLegacyGiftAccount moves the single bank account that used to live on
+// settings into gift_accounts, then blanks it so it isn't re-imported after the
+// admin deletes it.
+func migrateLegacyGiftAccount(db *gorm.DB) {
+	var s models.Settings
+	if db.First(&s).Error != nil || strings.TrimSpace(s.BankAccountNumber) == "" {
+		return
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&models.GiftAccount{
+			Kind:          "bank",
+			Provider:      s.BankName,
+			AccountNumber: s.BankAccountNumber,
+			AccountName:   s.BankAccountName,
+			SortOrder:     1,
+		}).Error; err != nil {
+			return err
+		}
+		return tx.Model(&s).Updates(map[string]interface{}{
+			"bank_name":           "",
+			"bank_account_number": "",
+			"bank_account_name":   "",
+		}).Error
+	})
+	if err != nil {
+		log.Printf("could not move bank account to gift_accounts: %v", err)
 	}
 }

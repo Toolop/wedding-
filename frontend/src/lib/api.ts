@@ -2,6 +2,10 @@ import axios from "axios";
 import { clearToken } from "./auth";
 import type {
   GalleryImage,
+  GiftAccount,
+  GiftConfirmation,
+  Guest,
+  GuestImportResult,
   InvitationData,
   Settings,
   StoryEvent,
@@ -52,11 +56,31 @@ export async function getInvitation(): Promise<InvitationData> {
   return res.data.data;
 }
 
+/**
+ * The invited guest behind a personal link, or null when no guest has that
+ * code. Throws when the check itself failed (offline, rate limited).
+ */
+export async function getGuestByCode(
+  code: string,
+  preview = false
+): Promise<{ name: string; code: string } | null> {
+  try {
+    const res = await api.get(`/guests/${encodeURIComponent(code)}`, {
+      params: preview ? { preview: 1 } : undefined,
+    });
+    return res.data.data;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+    throw err;
+  }
+}
+
 export async function submitWish(payload: {
   name: string;
   attendance: string;
   guest_count: number;
   message: string;
+  guest_code?: string;
 }): Promise<Wish> {
   const res = await api.post("/wishes", payload);
   return res.data.data;
@@ -65,6 +89,24 @@ export async function submitWish(payload: {
 export async function getWishes(page = 1, limit = 10): Promise<WishesResponse> {
   const res = await api.get("/wishes", { params: { page, limit } });
   return res.data.data;
+}
+
+export async function submitGiftConfirmation(payload: {
+  name: string;
+  account_id?: number;
+  amount?: number;
+  message: string;
+  file: File;
+}): Promise<void> {
+  const form = new FormData();
+  form.append("name", payload.name);
+  if (payload.account_id) form.append("account_id", String(payload.account_id));
+  if (payload.amount) form.append("amount", String(payload.amount));
+  form.append("message", payload.message);
+  form.append("file", payload.file);
+  await api.post("/gift-confirmations", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 
 // ---- Admin ----
@@ -85,7 +127,7 @@ export async function adminUpdateSettings(
 export async function adminUpload(
   token: string,
   file: File,
-  target: "hero" | "couple" | "gallery"
+  target: "hero" | "couple" | "groom" | "bride" | "akad_map" | "resepsi_map" | "akad_venue" | "resepsi_venue" | "gallery"
 ): Promise<{ url: string; target: string }> {
   const form = new FormData();
   form.append("file", file);
@@ -165,4 +207,105 @@ export async function adminListAllWishes(token: string): Promise<Wish[]> {
 
 export async function adminDeleteWish(token: string, id: number): Promise<void> {
   await api.delete(`/admin/wishes/${id}`, authHeader(token));
+}
+
+export async function adminListGiftAccounts(token: string): Promise<GiftAccount[]> {
+  const res = await api.get("/admin/gift-accounts", authHeader(token));
+  return res.data.data;
+}
+
+export async function adminCreateGiftAccount(
+  token: string,
+  payload: Partial<GiftAccount>
+): Promise<GiftAccount> {
+  const res = await api.post("/admin/gift-accounts", payload, authHeader(token));
+  return res.data.data;
+}
+
+export async function adminUpdateGiftAccount(
+  token: string,
+  id: number,
+  payload: Partial<GiftAccount>
+): Promise<GiftAccount> {
+  const res = await api.put(`/admin/gift-accounts/${id}`, payload, authHeader(token));
+  return res.data.data;
+}
+
+export async function adminDeleteGiftAccount(token: string, id: number): Promise<void> {
+  await api.delete(`/admin/gift-accounts/${id}`, authHeader(token));
+}
+
+export async function adminListGiftConfirmations(token: string): Promise<GiftConfirmation[]> {
+  const res = await api.get("/admin/gift-confirmations", authHeader(token));
+  return res.data.data;
+}
+
+export async function adminSetGiftVerified(
+  token: string,
+  id: number,
+  verified: boolean
+): Promise<void> {
+  await api.put(`/admin/gift-confirmations/${id}`, { verified }, authHeader(token));
+}
+
+export async function adminDeleteGiftConfirmation(token: string, id: number): Promise<void> {
+  await api.delete(`/admin/gift-confirmations/${id}`, authHeader(token));
+}
+
+export type GuestInput = { name: string; phone: string; category: string };
+
+export async function adminListGuests(
+  token: string
+): Promise<{ items: Guest[]; whatsapp_gateway: boolean }> {
+  const res = await api.get("/admin/guests", authHeader(token));
+  return res.data.data;
+}
+
+export async function adminCreateGuest(token: string, payload: GuestInput): Promise<Guest> {
+  const res = await api.post("/admin/guests", payload, authHeader(token));
+  return res.data.data;
+}
+
+export async function adminImportGuests(token: string, guests: GuestInput[]): Promise<GuestImportResult> {
+  const res = await api.post("/admin/guests/import", { guests }, authHeader(token));
+  return res.data.data;
+}
+
+export async function adminUpdateGuest(
+  token: string,
+  id: number,
+  payload: Partial<GuestInput> & { sent?: boolean }
+): Promise<Omit<Guest, "rsvp">> {
+  const res = await api.put(`/admin/guests/${id}`, payload, authHeader(token));
+  return res.data.data;
+}
+
+export async function adminDeleteGuest(token: string, id: number): Promise<void> {
+  await api.delete(`/admin/guests/${id}`, authHeader(token));
+}
+
+export async function adminDeleteGuests(token: string, ids: number[]): Promise<void> {
+  await api.post("/admin/guests/bulk-delete", { ids }, authHeader(token));
+}
+
+/** new personal link; the old one stops working */
+export async function adminResetGuestLink(token: string, id: number): Promise<Omit<Guest, "rsvp">> {
+  const res = await api.post(`/admin/guests/${id}/reset-link`, null, authHeader(token));
+  return res.data.data;
+}
+
+/** send through the server's WhatsApp gateway (Fonnte) */
+export async function adminSendGuestWhatsapp(
+  token: string,
+  id: number,
+  message: string
+): Promise<Omit<Guest, "rsvp">> {
+  const res = await api.post(`/admin/guests/${id}/send`, { message }, authHeader(token));
+  return res.data.data;
+}
+
+/** the API's error text, e.g. "nomor WhatsApp tidak valid" */
+export function apiErrorMessage(err: unknown, fallback: string): string {
+  const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+  return msg || fallback;
 }

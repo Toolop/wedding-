@@ -52,6 +52,7 @@ Two free accounts, no credit card. Allow about 30 minutes.
    | `ADMIN_USERNAME` | e.g. `admin` |
    | `ADMIN_PASSWORD` | from step 0 |
    | `ALLOWED_ORIGIN` | `https://example.com` for now; it gets fixed in step 4 |
+   | `FONNTE_TOKEN` | optional: a [Fonnte](https://fonnte.com) device token to send WhatsApp invitations automatically |
 4. **Deploy.** Then open `https://<your-api>.vercel.app/healthz`. You should see `{"status":"ok"}`. On this first start the API creates the tables and fills in sample data.
 
 ## 3. Vercel: the website
@@ -87,7 +88,8 @@ This brings over your names, dates, quote, event details and love story from the
 1. Open `https://<your-web>.vercel.app/admin/login` and sign in with your new admin password.
 2. **Foto & Galeri** → upload a photo. Photos are resized in the browser first, because Vercel caps requests at about 4.5 MB.
 3. Open the invitation and check the photo, names and RSVP form.
-4. Personalised guest links work as before: `https://<your-web>.vercel.app/?to=Budi+Santoso`
+4. **Daftar Tamu** → add guests or import them from Excel. Each guest gets a personal link (`/?u=<code>`) that shows their name on the invitation and fills it into the RSVP form. Send it per guest or to everyone from the same page. Without `FONNTE_TOKEN`, each send opens WhatsApp with the message ready; with it, the server sends them one by one.
+   The invitation only opens from these personal links; the plain URL, an unknown code or an old `?to=Name` link shows a locked envelope. The admin's **Lihat undangan** button opens a preview without a code.
 
 ## Custom domain (optional)
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"wedding-backend/internal/config"
 	"wedding-backend/internal/database"
@@ -24,6 +25,15 @@ func main() {
 	db := database.Connect(cfg)
 
 	router := gin.Default()
+
+	// rate limits key on c.ClientIP(), so it must not be spoofable with a
+	// forged X-Forwarded-For. Vercel overwrites X-Real-IP with the real client.
+	if cfg.OnVercel {
+		router.TrustedPlatform = "X-Real-IP"
+	}
+	if err := router.SetTrustedProxies(cfg.TrustedProxies); err != nil {
+		log.Fatalf("invalid TRUSTED_PROXIES: %v", err)
+	}
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.AllowedOrigins,
@@ -48,15 +58,27 @@ func main() {
 	authHandler := handlers.NewAuthHandler(cfg)
 	invitationHandler := handlers.NewInvitationHandler(db)
 	uploadHandler := handlers.NewUploadHandler(db, store)
-	wishHandler := handlers.NewWishHandler(db)
+	// wrong guest codes per IP, across both the link lookup and RSVPs. Generous,
+	// because guests on one mobile carrier often share an IP.
+	guestCodeMisses := middleware.NewLimiter(20, 15*time.Minute)
+
+	wishHandler := handlers.NewWishHandler(db, guestCodeMisses)
+	giftHandler := handlers.NewGiftHandler(db, store)
+	guestHandler := handlers.NewGuestHandler(db, cfg.FonnteToken, guestCodeMisses)
+
+	loginLimit := middleware.RateLimit(middleware.NewLimiter(10, 15*time.Minute))
+	wishLimit := middleware.RateLimit(middleware.NewLimiter(30, time.Minute))
+	giftLimit := middleware.RateLimit(middleware.NewLimiter(10, time.Minute))
 
 	api := router.Group("/api")
 	{
 		api.GET("/invitation", invitationHandler.GetInvitation)
-		api.POST("/wishes", wishHandler.CreateWish)
+		api.POST("/wishes", wishLimit, wishHandler.CreateWish)
 		api.GET("/wishes", wishHandler.ListWishes)
+		api.POST("/gift-confirmations", giftLimit, giftHandler.CreateConfirmation)
+		api.GET("/guests/:code", guestHandler.GetByCode)
 
-		api.POST("/admin/login", authHandler.Login)
+		api.POST("/admin/login", loginLimit, authHandler.Login)
 
 		admin := api.Group("/admin")
 		admin.Use(middleware.JWTAuth(cfg.JWTSecret))
@@ -75,6 +97,24 @@ func main() {
 			admin.POST("/upload", uploadHandler.Upload)
 
 			admin.DELETE("/wishes/:id", wishHandler.DeleteWish)
+
+			admin.GET("/gift-accounts", giftHandler.ListAccounts)
+			admin.POST("/gift-accounts", giftHandler.CreateAccount)
+			admin.PUT("/gift-accounts/:id", giftHandler.UpdateAccount)
+			admin.DELETE("/gift-accounts/:id", giftHandler.DeleteAccount)
+
+			admin.GET("/gift-confirmations", giftHandler.ListConfirmations)
+			admin.PUT("/gift-confirmations/:id", giftHandler.UpdateConfirmation)
+			admin.DELETE("/gift-confirmations/:id", giftHandler.DeleteConfirmation)
+
+			admin.GET("/guests", guestHandler.List)
+			admin.POST("/guests", guestHandler.Create)
+			admin.POST("/guests/import", guestHandler.Import)
+			admin.POST("/guests/bulk-delete", guestHandler.BulkDelete)
+			admin.PUT("/guests/:id", guestHandler.Update)
+			admin.DELETE("/guests/:id", guestHandler.Delete)
+			admin.POST("/guests/:id/reset-link", guestHandler.ResetLink)
+			admin.POST("/guests/:id/send", guestHandler.Send)
 		}
 	}
 

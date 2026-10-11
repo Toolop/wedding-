@@ -19,9 +19,10 @@ func NewInvitationHandler(db *gorm.DB) *InvitationHandler {
 }
 
 type invitationResponse struct {
-	Settings models.Settings      `json:"settings"`
-	Story    []models.StoryEvent  `json:"story"`
+	Settings models.Settings       `json:"settings"`
+	Story    []models.StoryEvent   `json:"story"`
 	Gallery  []models.GalleryImage `json:"gallery"`
+	Gifts    []models.GiftAccount  `json:"gifts"`
 }
 
 func (h *InvitationHandler) GetInvitation(c *gin.Context) {
@@ -37,10 +38,14 @@ func (h *InvitationHandler) GetInvitation(c *gin.Context) {
 	var gallery []models.GalleryImage
 	h.db.Order("sort_order asc").Find(&gallery)
 
+	var gifts []models.GiftAccount
+	h.db.Order("sort_order asc, id asc").Find(&gifts)
+
 	utils.Success(c, 200, invitationResponse{
 		Settings: settings,
 		Story:    story,
 		Gallery:  gallery,
+		Gifts:    gifts,
 	})
 }
 

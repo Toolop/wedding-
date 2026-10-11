@@ -30,7 +30,8 @@ import { useAdminData } from "./admin-data";
 import { NAV } from "./nav";
 
 export function isActivePath(pathname: string, url: string) {
-  return url === "/admin" ? pathname === "/admin" : pathname.startsWith(url);
+  // match whole segments so /admin/gift doesn't light up on /admin/gift-confirmations
+  return url === "/admin" ? pathname === "/admin" : pathname === url || pathname.startsWith(`${url}/`);
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -123,7 +124,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   {couple || "Undangan"}
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                  <a href="/" target="_blank" rel="noopener noreferrer">
+                  <a href="/?preview=1" target="_blank" rel="noopener noreferrer">
                     <ExternalLink />
                     Lihat undangan
                   </a>

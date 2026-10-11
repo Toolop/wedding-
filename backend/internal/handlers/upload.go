@@ -31,7 +31,7 @@ var allowedExt = map[string]bool{
 }
 
 func (h *UploadHandler) Upload(c *gin.Context) {
-	target := c.PostForm("target") // hero | couple | gallery
+	target := c.PostForm("target") // hero | couple | groom | bride | akad_map | resepsi_map | gallery
 	if target == "" {
 		target = "gallery"
 	}
@@ -73,6 +73,18 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 		h.db.Model(&models.Settings{}).Where("1 = 1").Update("hero_image", publicURL)
 	case "couple":
 		h.db.Model(&models.Settings{}).Where("1 = 1").Update("couple_image", publicURL)
+	case "groom":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("groom_photo", publicURL)
+	case "bride":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("bride_photo", publicURL)
+	case "akad_map":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("akad_map_image", publicURL)
+	case "resepsi_map":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("resepsi_map_image", publicURL)
+	case "akad_venue":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("akad_venue_photo", publicURL)
+	case "resepsi_venue":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("resepsi_venue_photo", publicURL)
 	case "gallery":
 		var maxOrder struct{ Max int }
 		h.db.Model(&models.GalleryImage{}).Select("COALESCE(MAX(sort_order), 0) as max").Scan(&maxOrder)

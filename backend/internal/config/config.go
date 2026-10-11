@@ -31,6 +31,15 @@ type Config struct {
 
 	PublicBaseURL  string
 	AllowedOrigins []string
+
+	// Fonnte device token; when set, the admin can send invitations from the
+	// server instead of opening WhatsApp for each guest.
+	FonnteToken string
+
+	// Client IPs are read from these proxies' X-Forwarded-For (e.g. an nginx
+	// in front of docker-compose). On Vercel the platform's own header is used.
+	TrustedProxies []string
+	OnVercel       bool
 }
 
 func Load() *Config {
@@ -52,6 +61,10 @@ func Load() *Config {
 		SupabaseBucket: getEnv("SUPABASE_BUCKET", "uploads"),
 		PublicBaseURL:  getEnv("PUBLIC_BASE_URL", "http://localhost:8080"),
 		AllowedOrigins: splitList(getEnv("ALLOWED_ORIGIN", "http://localhost:3000")),
+		FonnteToken:    getEnv("FONNTE_TOKEN", ""),
+		TrustedProxies: splitList(getEnv("TRUSTED_PROXIES", "")),
+		// set by Vercel at runtime
+		OnVercel: os.Getenv("VERCEL") != "",
 	}
 
 	if cfg.JWTSecret == "" {

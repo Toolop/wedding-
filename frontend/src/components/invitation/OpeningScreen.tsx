@@ -1,26 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { Mail } from "lucide-react";
+import { Lock, Mail, RotateCw } from "lucide-react";
 import type { Settings } from "@/lib/types";
+import { useInvitedGuest } from "./guest";
 import { DoodleField, Emphasis, Heart, Illustration, WashBackdrop } from "./WatercolorArt";
+
+const BLOCKED_TEXT = {
+  missing: {
+    title: "Undangan ini bersifat pribadi",
+    body: "Silakan buka lewat link yang kami kirimkan ke WhatsApp Anda.",
+  },
+  invalid: {
+    title: "Link undangan tidak valid",
+    body: "Link-nya mungkin terpotong atau sudah diganti. Silakan buka lewat link terbaru yang kami kirimkan.",
+  },
+  error: {
+    title: "Belum bisa memeriksa link",
+    body: "Periksa koneksi internet Anda, lalu coba lagi sebentar lagi.",
+  },
+} as const;
 
 export default function OpeningScreen({
   settings,
+  blocked,
   onOpen,
 }: {
   settings: Settings;
+  /** why this visit can't open the invitation, or null when it can */
+  blocked: keyof typeof BLOCKED_TEXT | null;
   onOpen: () => void;
 }) {
-  const [guestName, setGuestName] = useState<string>("");
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const to = params.get("to");
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads from URL query, not available during SSR
-    if (to) setGuestName(decodeURIComponent(to.replace(/\+/g, " ")));
-  }, []);
+  const guestName = useInvitedGuest()?.name;
 
   return (
     <motion.div
@@ -72,7 +83,30 @@ export default function OpeningScreen({
         transition={{ delay: 1, duration: 0.8 }}
         className="mt-6 w-full max-w-xs"
       >
-        {guestName && (
+        {blocked && (
+          <div
+            role="alert"
+            className="wc crayon-box relative mb-6 rounded-[14px] px-6 py-4"
+            style={{ backgroundColor: "#FBEFC9", boxShadow: "4px 4px 0 0 #E6D08F" }}
+          >
+            <p className="flex items-center justify-center gap-1.5 font-heading text-xl leading-tight">
+              <Lock className="h-4 w-4 flex-none" strokeWidth={2.4} />
+              {BLOCKED_TEXT[blocked].title}
+            </p>
+            <p className="mt-1.5 font-script text-lg leading-snug text-[#2B2522]/80">{BLOCKED_TEXT[blocked].body}</p>
+            {blocked === "error" && (
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/80 px-4 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+                Coba lagi
+              </button>
+            )}
+          </div>
+        )}
+
+        {!blocked && guestName && (
           <div
             className="wc crayon-box relative mb-6 rounded-[14px] px-6 py-4"
             style={{ backgroundColor: "#F7D9D2", boxShadow: "4px 4px 0 0 #E9B5AA" }}
@@ -86,11 +120,16 @@ export default function OpeningScreen({
 
         <motion.button
           onClick={onOpen}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="wc crayon-pill group inline-flex items-center gap-2 rounded-full bg-[#3E4A6B] px-8 py-3.5 font-poster text-base text-[#FFF7EC] shadow-[4px_5px_0_0_#27304A]"
+          disabled={!!blocked}
+          whileHover={blocked ? undefined : { scale: 1.05 }}
+          whileTap={blocked ? undefined : { scale: 0.95 }}
+          className="wc crayon-pill group inline-flex items-center gap-2 rounded-full bg-[#3E4A6B] px-8 py-3.5 font-poster text-base text-[#FFF7EC] shadow-[4px_5px_0_0_#27304A] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
-          <Mail className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
+          {blocked ? (
+            <Lock className="h-4 w-4" />
+          ) : (
+            <Mail className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
+          )}
           Buka Undangan
         </motion.button>
       </motion.div>

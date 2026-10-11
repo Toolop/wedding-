@@ -34,6 +34,8 @@ services:
       UPLOAD_DIR: /app/uploads
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
       ALLOWED_ORIGIN: ${ALLOWED_ORIGIN:-http://localhost:3000}
+      FONNTE_TOKEN: ${FONNTE_TOKEN:-}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
     volumes:
       - uploads_data:/app/uploads
     ports:

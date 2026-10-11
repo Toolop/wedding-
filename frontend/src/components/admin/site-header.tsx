@@ -20,7 +20,7 @@ export function SiteHeader() {
         <h1 className="text-base font-medium">{current?.title ?? "Admin"}</h1>
         <div className="ml-auto">
           <Button variant="outline" size="sm" asChild>
-            <a href="/" target="_blank" rel="noopener noreferrer">
+            <a href="/?preview=1" target="_blank" rel="noopener noreferrer">
               <ExternalLink />
               <span className="hidden sm:inline">Lihat undangan</span>
             </a>

@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { adminListGallery, adminListStory, adminListWishes } from "@/lib/api";
+import { adminListGallery, adminListGiftAccounts, adminListStory, adminListWishes } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import type { Settings, WishesResponse } from "@/lib/types";
 
-type Counts = { story: number; gallery: number };
+type Counts = { story: number; gallery: number; gifts: number };
 
 function daysUntil(iso: string) {
   const target = new Date(iso);
@@ -39,13 +39,14 @@ function checklist(s: Settings, counts: Counts | null) {
   return [
     { label: "Nama mempelai", done: filled("groom_name", "bride_name", "groom_full_name", "bride_full_name"), href: "/admin/couple" },
     { label: "Orang tua mempelai", done: filled("groom_parents", "bride_parents"), href: "/admin/couple" },
+    { label: "Foto mempelai", done: filled("groom_photo", "bride_photo"), href: "/admin/couple" },
     { label: "Detail akad", done: filled("akad_date", "akad_time", "akad_location", "akad_address"), href: "/admin/event" },
     { label: "Detail resepsi", done: filled("resepsi_date", "resepsi_time", "resepsi_location", "resepsi_address"), href: "/admin/event" },
     { label: "Link Google Maps", done: filled("akad_maps_url", "resepsi_maps_url"), href: "/admin/event" },
     { label: "Foto sampul & pasangan", done: filled("hero_image", "couple_image"), href: "/admin/photos" },
     { label: "Foto galeri", done: counts ? counts.gallery > 0 : null, href: "/admin/photos" },
     { label: "Kisah cinta", done: counts ? counts.story > 0 : null, href: "/admin/story" },
-    { label: "Rekening hadiah", done: filled("bank_name", "bank_account_number", "bank_account_name"), href: "/admin/gift" },
+    { label: "Rekening hadiah", done: counts ? counts.gifts > 0 : null, href: "/admin/gift" },
   ];
 }
 
@@ -57,10 +58,15 @@ export default function OverviewPage() {
   useEffect(() => {
     const token = getToken();
     if (!token) return;
-    Promise.all([adminListWishes(token, 1, 6), adminListStory(token), adminListGallery(token)])
-      .then(([w, story, gallery]) => {
+    Promise.all([
+      adminListWishes(token, 1, 6),
+      adminListStory(token),
+      adminListGallery(token),
+      adminListGiftAccounts(token),
+    ])
+      .then(([w, story, gallery, gifts]) => {
         setWishes(w);
-        setCounts({ story: story.length, gallery: gallery.length });
+        setCounts({ story: story.length, gallery: gallery.length, gifts: gifts.length });
       })
       .catch(() => toast.error("Gagal memuat ringkasan"));
   }, []);

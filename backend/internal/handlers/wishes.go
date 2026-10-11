@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
+	"wedding-backend/internal/middleware"
 	"wedding-backend/internal/models"
 	"wedding-backend/internal/utils"
 
@@ -11,11 +14,14 @@ import (
 )
 
 type WishHandler struct {
-	db *gorm.DB
+	db     *gorm.DB
+	misses *middleware.Limiter
 }
 
-func NewWishHandler(db *gorm.DB) *WishHandler {
-	return &WishHandler{db: db}
+// misses is the guest handler's wrong-code counter, so an RSVP can't be used
+// to guess guest codes either.
+func NewWishHandler(db *gorm.DB, misses *middleware.Limiter) *WishHandler {
+	return &WishHandler{db: db, misses: misses}
 }
 
 type createWishRequest struct {
@@ -23,6 +29,8 @@ type createWishRequest struct {
 	Attendance models.AttendanceStatus `json:"attendance" binding:"required"`
 	GuestCount int                     `json:"guest_count"`
 	Message    string                  `json:"message"`
+	// personal-link code, so the RSVP shows up against the guest in the admin list
+	GuestCode string `json:"guest_code"`
 }
 
 func (h *WishHandler) ListWishes(c *gin.Context) {
@@ -74,6 +82,16 @@ func (h *WishHandler) CreateWish(c *gin.Context) {
 		return
 	}
 
+	req.Name = strings.Join(strings.Fields(req.Name), " ")
+	if n := utf8.RuneCountInString(req.Name); n < 2 || n > 100 || utf8.RuneCountInString(req.Message) > 500 {
+		utils.Error(c, 400, "name must be 2-100 characters and message at most 500")
+		return
+	}
+	if req.GuestCount < 0 || req.GuestCount > 10 {
+		utils.Error(c, 400, "invalid guest count")
+		return
+	}
+
 	if req.Attendance != models.AttendanceHadir &&
 		req.Attendance != models.AttendanceTidakHadir &&
 		req.Attendance != models.AttendanceRagu {
@@ -86,6 +104,14 @@ func (h *WishHandler) CreateWish(c *gin.Context) {
 		Attendance: req.Attendance,
 		GuestCount: req.GuestCount,
 		Message:    req.Message,
+	}
+	if req.GuestCode != "" {
+		// a wrong code still saves the RSVP, just not against any guest
+		if guest, ok := lookupByCode(h.db, h.misses, c.ClientIP(), req.GuestCode); ok {
+			wish.GuestID = &guest.ID
+			// the name on the guest list, not whatever the request claims
+			wish.Name = guest.Name
+		}
 	}
 	if err := h.db.Create(&wish).Error; err != nil {
 		utils.Error(c, 500, "failed to submit rsvp")

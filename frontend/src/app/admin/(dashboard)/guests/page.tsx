@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Download, MessageSquareHeart, Search, Trash2 } from "lucide-react";
+import { BadgeCheck, ChevronLeft, ChevronRight, Download, MessageSquareHeart, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ATTENDANCE, AttendanceBadge, formatDateTime } from "@/components/admin/attendance";
@@ -188,11 +188,25 @@ export default function GuestsPage() {
               ) : (
                 rows.map((w) => (
                   <TableRow key={w.id}>
-                    <TableCell className="pl-4 font-medium">{w.name}</TableCell>
+                    <TableCell className="pl-4 font-medium">
+                      <span className="inline-flex items-center gap-1.5">
+                        {w.name}
+                        {w.guest_id && (
+                          <BadgeCheck
+                            className="size-4 text-sky-600"
+                            aria-label="Dikirim lewat link pribadi tamu"
+                          >
+                            <title>Dikirim lewat link pribadi tamu</title>
+                          </BadgeCheck>
+                        )}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <AttendanceBadge value={w.attendance} />
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{w.guest_count}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {w.attendance === "hadir" ? w.guest_count : "—"}
+                    </TableCell>
                     <TableCell className="max-w-md whitespace-normal text-muted-foreground">
                       <p className="line-clamp-2">{w.message || "—"}</p>
                     </TableCell>

@@ -7,6 +7,8 @@ import {
   LayoutDashboard,
   MessageSquareHeart,
   Palette,
+  ReceiptText,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,7 +31,11 @@ export const NAV: { label: string; items: NavItem[] }[] = [
   },
   {
     label: "Tamu",
-    items: [{ title: "RSVP & Ucapan", url: "/admin/guests", icon: MessageSquareHeart }],
+    items: [
+      { title: "Daftar Tamu", url: "/admin/guest-list", icon: Users },
+      { title: "RSVP & Ucapan", url: "/admin/guests", icon: MessageSquareHeart },
+      { title: "Konfirmasi Hadiah", url: "/admin/gift-confirmations", icon: ReceiptText },
+    ],
   },
   {
     label: "Pengaturan",

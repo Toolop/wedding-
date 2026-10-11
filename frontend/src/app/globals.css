@@ -245,3 +245,54 @@ body::before {
     background-size: 300px 300px;
   }
 }
+
+/* ---- cute cursors, invitation only (InvitationClient puts .cute-cursor on <html>) ---- */
+/* in the base layer so utilities like cursor-grab still win */
+@layer base {
+  .cute-cursor,
+  .cute-cursor * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M4.5 3.2 C4 2.8 3.4 3.2 3.5 3.8 L5.6 24.6 C5.7 25.3 6.5 25.5 6.9 25 L11.2 19.9 L15.3 27.6 C15.6 28.1 16.2 28.3 16.7 28 L19.3 26.6 C19.8 26.3 20 25.7 19.7 25.2 L15.6 17.6 L22.4 17.2 C23.1 17.2 23.4 16.4 22.9 15.9 Z%22 fill=%22%23FFFDF8%22 stroke=%22%232B2522%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M7.2 7.5 L8.4 18.3%22 stroke=%22%23E9A195%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 opacity=%22.8%22/%3E%3Cpath d=%22M26.5 25.6 C24.2 24 23 22.6 23.3 21.2 C23.6 19.9 25.4 19.6 26.5 21 C27.6 19.6 29.4 19.9 29.7 21.2 C30 22.6 28.8 24 26.5 25.6 Z%22 fill=%22%23E9A195%22 stroke=%22%232B2522%22 stroke-width=%221.3%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 4 3, auto;
+  }
+  /* everything clickable gets the little pointing hand */
+  .cute-cursor :is(a[href], button, [role="button"], summary, select, label[for], input[type="file"], input[type="checkbox"], input[type="radio"]),
+  .cute-cursor :is(a[href], button, [role="button"]) * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M9.3 4.2 C9.3 2.7 10.4 1.8 11.7 1.8 C13 1.8 14.1 2.7 14.1 4.2 L14.1 12.4 C14.6 11.6 15.4 11.2 16.3 11.3 C17.4 11.4 18.2 12.1 18.4 13.1 C18.9 12.4 19.8 12 20.7 12.2 C21.8 12.4 22.5 13.2 22.6 14.2 C23.1 13.7 23.9 13.5 24.7 13.7 C25.8 14 26.4 14.9 26.4 16 L26.4 21.6 C26.4 26.3 23 29.9 18.4 29.9 L16.4 29.9 C13.6 29.9 11.6 28.7 10 26.5 L5.6 20.4 C4.9 19.4 5.1 18.1 6.1 17.4 C7.1 16.7 8.4 16.9 9.1 17.9 L9.3 18.2 Z%22 fill=%22%23FFFDF8%22 stroke=%22%232B2522%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M14.1 12.4 L14.1 17 M18.4 13.1 L18.4 17.2 M22.6 14.2 L22.6 17.6%22 stroke=%22%232B2522%22 stroke-width=%221.5%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M18 26 C15.9 24.6 14.9 23.4 15.2 22.2 C15.4 21.1 17 20.8 18 22 C19 20.8 20.6 21.1 20.8 22.2 C21.1 23.4 20.1 24.6 18 26 Z%22 fill=%22%23E9A195%22/%3E%3Cpath d=%22M11.9 4.4 L11.9 9%22 stroke=%22%23F6EAD6%22 stroke-width=%221.6%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 11 2, pointer;
+  }
+  .cute-cursor :is(input:not([type="checkbox"], [type="radio"], [type="file"]), textarea) {
+    cursor: text;
+  }
+  .cute-cursor button:disabled,
+  .cute-cursor button:disabled * {
+    cursor: not-allowed;
+  }
+}
+
+/* little hearts that pop out wherever a guest clicks */
+.click-heart {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 41 C11 32 4 24 5.5 15 C7 7 17 4.5 24 13 C31 4.5 41 7 42.5 15 C44 24 37 32 24 41 Z' fill='%23E9A195' stroke='%232B2522' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: clickHeart 700ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes clickHeart {
+  0% {
+    transform: translate(0, 0) scale(0.3) rotate(0deg);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .click-heart {
+    display: none;
+  }
+}
