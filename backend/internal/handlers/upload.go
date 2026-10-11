@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"log"
+	"mime"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"wedding-backend/internal/config"
 	"wedding-backend/internal/models"
+	"wedding-backend/internal/storage"
 	"wedding-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -16,12 +18,12 @@ import (
 )
 
 type UploadHandler struct {
-	db  *gorm.DB
-	cfg *config.Config
+	db    *gorm.DB
+	store storage.Store
 }
 
-func NewUploadHandler(db *gorm.DB, cfg *config.Config) *UploadHandler {
-	return &UploadHandler{db: db, cfg: cfg}
+func NewUploadHandler(db *gorm.DB, store storage.Store) *UploadHandler {
+	return &UploadHandler{db: db, store: store}
 }
 
 var allowedExt = map[string]bool{
@@ -51,14 +53,20 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 	}
 
 	filename := fmt.Sprintf("%s_%d%s", uuid.NewString(), time.Now().Unix(), ext)
-	destPath := filepath.Join(h.cfg.UploadDir, filename)
 
-	if err := c.SaveUploadedFile(file, destPath); err != nil {
+	src, err := file.Open()
+	if err != nil {
+		utils.Error(c, 400, "failed to read file")
+		return
+	}
+	defer src.Close()
+
+	publicURL, err := h.store.Save(c.Request.Context(), filename, mime.TypeByExtension(ext), src)
+	if err != nil {
+		log.Printf("upload failed: %v", err)
 		utils.Error(c, 500, "failed to save file")
 		return
 	}
-
-	publicURL := fmt.Sprintf("/uploads/%s", filename)
 
 	switch target {
 	case "hero":

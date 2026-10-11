@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/admin-theme.css";
 
 @theme {
   --color-primary: #2e3237;
@@ -20,14 +21,8 @@ html {
 }
 
 body {
-  background: radial-gradient(
-    ellipse 120% 80% at 50% 0%,
-    color-mix(in srgb, var(--color-surface) 92%, white 8%) 0%,
-    var(--color-surface) 45%,
-    color-mix(in srgb, var(--color-surface) 90%, black 10%) 100%
-  );
-  background-attachment: fixed;
-  color: var(--color-primary);
+  background: #faf5ec;
+  color: #2b2522;
   font-family: var(--font-body);
 }
 
@@ -47,19 +42,22 @@ body::before {
 }
 
 .font-eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  letter-spacing: 0.2em;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.18em;
 }
 
 .font-code {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
 }
 
 /* heavy poster sans for the Florence-style hero headline & banner buttons */
 .font-poster {
-  font-family: "Poppins", var(--font-body), sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  word-spacing: 0.12em;
 }
 
 /* ---- elegant wedding typography ---- */
@@ -107,8 +105,8 @@ body::before {
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: white;
+  background: #f7d9d2;
+  color: #2b2522;
 }
 
 /* scrollbar */
@@ -116,10 +114,10 @@ body::before {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-secondary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
+  background: #e9b5aa;
   border-radius: 999px;
 }
 
@@ -174,9 +172,10 @@ body::before {
     opacity: 0;
   }
 }
+/* falling confetti hearts */
 .petal {
   top: 0;
-  border-radius: 0% 70% 0% 70%;
+  clip-path: polygon(50% 100%, 10% 60%, 0% 34%, 6% 12%, 22% 2%, 38% 6%, 50% 20%, 62% 6%, 78% 2%, 94% 12%, 100% 34%, 90% 60%);
   animation: petalFall linear infinite;
 }
 
@@ -200,4 +199,49 @@ body::before {
 }
 .animate-pulse-breath {
   animation: pulseBreath 4s ease-in-out infinite;
+}
+
+/* ---- watercolour comic invitation ---- */
+/* layered so Tailwind utilities still override these */
+@layer components {
+  /* dashed crayon outline, drawn as a border image so any box can wear it */
+  .crayon-box {
+    border: 2px solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='84' viewBox='0 0 96 84'%3E%3Cfilter id='c' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='2' seed='7' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.6' xChannelSelector='R' yChannelSelector='G' result='d'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' seed='2' result='g'/%3E%3CfeColorMatrix in='g' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 1.9' result='a'/%3E%3CfeComposite in='d' in2='a' operator='in'/%3E%3C/filter%3E%3Cg fill='none' stroke='%232B2522' stroke-width='4.2' stroke-linecap='round' filter='url(%23c)'%3E%3Cpath d='M3 24 C3 11 11 3 24 3 H30'/%3E%3Cpath d='M66 3 H72 C85 3 93 11 93 24'/%3E%3Cpath d='M93 60 C93 73 85 81 72 81 H64'/%3E%3Cpath d='M32 81 H24 C11 81 3 73 3 60'/%3E%3Cpath d='M36 3 H62'/%3E%3Cpath d='M38 81 H58'/%3E%3Cpath d='M3 29 V55'/%3E%3Cpath d='M93 27 V53'/%3E%3C/g%3E%3C/svg%3E") 24 / 14px / 1px round;
+  }
+
+  /* same crayon line with fully round ends, for buttons */
+  .crayon-pill {
+    border: 2px solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48' viewBox='0 0 96 48'%3E%3Cfilter id='c' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='2' seed='7' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.6' xChannelSelector='R' yChannelSelector='G' result='d'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' seed='2' result='g'/%3E%3CfeColorMatrix in='g' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 1.9' result='a'/%3E%3CfeComposite in='d' in2='a' operator='in'/%3E%3C/filter%3E%3Cg fill='none' stroke='%232B2522' stroke-width='4.2' stroke-linecap='round' filter='url(%23c)'%3E%3Cpath d='M30 3 H24 C12 3 3 12 3 24'/%3E%3Cpath d='M3 24 C3 36 12 45 24 45 H30'/%3E%3Cpath d='M66 3 H72 C84 3 93 12 93 24'/%3E%3Cpath d='M93 24 C93 36 84 45 72 45 H66'/%3E%3Cpath d='M36 3 H62'/%3E%3Cpath d='M38 45 H58'/%3E%3C/g%3E%3C/svg%3E") 24 / 16px / 1px round;
+  }
+
+  /* single dashed crayon rule under / over a bar */
+  .crayon-rule-b,
+  .crayon-rule-t {
+    position: relative;
+  }
+  .crayon-rule-b::after,
+  .crayon-rule-t::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 5px;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='8' viewBox='0 0 48 8'%3E%3Cfilter id='c' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='2' seed='7' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.6' xChannelSelector='R' yChannelSelector='G' result='d'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' seed='2' result='g'/%3E%3CfeColorMatrix in='g' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 1.9' result='a'/%3E%3CfeComposite in='d' in2='a' operator='in'/%3E%3C/filter%3E%3Cg fill='none' stroke='%232B2522' stroke-width='3.6' stroke-linecap='round' filter='url(%23c)'%3E%3Cpath d='M3 4 H40'/%3E%3C/g%3E%3C/svg%3E") repeat-x 0 50% / 34px 6px;
+  }
+  .crayon-rule-b::after {
+    bottom: -3px;
+  }
+  .crayon-rule-t::before {
+    top: -3px;
+  }
+
+  /* blotchy watercolour grain multiplied into whatever colour fills the box */
+  .wc {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='4' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='0.16'/%3E%3C/svg%3E");
+    background-blend-mode: multiply;
+    background-size: 300px 300px;
+  }
 }

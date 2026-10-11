@@ -14,16 +14,21 @@ A full-stack animated wedding invitation website with an admin dashboard.
 - Background music toggle
 - Fully theme-able colors and fonts, driven by admin settings
 
-**Admin dashboard** (`/admin`)
+**Admin dashboard** (`/admin`, built with shadcn/ui sidebar dashboard)
 - Secure login (JWT)
-- Edit couple names, parents, quote, wedding date, Akad/Resepsi details, bank info
-- Change theme colors (primary/secondary/accent/background) and fonts live
-- Upload/replace hero photo and couple photo
-- Manage gallery photos (upload, delete)
-- Manage love story timeline entries (add/edit/delete)
-- View RSVP responses & guestbook messages with attendance summary, delete entries
+- Overview: countdown, RSVP totals with guest headcount, completeness checklist, latest RSVPs
+- Mempelai / Acara / Hadiah / Tampilan pages: edit couple info, quote, wedding date, Akad/Resepsi, bank info, theme colors, fonts and music (only changed fields are saved)
+- Foto & Galeri: replace hero/couple photo; upload, caption, reorder and delete gallery photos
+- Kisah Cinta: add/edit/reorder/delete love story moments
+- RSVP & Ucapan: search, filter by attendance, export CSV, delete entries
 
-## Quick start
+shadcn's theme lives in `frontend/src/styles/admin-theme.css` and only applies while an admin page is open, so it never restyles the invitation. Add more components with `npx shadcn@latest add <name>` from `frontend/`.
+
+## Deploying
+
+Free hosting on Vercel + Supabase: see **[DEPLOY.md](DEPLOY.md)**.
+
+## Quick start (local, Docker)
 
 ```bash
 cp .env.example .env
@@ -56,10 +61,11 @@ frontend/            Next.js app
     app/
       page.tsx                 public invitation page
       admin/login/page.tsx      admin login
-      admin/(dashboard)/page.tsx admin dashboard (tabbed)
+      admin/(dashboard)/         admin dashboard pages (overview, couple, event, story, photos, gift, guests, appearance)
     components/
       invitation/               all public-facing animated sections
-      admin/                     admin dashboard panels
+      admin/                     admin sidebar, header, settings-form helpers
+      ui/                        shadcn/ui components
     lib/               typed API client, auth token helpers, types
   Dockerfile
 

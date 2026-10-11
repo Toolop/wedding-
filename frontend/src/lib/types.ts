@@ -88,6 +88,8 @@ export interface WishesResponse {
     hadir: number;
     tidak_hadir: number;
     masih_ragu: number;
+    /** sum of guest_count over "hadir" RSVPs */
+    guests: number;
   };
 }
 

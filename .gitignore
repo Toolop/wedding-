@@ -1,0 +1,6 @@
+# secrets: real values live in .env locally and in the Vercel dashboard
+.env
+.env.*
+!.env.example
+
+.vercel

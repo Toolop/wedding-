@@ -6,22 +6,21 @@ import { createPortal } from "react-dom";
 import { ArrowRight, ExternalLink, X } from "lucide-react";
 import type { InvitationData, Settings } from "@/lib/types";
 import { usePortalRoot } from "../ThemeProvider";
-import { CHROME, INK, PAPER, TONES, type ToneKey } from "./floTone";
+import { CHROME, PAPER, TONES, type ToneKey } from "./watercolor";
 import {
-  BookArt,
-  BrushBackdrop,
-  CalendarArt,
-  CameraArt,
-  ClockIcon,
-  FloDefs,
-  GiftArt,
-  HeartArt,
-  PeopleArt,
-  PhoneIcon,
-  PinIcon,
-  RingsArt,
-  SofaArt,
-} from "./HeroDoodles";
+  CalendarPage,
+  Camera,
+  ClockFace,
+  Envelope,
+  GiftBox,
+  HeartBurst,
+  Illustration,
+  MapPin,
+  OpenBook,
+  Phone,
+  Rings,
+  WashBackdrop,
+} from "./WatercolorArt";
 import {
   CeremonyPanel,
   ContactPanel,
@@ -123,7 +122,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "Tandai harinya",
       tilt: -2.2,
       onBoard: true,
-      art: <CalendarArt day={face.day} month={face.month} className="h-20 w-auto" />,
+      art: <CalendarPage day={face.day} month={face.month} className="h-20 w-auto" />,
       detail: <DatePanel settings={settings} />,
       actions: [
         ...(gcal ? [{ label: "Simpan ke Google Calendar", href: gcal }] : []),
@@ -137,7 +136,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "Key details",
       tilt: 1.6,
       onBoard: true,
-      art: <HeartArt className="h-16 w-auto" />,
+      art: <HeartBurst className="h-16 w-auto" />,
       detail: <CeremonyPanel settings={settings} />,
       actions: [
         ...(maps ? [{ label: "Buka peta lokasi", href: maps }] : []),
@@ -151,7 +150,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "Curated gifts",
       tilt: -1.4,
       onBoard: true,
-      art: <GiftArt className="h-16 w-auto" />,
+      art: <GiftBox className="h-16 w-auto" />,
       detail: <RegistryPanel settings={settings} />,
       actions: [{ label: "Kembali ke RSVP", card: "rsvp" }],
     },
@@ -162,7 +161,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "View photo gallery",
       tilt: 2.4,
       onBoard: true,
-      art: <CameraArt className="h-16 w-auto" />,
+      art: <Camera className="h-16 w-auto" />,
       detail: <GalleryPanel gallery={gallery} />,
       actions: [{ label: "Kisah kami", card: "story" }],
     },
@@ -173,7 +172,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "Track our progress",
       tilt: -2.8,
       onBoard: true,
-      art: <BookArt className="h-16 w-auto" />,
+      art: <OpenBook className="h-16 w-auto" />,
       detail: <StoryPanel story={story} />,
       actions: [{ label: "Lihat galeri", card: "gallery" }],
     },
@@ -184,7 +183,7 @@ function buildCards(data: InvitationData): CardDef[] {
       subtitle: "Manage invitations",
       tilt: 1.8,
       onBoard: true,
-      art: <PeopleArt className="h-16 w-auto" />,
+      art: <Envelope className="h-16 w-auto" />,
       detail: <GuestPanel />,
       actions: [{ label: "Info hadiah", card: "registry" }],
     },
@@ -194,7 +193,7 @@ function buildCards(data: InvitationData): CardDef[] {
       title: "The Couple",
       subtitle: "Mempelai",
       tilt: 0,
-      art: <RingsArt className="h-14 w-auto" />,
+      art: <Rings className="h-14 w-auto" />,
       detail: <CouplePanel settings={settings} />,
       actions: [{ label: "Kisah kami", card: "story" }],
     },
@@ -204,7 +203,7 @@ function buildCards(data: InvitationData): CardDef[] {
       title: "Contact",
       subtitle: "Sapa kami",
       tilt: 0,
-      art: <PhoneIcon className="h-12 w-auto" />,
+      art: <Phone className="h-12 w-auto" />,
       detail: <ContactPanel settings={settings} />,
       actions: [{ label: "Konfirmasi kehadiran", card: "rsvp" }],
     },
@@ -236,10 +235,9 @@ function StickerCard({
       }}
       whileHover={{ y: -6, rotate: 0, scale: 1.035 }}
       whileTap={{ scale: 0.96, rotate: 0 }}
-      className="group relative flex h-full min-h-0 flex-col items-center justify-start gap-1 rounded-[14px] border-[2.5px] px-3 py-2.5 text-center"
+      className="group relative flex h-full min-h-0 flex-col items-center justify-start gap-1 rounded-[14px] crayon-box wc px-3 py-2.5 text-center"
       style={{
-        background: tone.bg,
-        borderColor: tone.edge,
+        backgroundColor: tone.bg,
         color: tone.ink,
         boxShadow: `4px 5px 0 0 ${tone.edge}`,
       }}
@@ -282,8 +280,8 @@ function BannerButton({
       transition={{ delay, type: "spring", stiffness: 180, damping: 18 }}
       whileHover={{ x: 6 }}
       whileTap={{ scale: 0.97 }}
-      className="flex w-full items-center justify-between gap-3 rounded-[12px] border-[2.5px] px-4 py-2.5 text-left"
-      style={{ background: t.bg, borderColor: t.edge, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
+      className="flex w-full items-center justify-between gap-3 rounded-[12px] crayon-box wc px-4 py-2.5 text-left"
+      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
     >
       <span>
         <span className="font-poster block text-base leading-tight sm:text-lg">{label}</span>
@@ -320,7 +318,7 @@ function PopupWindow({
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="absolute inset-0 bg-[#1F2933]/45 backdrop-blur-[3px]"
+        className="absolute inset-0 bg-[#3E4A6B]/35 backdrop-blur-[3px]"
         onClick={onClose}
       />
 
@@ -332,26 +330,26 @@ function PopupWindow({
         animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 24 }}
         transition={{ type: "spring", stiffness: 240, damping: 22 }}
-        className="relative flex max-h-[88dvh] w-full max-w-lg flex-col overflow-hidden rounded-[16px] border-[3px]"
-        style={{ borderColor: INK, background: PAPER, boxShadow: "10px 12px 0 0 rgba(31,41,51,0.35)" }}
+        className="wc relative flex max-h-[88dvh] w-full max-w-lg flex-col overflow-hidden rounded-[16px] crayon-box"
+        style={{ backgroundColor: PAPER, boxShadow: "10px 12px 0 0 rgba(62,74,107,0.35)" }}
       >
         {/* browser chrome */}
         <div
-          className="flex flex-none items-center gap-2 border-b-[3px] px-3 py-2"
-          style={{ borderColor: INK, background: CHROME }}
+          className="flex flex-none items-center gap-2 crayon-rule-b px-3 py-2"
+          style={{ backgroundColor: CHROME }}
         >
           <span className="flex gap-1.5">
-            {["#E2685C", "#EFC050", "#7FBE8F"].map((c) => (
-              <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#1F2933]/60" style={{ background: c }} />
+            {["#E9A195", "#F2C66D", "#8CC3BA"].map((c) => (
+              <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#2B2522]/40" style={{ backgroundColor: c }} />
             ))}
           </span>
-          <span className="ml-1 flex-1 truncate rounded-full border border-[#1F2933]/30 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#1F2933]/70">
+          <span className="ml-1 flex-1 truncate rounded-full border border-dashed border-[#2B2522]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2B2522]/70">
             ours.co/{card.key}
           </span>
           <button
             onClick={onClose}
             aria-label="Tutup"
-            className="rounded-full p-1 text-[#1F2933] transition-transform hover:rotate-90"
+            className="rounded-full p-1 text-[#2B2522] transition-transform hover:rotate-90"
           >
             <X className="h-4 w-4" />
           </button>
@@ -360,7 +358,7 @@ function PopupWindow({
         {/* header strip in the card's own colour */}
         <div
           className="flex flex-none items-center justify-between gap-4 px-5 py-3"
-          style={{ background: tone.bg, color: tone.ink }}
+          style={{ backgroundColor: tone.bg, color: tone.ink }}
         >
           <div>
             <h3 className="font-heading text-2xl leading-none sm:text-3xl">{card.title}</h3>
@@ -381,7 +379,7 @@ function PopupWindow({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.16, duration: 0.35 }}
-          className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-[#26303A]"
+          className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-[#2B2522]"
         >
           {card.detail}
         </motion.div>
@@ -389,8 +387,8 @@ function PopupWindow({
         {/* actions */}
         {card.actions.length > 0 && (
           <div
-            className="flex flex-none flex-wrap gap-2 border-t-[3px] px-4 py-3"
-            style={{ borderColor: INK, background: CHROME }}
+            className="flex flex-none flex-wrap gap-2 crayon-rule-t px-4 py-3"
+            style={{ backgroundColor: CHROME }}
           >
             {card.actions.map((action) =>
               action.href ? (
@@ -399,7 +397,7 @@ function PopupWindow({
                   href={action.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#1F2933] bg-white/70 px-4 py-2 font-code text-xs text-[#1F2933] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/70 px-4 py-2 font-code text-xs text-[#2B2522] transition-transform hover:-translate-y-0.5"
                 >
                   {action.label} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
@@ -407,7 +405,7 @@ function PopupWindow({
                 <button
                   key={action.label}
                   onClick={() => action.card && onNavigate(action.card)}
-                  className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#1F2933] bg-[#1F2933] px-4 py-2 font-code text-xs text-[#FFF8E1] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-[#3E4A6B] px-4 py-2 font-code text-xs text-[#FFF7EC] transition-transform hover:-translate-y-0.5"
                 >
                   {action.label} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
@@ -443,31 +441,29 @@ export default function Hero({ data }: { data: InvitationData }) {
     <section
       className="relative isolate flex h-[100dvh] w-full items-center justify-center overflow-hidden px-3 py-3 sm:px-6 sm:py-5"
       style={{
-        background:
-          "radial-gradient(120% 90% at 50% 0%, #FFFBEA 0%, #FDF0B4 45%, #F8DE86 100%)",
+        backgroundColor: "#FAF5EC",
       }}
     >
-      <FloDefs />
-      <BrushBackdrop />
+      <WashBackdrop />
 
       {/* the whole invitation lives inside this one browser window */}
       <motion.div
         initial={{ opacity: 0, y: 34, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative z-10 flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-[18px] border-[3px] bg-[#FFFBEC]/85 backdrop-blur-[2px]"
-        style={{ borderColor: INK, boxShadow: "10px 12px 0 0 rgba(31,41,51,0.28)" }}
+        className="wc relative z-10 flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-[18px] crayon-box bg-[#FFFDF8]/90 backdrop-blur-[2px]"
+        style={{ boxShadow: "10px 12px 0 0 rgba(62,74,107,0.28)" }}
       >
         <div
-          className="flex flex-none items-center gap-2 border-b-[3px] px-3 py-2"
-          style={{ borderColor: INK, background: CHROME }}
+          className="flex flex-none items-center gap-2 crayon-rule-b px-3 py-2"
+          style={{ backgroundColor: CHROME }}
         >
           <span className="flex gap-1.5">
-            {["#E2685C", "#EFC050", "#7FBE8F"].map((c) => (
-              <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#1F2933]/60" style={{ background: c }} />
+            {["#E9A195", "#F2C66D", "#8CC3BA"].map((c) => (
+              <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#2B2522]/40" style={{ backgroundColor: c }} />
             ))}
           </span>
-          <span className="ml-1 flex-1 truncate rounded-full border border-[#1F2933]/30 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#1F2933]/70">
+          <span className="ml-1 flex-1 truncate rounded-full border border-dashed border-[#2B2522]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2B2522]/70">
             ours.co — your wedding portal
           </span>
         </div>
@@ -475,7 +471,7 @@ export default function Hero({ data }: { data: InvitationData }) {
         <div className="grid min-h-0 flex-1 gap-4 px-4 py-4 sm:px-8 sm:py-6 lg:grid-cols-12 lg:gap-8">
           {/* ---- poster column ---- */}
           <div className="flex min-h-0 flex-col lg:col-span-5">
-            <h1 className="font-poster flex items-center whitespace-nowrap text-4xl leading-[0.95] text-[#1F2933] sm:text-5xl lg:text-[clamp(2.75rem,4.1vw,3.75rem)]">
+            <h1 className="font-poster flex items-center whitespace-nowrap text-4xl leading-[0.95] text-[#2B2522] sm:text-5xl lg:text-[clamp(2.75rem,4.1vw,3.75rem)]">
               {title.split("").map((ch, i) => (
                 <motion.span
                   key={`${ch}-${i}`}
@@ -490,7 +486,7 @@ export default function Hero({ data }: { data: InvitationData }) {
               <motion.span
                 animate={{ opacity: [1, 0.1, 1] }}
                 transition={{ duration: 1.1, repeat: Infinity }}
-                className="ml-2 inline-block h-9 w-[3px] bg-[#1F2933] sm:h-12 lg:h-14"
+                className="ml-2 inline-block h-9 w-[3px] bg-[#2B2522] sm:h-12 lg:h-14"
               />
             </h1>
 
@@ -498,7 +494,7 @@ export default function Hero({ data }: { data: InvitationData }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-1 font-script text-xl text-[#1F2933]/75 sm:text-2xl lg:text-3xl"
+              className="mt-1 font-script text-xl text-[#2B2522]/75 sm:text-2xl lg:text-3xl"
             >
               connect. coordinate. cherish.
             </motion.p>
@@ -510,10 +506,10 @@ export default function Hero({ data }: { data: InvitationData }) {
               transition={{ delay: 0.7, duration: 0.6 }}
               onClick={() => setOpenKey("couple")}
               whileHover={{ x: 4 }}
-              className="mt-2 flex w-fit items-center gap-2 font-heading text-xl text-[#C8145F] sm:text-2xl"
+              className="mt-2 flex w-fit items-center gap-2 font-heading text-xl text-[#D2574A] sm:text-2xl"
             >
               {settings.groom_name || "Groom"} &amp; {settings.bride_name || "Bride"}
-              <RingsArt className="h-5 w-auto" />
+              <Rings className="h-5 w-auto" />
             </motion.button>
 
             {/* live countdown, in the sticker language */}
@@ -523,8 +519,8 @@ export default function Hero({ data }: { data: InvitationData }) {
               transition={{ delay: 0.8, duration: 0.6 }}
               onClick={() => setOpenKey("date")}
               whileHover={{ y: -3 }}
-              className="mt-3 inline-flex w-fit items-center gap-2 rounded-[12px] border-[2.5px] border-[#D6B03C] bg-[#FBE08A] px-3 py-1.5 text-[#4A3708]"
-              style={{ boxShadow: "4px 4px 0 0 #D6B03C" }}
+              className="wc crayon-box mt-3 inline-flex w-fit items-center gap-2 rounded-[12px] bg-[#F8DC96] px-3 py-1.5 text-[#2B2522]"
+              style={{ boxShadow: "4px 4px 0 0 #E6BD5C" }}
             >
               <span className="font-eyebrow text-[9px] uppercase">save the date</span>
               <span className="font-code text-sm tabular-nums">
@@ -555,9 +551,9 @@ export default function Hero({ data }: { data: InvitationData }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.8 }}
-              className="mt-auto hidden pt-4 text-[#1F2933]/70 lg:[@media(min-height:760px)]:block"
+              className="mt-auto hidden min-h-0 pt-2 lg:[@media(min-height:700px)]:flex"
             >
-              <SofaArt className="h-24 w-auto" delay={1.2} />
+              <Illustration name="cafe" className="h-full max-h-44 w-auto" />
             </motion.div>
           </div>
 
@@ -576,13 +572,13 @@ export default function Hero({ data }: { data: InvitationData }) {
 
         {/* ---- bottom strip: place / time / contact ---- */}
         <div
-          className="flex flex-none items-end justify-center gap-8 border-t-[3px] px-4 py-2.5 text-[#1F2933] sm:gap-14 sm:py-3"
-          style={{ borderColor: INK, background: "#F3EBD3" }}
+          className="flex flex-none items-end justify-center gap-8 crayon-rule-t px-4 py-2.5 text-[#2B2522] sm:gap-14 sm:py-3"
+          style={{ backgroundColor: "#F5E9D7" }}
         >
           {[
-            { key: "place", label: "place", icon: <PinIcon className="h-6 w-auto" />, target: "ceremony" },
-            { key: "time", label: "time", icon: <ClockIcon className="h-6 w-auto" />, target: "date" },
-            { key: "contact", label: "contact", icon: <PhoneIcon className="h-6 w-auto" />, target: "contact" },
+            { key: "place", label: "place", icon: <MapPin className="h-6 w-auto" />, target: "ceremony" },
+            { key: "time", label: "time", icon: <ClockFace className="h-6 w-auto" />, target: "date" },
+            { key: "contact", label: "contact", icon: <Phone className="h-6 w-auto" />, target: "contact" },
           ].map((item, i) => (
             <motion.button
               key={item.key}
@@ -604,9 +600,9 @@ export default function Hero({ data }: { data: InvitationData }) {
             transition={{ delay: 1.4 }}
             whileHover={{ y: -4 }}
             aria-label="Tentang mempelai"
-            className="hidden text-[#1F2933]/60 sm:block"
+            className="hidden text-[#2B2522]/60 sm:block"
           >
-            <RingsArt className="h-9 w-auto" delay={1.4} />
+            <Rings className="h-9 w-auto" delay={1.4} />
           </motion.button>
         </div>
       </motion.div>

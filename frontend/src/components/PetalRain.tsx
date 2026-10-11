@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
-const COLORS = ["#9aa3ab", "#c9cdd1", "#4a7fa5", "#7c868e", "#dddad3"];
+const COLORS = ["#E9A195", "#F2C66D", "#D2574A", "#8CC3BA", "#F7D9D2"];
 
 interface PetalStyle extends CSSProperties {
   "--drift"?: string;

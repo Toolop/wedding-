@@ -44,10 +44,14 @@ func (h *WishHandler) ListWishes(c *gin.Context) {
 		Hadir      int64
 		TidakHadir int64
 		Ragu       int64
+		Guests     int64
 	}
 	h.db.Model(&models.Wish{}).Where("attendance = ?", models.AttendanceHadir).Count(&summary.Hadir)
 	h.db.Model(&models.Wish{}).Where("attendance = ?", models.AttendanceTidakHadir).Count(&summary.TidakHadir)
 	h.db.Model(&models.Wish{}).Where("attendance = ?", models.AttendanceRagu).Count(&summary.Ragu)
+	// headcount of confirmed guests, so the dashboard doesn't have to page every RSVP
+	h.db.Model(&models.Wish{}).Where("attendance = ?", models.AttendanceHadir).
+		Select("COALESCE(SUM(guest_count), 0)").Scan(&summary.Guests)
 
 	utils.Success(c, 200, gin.H{
 		"items": wishes,
@@ -58,6 +62,7 @@ func (h *WishHandler) ListWishes(c *gin.Context) {
 			"hadir":       summary.Hadir,
 			"tidak_hadir": summary.TidakHadir,
 			"masih_ragu":  summary.Ragu,
+			"guests":      summary.Guests,
 		},
 	})
 }

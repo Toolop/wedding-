@@ -1,10 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Lock, LogIn } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { adminLogin } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 
@@ -20,61 +23,60 @@ export default function AdminLoginPage() {
     try {
       const token = await adminLogin(username, password);
       setToken(token);
-      toast.success("Login berhasil");
       router.push("/admin");
     } catch {
       toast.error("Username atau password salah");
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f5f0e8] px-6">
-      <Toaster position="top-center" />
-      <motion.form
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        onSubmit={onSubmit}
-        className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-xl"
-      >
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#c9a876]">
-          <Lock className="h-5 w-5 text-white" />
-        </div>
-        <h1 className="mt-4 text-center font-semibold text-lg text-[#8b7355]">
-          Admin Login
-        </h1>
-        <p className="mt-1 text-center text-xs text-[#8b7355]/60">
-          Kelola undangan pernikahan Anda
-        </p>
-
-        <div className="mt-6 space-y-3">
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            required
-            className="w-full rounded-xl border border-[#c9a876]/40 px-4 py-2.5 text-sm text-[#8b7355] outline-none focus:border-[#c9a876]"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-            className="w-full rounded-xl border border-[#c9a876]/40 px-4 py-2.5 text-sm text-[#8b7355] outline-none focus:border-[#c9a876]"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#8b7355] py-2.5 text-sm font-medium text-white disabled:opacity-60"
-        >
-          <LogIn className="h-4 w-4" />
-          {loading ? "Memproses..." : "Masuk"}
-        </button>
-      </motion.form>
+    <div className="flex min-h-svh items-center justify-center p-6 md:p-10">
+      <Card className="w-full max-w-sm overflow-hidden p-0 md:max-w-3xl">
+        <CardContent className="grid p-0 md:grid-cols-2">
+          <form onSubmit={onSubmit} className="flex flex-col gap-6 p-6 md:p-8">
+            <div className="flex flex-col items-center gap-1 text-center">
+              <h1 className="text-2xl font-bold">Admin Undangan</h1>
+              <p className="text-sm text-balance text-muted-foreground">
+                Masuk untuk mengelola isi undangan pernikahan
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading && <LoaderCircle className="animate-spin" />}
+              {loading ? "Memproses..." : "Masuk"}
+            </Button>
+          </form>
+          <div className="relative hidden bg-muted md:block">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/illustrations/cafe.jpeg"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

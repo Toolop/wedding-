@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "go",
+  "regions": ["sin1"],
+  "crons": [{ "path": "/healthz", "schedule": "0 3 * * *" }]
+}

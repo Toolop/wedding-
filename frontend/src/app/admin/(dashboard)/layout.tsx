@@ -1,8 +1,12 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { AdminDataProvider } from "@/components/admin/admin-data";
+import { AppSidebar } from "@/components/admin/app-sidebar";
+import { SiteHeader } from "@/components/admin/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getToken } from "@/lib/auth";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -21,16 +25,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f0e8] text-sm text-[#8b7355]/60">
+      <div className="flex min-h-svh items-center justify-center gap-2 text-sm text-muted-foreground">
+        <LoaderCircle className="size-4 animate-spin" />
         Memeriksa sesi...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8]">
-      <Toaster position="top-center" />
-      {children}
-    </div>
+    <AdminDataProvider>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 64)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <main className="flex flex-1 flex-col">
+            <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
+              {children}
+            </div>
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </AdminDataProvider>
   );
 }

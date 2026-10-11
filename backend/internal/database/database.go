@@ -14,16 +14,23 @@ import (
 )
 
 func Connect(cfg *config.Config) *gorm.DB {
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Jakarta",
-		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName,
-	)
+	dsn := cfg.DatabaseURL
+	if dsn == "" {
+		dsn = fmt.Sprintf(
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=Asia/Jakarta",
+			cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode,
+		)
+	}
 
 	var db *gorm.DB
 	var err error
 
 	for i := 0; i < 15; i++ {
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		db, err = gorm.Open(postgres.New(postgres.Config{
+			DSN: dsn,
+			// poolers in transaction mode (Supabase :6543) can't hold prepared statements
+			PreferSimpleProtocol: true,
+		}), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Warn),
 		})
 		if err == nil {
@@ -35,6 +42,11 @@ func Connect(cfg *config.Config) *gorm.DB {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
+	// serverless instances each open their own pool; keep them small
+	if sqlDB, err := db.DB(); err == nil {
+		sqlDB.SetMaxOpenConns(5)
+		sqlDB.SetMaxIdleConns(2)
+	}
 
 	if err := db.AutoMigrate(
 		&models.Settings{},
@@ -43,6 +55,14 @@ func Connect(cfg *config.Config) *gorm.DB {
 		&models.Wish{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
+	}
+
+	// Supabase serves the public schema over its REST API; RLS with no policies
+	// shuts that path. This API connects as the tables' owner, which bypasses RLS.
+	for _, table := range []string{"settings", "story_events", "gallery_images", "wishes"} {
+		if err := db.Exec("ALTER TABLE " + table + " ENABLE ROW LEVEL SECURITY").Error; err != nil {
+			log.Printf("could not enable RLS on %s: %v", table, err)
+		}
 	}
 
 	seedDefaults(db)

@@ -30,7 +30,8 @@ export default function ThemeProvider({
     "--font-heading": settings.font_heading || "'Patrick Hand', cursive",
     "--font-body": settings.font_body || "'Nunito', sans-serif",
     fontFamily: "var(--font-body)",
-    backgroundColor: "var(--color-surface)",
+    // the watercolour invitation always sits on warm paper, whatever the admin colours are
+    backgroundColor: "#FAF5EC",
   } as CSSProperties;
 
   return (

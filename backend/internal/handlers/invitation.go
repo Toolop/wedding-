@@ -135,6 +135,45 @@ func (h *InvitationHandler) ListGallery(c *gin.Context) {
 	utils.Success(c, 200, gallery)
 }
 
+type updateGalleryRequest struct {
+	Caption   *string `json:"caption"`
+	SortOrder *int    `json:"sort_order"`
+}
+
+func (h *InvitationHandler) UpdateGalleryImage(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.Error(c, 400, "invalid id")
+		return
+	}
+	var item models.GalleryImage
+	if err := h.db.First(&item, id).Error; err != nil {
+		utils.Error(c, 404, "gallery image not found")
+		return
+	}
+	var req updateGalleryRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Error(c, 400, "invalid request body")
+		return
+	}
+	// image_url is only ever set by the upload handler
+	updates := map[string]interface{}{}
+	if req.Caption != nil {
+		updates["caption"] = *req.Caption
+	}
+	if req.SortOrder != nil {
+		updates["sort_order"] = *req.SortOrder
+	}
+	if len(updates) > 0 {
+		if err := h.db.Model(&item).Updates(updates).Error; err != nil {
+			utils.Error(c, 500, "failed to update gallery image")
+			return
+		}
+	}
+	h.db.First(&item, id)
+	utils.Success(c, 200, item)
+}
+
 func (h *InvitationHandler) DeleteGalleryImage(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

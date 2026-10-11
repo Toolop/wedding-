@@ -130,6 +130,15 @@ export async function adminListGallery(token: string): Promise<GalleryImage[]> {
   return res.data.data;
 }
 
+export async function adminUpdateGalleryImage(
+  token: string,
+  id: number,
+  payload: Partial<Pick<GalleryImage, "caption" | "sort_order">>
+): Promise<GalleryImage> {
+  const res = await api.put(`/admin/gallery/${id}`, payload, authHeader(token));
+  return res.data.data;
+}
+
 export async function adminDeleteGalleryImage(token: string, id: number): Promise<void> {
   await api.delete(`/admin/gallery/${id}`, authHeader(token));
 }
@@ -141,6 +150,17 @@ export async function adminListWishes(
 ): Promise<WishesResponse> {
   const res = await api.get("/wishes", { params: { page, limit }, ...authHeader(token) });
   return res.data.data;
+}
+
+/** every RSVP, walking the API's 100-per-page cap */
+export async function adminListAllWishes(token: string): Promise<Wish[]> {
+  const limit = 100;
+  const all: Wish[] = [];
+  for (let page = 1; ; page++) {
+    const res = await adminListWishes(token, page, limit);
+    all.push(...res.items);
+    if (res.items.length < limit || all.length >= res.total) return all;
+  }
 }
 
 export async function adminDeleteWish(token: string, id: number): Promise<void> {

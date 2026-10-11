@@ -25,8 +25,8 @@ import toast from "react-hot-toast";
 import { getWishes, mediaUrl, submitWish } from "@/lib/api";
 import type { GalleryImage, Settings, StoryEvent, Wish } from "@/lib/types";
 import { usePortalRoot } from "../ThemeProvider";
-import { INK, PAPER, TONES } from "./floTone";
-import { HeartArt, RingsArt } from "./HeroDoodles";
+import { INK, PAPER, TONES } from "./watercolor";
+import { Heart, Illustration, Rings } from "./WatercolorArt";
 
 /* ------------------------------------------------------------ primitives */
 
@@ -54,8 +54,8 @@ function Chip({
   const t = TONES[tone];
   return (
     <div
-      className="flex min-w-[58px] flex-col items-center rounded-[10px] border-[2.5px] px-2 py-1.5"
-      style={{ background: t.bg, borderColor: t.edge, color: t.ink, boxShadow: `3px 3px 0 0 ${t.edge}` }}
+      className="flex min-w-[58px] flex-col items-center rounded-[10px] crayon-box wc px-2 py-1.5"
+      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `3px 3px 0 0 ${t.edge}` }}
     >
       <span className="font-code text-xl leading-none tabular-nums">{value}</span>
       <span className="font-eyebrow mt-1 text-[8px] uppercase opacity-70">{label}</span>
@@ -70,8 +70,8 @@ function LinkPill({ href, children }: { href: string; children: React.ReactNode 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
-      style={{ borderColor: INK, color: INK }}
+      className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
+      style={{ color: INK }}
     >
       {children}
     </a>
@@ -126,11 +126,14 @@ export function DatePanel({ settings }: { settings: Settings }) {
         {formatLongDate(settings.wedding_date)}
       </p>
 
-      <div className="flex flex-wrap gap-2">
-        <Chip value={left ? String(left.d) : "--"} label="hari" tone="mauve" />
-        <Chip value={left ? pad(left.h) : "--"} label="jam" tone="butter" />
-        <Chip value={left ? pad(left.m) : "--"} label="menit" tone="teal" />
-        <Chip value={left ? pad(left.s) : "--"} label="detik" tone="coral" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <Chip value={left ? String(left.d) : "--"} label="hari" tone="mauve" />
+          <Chip value={left ? pad(left.h) : "--"} label="jam" tone="butter" />
+          <Chip value={left ? pad(left.m) : "--"} label="menit" tone="teal" />
+          <Chip value={left ? pad(left.s) : "--"} label="detik" tone="coral" />
+        </div>
+        <Illustration name="champions" className="hidden h-28 w-auto flex-none sm:block" />
       </div>
 
       <p className="font-script text-2xl leading-snug opacity-85">
@@ -139,8 +142,8 @@ export function DatePanel({ settings }: { settings: Settings }) {
 
       {settings.quote && (
         <div
-          className="rounded-[12px] border-[2.5px] px-4 py-3"
-          style={{ borderColor: TONES.cream.edge, background: TONES.cream.bg, color: TONES.cream.ink }}
+          className="rounded-[12px] crayon-box wc px-4 py-3"
+          style={{ backgroundColor: TONES.cream.bg, color: TONES.cream.ink }}
         >
           <p className="font-script text-2xl leading-snug">“{settings.quote}”</p>
           {settings.quote_author && (
@@ -177,8 +180,8 @@ function EventBlock({
   if (!date && !time && !location) return null;
   return (
     <div
-      className="rounded-[12px] border-[2.5px] px-4 py-3"
-      style={{ background: t.bg, borderColor: t.edge, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
+      className="rounded-[12px] crayon-box wc px-4 py-3"
+      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
     >
       <p className="font-poster text-sm uppercase tracking-wide">{kicker}</p>
       <InfoRow label="Waktu" value={[date, time].filter(Boolean).join(" · ")} />
@@ -189,7 +192,7 @@ function EventBlock({
           href={maps}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-flex items-center gap-1.5 rounded-full border-2 border-current px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
         >
           <MapPin className="h-3.5 w-3.5" /> Lihat peta
         </a>
@@ -248,10 +251,9 @@ export function RegistryPanel({ settings }: { settings: Settings }) {
         Kehadiran Anda sudah lebih dari cukup. Namun bila ingin memberi tanda kasih:
       </p>
       <div
-        className="rounded-[12px] border-[2.5px] px-4 py-3"
+        className="rounded-[12px] crayon-box wc px-4 py-3"
         style={{
-          background: TONES.sky.bg,
-          borderColor: TONES.sky.edge,
+          backgroundColor: TONES.sky.bg,
           color: TONES.sky.ink,
           boxShadow: `4px 4px 0 0 ${TONES.sky.edge}`,
         }}
@@ -262,7 +264,7 @@ export function RegistryPanel({ settings }: { settings: Settings }) {
         {settings.bank_account_number && (
           <button
             onClick={copy}
-            className="mt-2 inline-flex items-center gap-2 rounded-full border-2 border-current px-4 py-2 font-code text-xs transition-transform hover:-translate-y-0.5"
+            className="mt-2 inline-flex items-center gap-2 rounded-full crayon-pill px-4 py-2 font-code text-xs transition-transform hover:-translate-y-0.5"
           >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Tersalin" : "Salin nomor"}
@@ -304,9 +306,24 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
 
   if (gallery.length === 0) {
     return (
-      <p className="font-script text-2xl leading-snug opacity-80">
-        Galeri sedang kami siapkan. Nanti kembali lagi, ya.
-      </p>
+      <>
+        <p className="font-script mb-3 text-2xl leading-snug opacity-80">
+          Foto aslinya menyusul — sementara, begini kira-kira kami berdua.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {(["cafe", "hello", "dinner", "champions"] as const).map((name, i) => (
+            <motion.div
+              key={name}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.06 }}
+              className="wc crayon-box grid place-items-center rounded-[12px] bg-white p-2"
+            >
+              <Illustration name={name} className="aspect-square w-full object-contain" />
+            </motion.div>
+          ))}
+        </div>
+      </>
     );
   }
 
@@ -323,8 +340,8 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: Math.min(i, 8) * 0.04 }}
             onClick={() => setOpenIndex(i)}
-            className="group relative overflow-hidden rounded-[10px] border-[2.5px]"
-            style={{ borderColor: INK, boxShadow: `3px 3px 0 0 ${TONES.teal.edge}` }}
+            className="group relative overflow-hidden rounded-[10px] crayon-box wc"
+            style={{ boxShadow: `3px 3px 0 0 ${TONES.teal.edge}` }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -345,7 +362,7 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[80] flex items-center justify-center bg-[#1F2933]/80 p-4"
+                className="fixed inset-0 z-[80] flex items-center justify-center bg-[#3E4A6B]/70 p-4"
                 onClick={close}
               >
                 <motion.div
@@ -353,8 +370,8 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
                   animate={{ scale: 1, rotate: 0 }}
                   exit={{ scale: 0.9, opacity: 0 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative max-h-[86vh] w-full max-w-xl overflow-hidden rounded-[14px] border-[3px]"
-                  style={{ borderColor: INK, background: PAPER, boxShadow: "8px 10px 0 0 rgba(31,41,51,0.4)" }}
+                  className="relative max-h-[86vh] w-full max-w-xl overflow-hidden rounded-[14px] crayon-box wc"
+                  style={{ backgroundColor: PAPER, boxShadow: "8px 10px 0 0 rgba(62,74,107,0.4)" }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -364,8 +381,8 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
                   />
                   {gallery[openIndex].caption && (
                     <p
-                      className="border-t-[3px] px-4 py-2 font-heading text-lg"
-                      style={{ borderColor: INK, color: INK }}
+                      className="crayon-rule-t px-4 py-2 font-heading text-lg"
+                      style={{ color: INK }}
                     >
                       {gallery[openIndex].caption}
                     </p>
@@ -373,8 +390,8 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
                   <button
                     onClick={close}
                     aria-label="Tutup foto"
-                    className="absolute right-2 top-2 rounded-full border-2 bg-white/85 p-1 transition-transform hover:rotate-90"
-                    style={{ borderColor: INK, color: INK }}
+                    className="absolute right-2 top-2 rounded-full crayon-pill bg-white/85 p-1 transition-transform hover:rotate-90"
+                    style={{ color: INK }}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -383,16 +400,16 @@ export function GalleryPanel({ gallery }: { gallery: GalleryImage[] }) {
                       <button
                         onClick={() => step(-1)}
                         aria-label="Foto sebelumnya"
-                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border-2 bg-white/85 p-1.5"
-                        style={{ borderColor: INK, color: INK }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full crayon-pill bg-white/85 p-1.5"
+                        style={{ color: INK }}
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => step(1)}
                         aria-label="Foto berikutnya"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border-2 bg-white/85 p-1.5"
-                        style={{ borderColor: INK, color: INK }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full crayon-pill bg-white/85 p-1.5"
+                        style={{ color: INK }}
                       >
                         <ChevronRight className="h-4 w-4" />
                       </button>
@@ -422,43 +439,46 @@ export function StoryPanel({ story }: { story: StoryEvent[] }) {
   }
 
   return (
-    <div className="relative pl-6">
-      <span
-        className="absolute left-[9px] top-2 h-[calc(100%-1rem)] w-[2px]"
-        style={{ backgroundImage: `repeating-linear-gradient(to bottom, ${INK} 0 6px, transparent 6px 12px)` }}
-      />
-      <div className="space-y-4">
-        {story.map((item, i) => {
-          const t = TONES[STORY_TONES[i % STORY_TONES.length]];
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -14 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.06 * i }}
-              className="relative"
-            >
-              <span
-                className="absolute -left-6 top-2 h-3.5 w-3.5 rounded-full border-[2.5px]"
-                style={{ background: t.bg, borderColor: INK }}
-              />
-              <div
-                className="rounded-[12px] border-[2.5px] px-4 py-3"
-                style={{ background: t.bg, borderColor: t.edge, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
+    <div className="space-y-4">
+      <Illustration name="dinner" className="mx-auto h-40 w-auto" />
+      <div className="relative pl-6">
+        <span
+          className="absolute left-[9px] top-2 h-[calc(100%-1rem)] w-[2px]"
+          style={{ backgroundImage: `repeating-linear-gradient(to bottom, ${INK} 0 6px, transparent 6px 12px)` }}
+        />
+        <div className="space-y-4">
+          {story.map((item, i) => {
+            const t = TONES[STORY_TONES[i % STORY_TONES.length]];
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -14 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.06 * i }}
+                className="relative"
               >
-                <span className="font-eyebrow text-[9px] uppercase opacity-70">
-                  {item.event_date}
-                </span>
-                <h4 className="font-heading text-xl leading-tight">{item.title}</h4>
-                {item.description && (
-                  <p className="mt-1 font-body text-sm leading-relaxed opacity-85">
-                    {item.description}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
+                <span
+                  className="absolute -left-6 top-2 h-3.5 w-3.5 rounded-full crayon-box wc"
+                  style={{ backgroundColor: t.bg}}
+                />
+                <div
+                  className="rounded-[12px] crayon-box wc px-4 py-3"
+                  style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
+                >
+                  <span className="font-eyebrow text-[9px] uppercase opacity-70">
+                    {item.event_date}
+                  </span>
+                  <h4 className="font-heading text-xl leading-tight">{item.title}</h4>
+                  {item.description && (
+                    <p className="mt-1 font-body text-sm leading-relaxed opacity-85">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -486,20 +506,20 @@ function Person({
   const t = TONES[tone];
   return (
     <div
-      className="flex-1 rounded-[12px] border-[2.5px] p-3 text-center"
-      style={{ background: t.bg, borderColor: t.edge, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
+      className="flex-1 rounded-[12px] crayon-box wc p-3 text-center"
+      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
     >
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={mediaUrl(image)}
           alt={name}
-          className="mx-auto aspect-square w-24 rounded-full border-[2.5px] object-cover"
-          style={{ borderColor: INK }}
+          className="mx-auto aspect-square w-24 rounded-full border-2 border-dashed border-[#2B2522]/60 object-cover"
+          style={{}}
         />
       ) : (
-        <div className="mx-auto grid aspect-square w-24 place-items-center rounded-full border-[2.5px]" style={{ borderColor: INK }}>
-          <HeartArt className="h-10 w-auto" />
+        <div className="mx-auto grid aspect-square w-24 place-items-center rounded-full border-2 border-dashed border-[#2B2522]/60" style={{}}>
+          <Heart className="h-10 w-auto" />
         </div>
       )}
       <p className="font-eyebrow mt-2 text-[9px] uppercase opacity-70">{role}</p>
@@ -510,7 +530,7 @@ function Person({
           href={`https://instagram.com/${instagram.replace("@", "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-flex items-center gap-1 rounded-full border-2 border-current px-3 py-1 font-code text-[10px]"
+          className="mt-2 inline-flex items-center gap-1 rounded-full crayon-pill px-3 py-1 font-code text-[10px]"
         >
           <Instagram className="h-3 w-3" />@{instagram.replace("@", "")}
         </a>
@@ -522,6 +542,7 @@ function Person({
 export function CouplePanel({ settings }: { settings: Settings }) {
   return (
     <div className="space-y-3">
+      <Illustration name="hello" className="mx-auto h-48 w-auto" />
       <div className="flex flex-col gap-3 sm:flex-row">
         <Person
           role="Mempelai Pria"
@@ -543,7 +564,7 @@ export function CouplePanel({ settings }: { settings: Settings }) {
         />
       </div>
       <div className="flex items-center justify-center gap-2 opacity-70" style={{ color: INK }}>
-        <RingsArt className="h-8 w-auto" />
+        <Rings className="h-8 w-auto" />
         <span className="font-script text-2xl">bersama, mulai hari itu</span>
       </div>
     </div>
@@ -568,7 +589,7 @@ const ATTENDANCE_META = {
 };
 
 const fieldClass =
-  "mt-1 w-full rounded-[10px] border-[2.5px] bg-white/80 px-3 py-2 font-body text-sm outline-none transition-colors focus:bg-white";
+  "mt-1 w-full rounded-[10px] crayon-box wc bg-white/80 px-3 py-2 font-body text-sm outline-none transition-colors focus:bg-white";
 
 export function GuestPanel() {
   const [wishes, setWishes] = useState<Wish[]>([]);
@@ -611,10 +632,9 @@ export function GuestPanel() {
     <div className="space-y-4" style={{ color: INK }}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-2.5 rounded-[12px] border-[2.5px] px-4 py-3"
+        className="space-y-2.5 rounded-[12px] crayon-box wc px-4 py-3"
         style={{
-          background: TONES.cream.bg,
-          borderColor: TONES.cream.edge,
+          backgroundColor: TONES.cream.bg,
           boxShadow: `4px 4px 0 0 ${TONES.cream.edge}`,
         }}
       >
@@ -624,7 +644,7 @@ export function GuestPanel() {
             {...register("name")}
             placeholder="Nama lengkap Anda"
             className={fieldClass}
-            style={{ borderColor: INK }}
+            style={{}}
           />
           {errors.name && (
             <p className="mt-1 font-code text-[10px] text-[#C0392B]">{errors.name.message}</p>
@@ -634,7 +654,7 @@ export function GuestPanel() {
         <div className="flex gap-2">
           <div className="flex-1">
             <label className="font-eyebrow text-[9px] uppercase opacity-60">Kehadiran</label>
-            <select {...register("attendance")} className={fieldClass} style={{ borderColor: INK }}>
+            <select {...register("attendance")} className={fieldClass} style={{}}>
               <option value="hadir">Hadir</option>
               <option value="tidak_hadir">Tidak Hadir</option>
               <option value="masih_ragu">Masih Ragu</option>
@@ -648,7 +668,7 @@ export function GuestPanel() {
               max={10}
               {...register("guest_count")}
               className={fieldClass}
-              style={{ borderColor: INK }}
+              style={{}}
             />
           </div>
         </div>
@@ -660,7 +680,7 @@ export function GuestPanel() {
             rows={3}
             placeholder="Tuliskan ucapan untuk kedua mempelai..."
             className={`${fieldClass} resize-none`}
-            style={{ borderColor: INK }}
+            style={{}}
           />
         </div>
 
@@ -669,10 +689,9 @@ export function GuestPanel() {
           disabled={isSubmitting}
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.97 }}
-          className="flex w-full items-center justify-center gap-2 rounded-[10px] border-[2.5px] py-2.5 font-poster text-sm disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-[10px] crayon-box wc py-2.5 font-poster text-sm disabled:opacity-60"
           style={{
-            background: TONES.magenta.bg,
-            borderColor: TONES.magenta.edge,
+            backgroundColor: TONES.magenta.bg,
             color: TONES.magenta.ink,
             boxShadow: `4px 4px 0 0 ${TONES.magenta.edge}`,
           }}
@@ -699,8 +718,8 @@ export function GuestPanel() {
               return (
                 <div
                   key={w.id}
-                  className="rounded-[10px] border-[2.5px] px-3 py-2"
-                  style={{ background: t.bg, borderColor: t.edge, color: t.ink }}
+                  className="rounded-[10px] crayon-box wc px-3 py-2"
+                  style={{ backgroundColor: t.bg, color: t.ink }}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-heading text-lg leading-none">{w.name}</span>
@@ -735,8 +754,8 @@ export function ContactPanel({ settings }: { settings: Settings }) {
         Ada yang ingin ditanyakan soal acara? Sapa kami lewat kanal ini.
       </p>
       <div
-        className="rounded-[12px] border-[2.5px] px-4 py-3"
-        style={{ background: TONES.teal.bg, borderColor: TONES.teal.edge, color: TONES.teal.ink }}
+        className="rounded-[12px] crayon-box wc px-4 py-3"
+        style={{ backgroundColor: TONES.teal.bg, color: TONES.teal.ink }}
       >
         <InfoRow label="Mempelai" value={`${settings.groom_name} & ${settings.bride_name}`} />
         <InfoRow label="Lokasi utama" value={settings.resepsi_location || settings.akad_location} />

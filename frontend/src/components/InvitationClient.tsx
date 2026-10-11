@@ -10,6 +10,7 @@ import ComicIntro from "./invitation/ComicIntro";
 import OpeningScreen from "./invitation/OpeningScreen";
 import Hero from "./invitation/Hero";
 import MusicToggle from "./invitation/MusicToggle";
+import { WatercolorDefs } from "./invitation/WatercolorArt";
 
 type Stage = "comic" | "envelope" | "opened";
 
@@ -33,13 +34,28 @@ export default function InvitationClient({ data }: { data: InvitationData }) {
 
   return (
     <ThemeProvider settings={settings}>
-      <Toaster position="top-center" />
+      <WatercolorDefs />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: "#FFFDF8",
+            color: "#2B2522",
+            border: "2px dashed #2B2522",
+            borderRadius: "999px",
+            fontFamily: "Nunito, sans-serif",
+            fontWeight: 600,
+          },
+          iconTheme: { primary: "#D2574A", secondary: "#FFFDF8" },
+        }}
+      />
       <PetalRain />
       <AnimatePresence mode="wait">
         {stage === "comic" && (
           <ComicIntro
             key="comic"
             settings={settings}
+            story={data.story}
             onFinish={() => setStage("envelope")}
           />
         )}

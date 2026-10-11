@@ -42,7 +42,7 @@ export default function MusicToggle({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1 }}
-        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-white shadow-lg"
+        className="wc fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-[#2B2522] bg-[#F7D9D2] text-[#2B2522] shadow-[3px_4px_0_0_#E9B5AA]"
         aria-label="Toggle music"
       >
         <Music2 className={`h-5 w-5 ${playing ? "animate-spin-slow" : ""}`} />
