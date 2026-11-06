@@ -81,8 +81,23 @@ export async function submitWish(payload: {
   guest_count: number;
   message: string;
   guest_code?: string;
+  photo?: File | null;
 }): Promise<Wish> {
-  const res = await api.post("/wishes", payload);
+  const { photo, ...fields } = payload;
+  if (!photo) {
+    const res = await api.post("/wishes", fields);
+    return res.data.data;
+  }
+  const form = new FormData();
+  form.append("name", fields.name);
+  form.append("attendance", fields.attendance);
+  form.append("guest_count", String(fields.guest_count));
+  form.append("message", fields.message);
+  if (fields.guest_code) form.append("guest_code", fields.guest_code);
+  form.append("photo", photo);
+  const res = await api.post("/wishes", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data.data;
 }
 
@@ -127,7 +142,7 @@ export async function adminUpdateSettings(
 export async function adminUpload(
   token: string,
   file: File,
-  target: "hero" | "couple" | "groom" | "bride" | "akad_map" | "resepsi_map" | "akad_venue" | "resepsi_venue" | "gallery"
+  target: "hero" | "couple" | "groom" | "bride" | "akad_map" | "resepsi_map" | "akad_venue" | "resepsi_venue" | "gallery" | "music"
 ): Promise<{ url: string; target: string }> {
   const form = new FormData();
   form.append("file", file);

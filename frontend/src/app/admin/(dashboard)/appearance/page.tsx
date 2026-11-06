@@ -1,5 +1,12 @@
 "use client";
 
+import { useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { Music2, Upload } from "lucide-react";
+import { adminUpload, mediaUrl } from "@/lib/api";
+import { getToken } from "@/lib/auth";
+import { useAdminData } from "@/components/admin/admin-data";
+import { Button } from "@/components/ui/button";
 import { FieldGrid, SaveBar, useSettingsDraft, type FieldDef } from "@/components/admin/settings-form";
 import { PageHeader } from "@/components/admin/site-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,13 +47,67 @@ const FONTS: FieldDef<Key>[] = [
 const MUSIC: FieldDef<Key>[] = [
   {
     key: "music_url",
-    label: "URL musik latar",
+    label: "URL musik latar (atau unggah di atas)",
     type: "url",
     placeholder: "https://.../lagu.mp3",
     hint: "File audio yang bisa diputar langsung (mp3/ogg). Kosongkan untuk mematikan musik.",
     wide: true,
   },
 ];
+
+const MAX_AUDIO = 4 * 1024 * 1024;
+
+function MusicUpload({ current, onUploaded }: { current: string; onUploaded: (url: string) => void }) {
+  const { refresh } = useAdminData();
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const pick = async (file?: File) => {
+    if (!file) return;
+    const token = getToken();
+    if (!token) return;
+    if (file.size > MAX_AUDIO) {
+      toast.error("Ukuran lagu maksimal 4MB");
+      return;
+    }
+    setBusy(true);
+    try {
+      // the upload endpoint writes music_url into settings itself
+      const { url } = await adminUpload(token, file, "music");
+      onUploaded(url);
+      await refresh();
+      toast.success("Lagu diunggah");
+    } catch {
+      toast.error("Gagal mengunggah lagu");
+    } finally {
+      setBusy(false);
+      if (input.current) input.current.value = "";
+    }
+  };
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-3">
+      <input
+        ref={input}
+        type="file"
+        accept=".mp3,.ogg,.m4a,.wav,audio/*"
+        className="hidden"
+        onChange={(e) => pick(e.target.files?.[0])}
+      />
+      <Button type="button" variant="outline" disabled={busy} onClick={() => input.current?.click()}>
+        <Upload />
+        {busy ? "Mengunggah..." : current ? "Ganti lagu" : "Unggah lagu"}
+      </Button>
+      <span className="text-muted-foreground text-xs">mp3 / ogg / m4a, maksimal 4MB</span>
+      {current && (
+        <div className="flex w-full items-center gap-2">
+          <Music2 className="text-muted-foreground h-4 w-4 flex-none" />
+          <audio controls src={mediaUrl(current)} className="h-9 w-full max-w-sm" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AppearancePage() {
   const { draft, set, dirty, saving, save, reset } = useSettingsDraft(KEYS);
@@ -78,6 +139,7 @@ export default function AppearancePage() {
           <CardTitle>Musik</CardTitle>
         </CardHeader>
         <CardContent>
+          <MusicUpload current={draft.music_url} onUploaded={(url) => set("music_url", url)} />
           <FieldGrid fields={MUSIC} draft={draft} set={set} />
         </CardContent>
       </Card>

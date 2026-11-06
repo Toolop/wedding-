@@ -1,36 +1,47 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
+	"mime"
+	"mime/multipart"
+	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"wedding-backend/internal/middleware"
 	"wedding-backend/internal/models"
+	"wedding-backend/internal/storage"
 	"wedding-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type WishHandler struct {
 	db     *gorm.DB
+	store  storage.Store
 	misses *middleware.Limiter
 }
 
 // misses is the guest handler's wrong-code counter, so an RSVP can't be used
 // to guess guest codes either.
-func NewWishHandler(db *gorm.DB, misses *middleware.Limiter) *WishHandler {
-	return &WishHandler{db: db, misses: misses}
+func NewWishHandler(db *gorm.DB, store storage.Store, misses *middleware.Limiter) *WishHandler {
+	return &WishHandler{db: db, store: store, misses: misses}
 }
 
+// JSON, or multipart when the guest attaches a photo
 type createWishRequest struct {
-	Name       string                  `json:"name" binding:"required"`
-	Attendance models.AttendanceStatus `json:"attendance" binding:"required"`
-	GuestCount int                     `json:"guest_count"`
-	Message    string                  `json:"message"`
+	Name       string                  `json:"name" form:"name" binding:"required"`
+	Attendance models.AttendanceStatus `json:"attendance" form:"attendance" binding:"required"`
+	GuestCount int                     `json:"guest_count" form:"guest_count"`
+	Message    string                  `json:"message" form:"message"`
 	// personal-link code, so the RSVP shows up against the guest in the admin list
-	GuestCode string `json:"guest_code"`
+	GuestCode string `json:"guest_code" form:"guest_code"`
 }
 
 func (h *WishHandler) ListWishes(c *gin.Context) {
@@ -77,7 +88,7 @@ func (h *WishHandler) ListWishes(c *gin.Context) {
 
 func (h *WishHandler) CreateWish(c *gin.Context) {
 	var req createWishRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		utils.Error(c, 400, "name and attendance are required")
 		return
 	}
@@ -113,12 +124,45 @@ func (h *WishHandler) CreateWish(c *gin.Context) {
 			wish.Name = guest.Name
 		}
 	}
+	// the photo is optional; a missing file just means a text-only wish
+	if file, err := c.FormFile("photo"); err == nil {
+		url, status, msg := h.savePhoto(c, file)
+		if msg != "" {
+			utils.Error(c, status, msg)
+			return
+		}
+		wish.PhotoURL = url
+	}
 	if err := h.db.Create(&wish).Error; err != nil {
 		utils.Error(c, 500, "failed to submit rsvp")
 		return
 	}
 
 	utils.Success(c, 201, wish)
+}
+
+// same budget as gift receipts; the client shrinks photos under Vercel's ~4.5MB body cap
+func (h *WishHandler) savePhoto(c *gin.Context, file *multipart.FileHeader) (string, int, string) {
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if !proofExt[ext] {
+		return "", http.StatusBadRequest, "unsupported file type"
+	}
+	if file.Size > maxProofSize {
+		return "", http.StatusBadRequest, "file too large (max 5MB)"
+	}
+	src, err := file.Open()
+	if err != nil {
+		return "", http.StatusBadRequest, "failed to read file"
+	}
+	defer src.Close()
+
+	filename := fmt.Sprintf("wish_%s_%d%s", uuid.NewString(), time.Now().Unix(), ext)
+	url, err := h.store.Save(c.Request.Context(), filename, mime.TypeByExtension(ext), src)
+	if err != nil {
+		log.Printf("wish photo upload failed: %v", err)
+		return "", http.StatusInternalServerError, "failed to save photo"
+	}
+	return url, 0, ""
 }
 
 func (h *WishHandler) DeleteWish(c *gin.Context) {

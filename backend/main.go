@@ -62,7 +62,7 @@ func main() {
 	// because guests on one mobile carrier often share an IP.
 	guestCodeMisses := middleware.NewLimiter(20, 15*time.Minute)
 
-	wishHandler := handlers.NewWishHandler(db, guestCodeMisses)
+	wishHandler := handlers.NewWishHandler(db, store, guestCodeMisses)
 	giftHandler := handlers.NewGiftHandler(db, store)
 	guestHandler := handlers.NewGuestHandler(db, cfg.FonnteToken, guestCodeMisses)
 

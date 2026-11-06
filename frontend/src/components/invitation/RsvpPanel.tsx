@@ -1,14 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
-import { Check, HelpCircle, Minus, Plus, Send, User, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Check, HelpCircle, ImagePlus, Minus, Plus, Send, User, X } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
-import { getWishes, submitWish } from "@/lib/api";
+import { getWishes, mediaUrl, submitWish } from "@/lib/api";
+import { resizeImage } from "@/lib/resize-image";
 import type { Attendance, Wish, WishesResponse } from "@/lib/types";
 import { INK, TONES } from "./watercolor";
 import { Illustration } from "./WatercolorArt";
@@ -25,6 +27,7 @@ type FormValues = z.infer<typeof schema>;
 
 const MAX_GUESTS = 10;
 const PAGE_SIZE = 6;
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 
 const ATTENDANCE: Record<
   Attendance,
@@ -32,7 +35,7 @@ const ATTENDANCE: Record<
 > = {
   hadir: { label: "Hadir", hint: "Sampai jumpa!", icon: Check, tone: "teal" },
   masih_ragu: { label: "Masih ragu", hint: "Kabari lagi ya", icon: HelpCircle, tone: "butter" },
-  tidak_hadir: { label: "Berhalangan", hint: "Doanya saja", icon: X, tone: "coral" },
+  tidak_hadir: { label: "Berhalangan", hint: "Doanya saja", icon: X, tone: "rose" },
 };
 
 const ORDER: Attendance[] = ["hadir", "masih_ragu", "tidak_hadir"];
@@ -55,7 +58,7 @@ const label = "font-eyebrow text-[9px] uppercase opacity-60";
 
 /** stationery-style input: a dashed crayon underline instead of a box */
 const lineInput =
-  "mt-1 w-full border-b-2 border-dashed border-[#2B2522]/55 bg-transparent px-0.5 pb-1.5 pt-1 font-heading text-xl outline-none transition-colors placeholder:text-[#2B2522]/35 focus:border-[#2B2522]";
+  "mt-1 w-full border-b-2 border-dashed border-[#2F3D35]/55 bg-transparent px-0.5 pb-1.5 pt-1 font-heading text-xl outline-none transition-colors placeholder:text-[#2F3D35]/35 focus:border-[#2F3D35]";
 
 function ThankYou({ name, attendance, onAgain }: { name: string; attendance: Attendance; onAgain: () => void }) {
   const meta = ATTENDANCE[attendance];
@@ -124,8 +127,63 @@ function WishNote({ wish, index }: { wish: Wish; index: number }) {
             {wish.message}
           </p>
         )}
+        {wish.photo_url && <WishPhoto src={mediaUrl(wish.photo_url)} name={wish.name} />}
       </div>
     </motion.li>
+  );
+}
+
+/** a small tilted polaroid on the wish; tap for the full photo */
+function WishPhoto({ src, name }: { src: string; name: string }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Lihat foto dari ${name}`}
+        className="mt-2 block rotate-[-2deg] rounded-[4px] bg-white p-1.5 pb-4 shadow-[2px_3px_0_0_rgba(47,61,53,0.18)] transition-transform hover:rotate-0"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={`Foto dari ${name}`} loading="lazy" className="h-28 w-auto max-w-[11rem] rounded-[2px] object-cover" />
+      </button>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setOpen(false)}
+                className="fixed inset-0 z-[100] grid place-items-center bg-[#2F3D35]/80 p-4"
+              >
+                <motion.figure
+                  initial={{ scale: 0.9, rotate: -2 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0.9 }}
+                  className="rounded-[6px] bg-white p-2 pb-3"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`Foto dari ${name}`} className="max-h-[78vh] max-w-[88vw] rounded-[3px] object-contain" />
+                  <figcaption className="font-script mt-1 text-center text-xl" style={{ color: INK }}>
+                    dari {name}
+                  </figcaption>
+                </motion.figure>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+    </>
   );
 }
 
@@ -138,6 +196,31 @@ export function RsvpPanel() {
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [sent, setSent] = useState<{ name: string; attendance: Attendance } | null>(null);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+
+  const pickPhoto = async (picked?: File) => {
+    if (!picked) return;
+    if (!picked.type.startsWith("image/")) {
+      toast.error("Foto harus berupa gambar (JPG/PNG)");
+      return;
+    }
+    const resized = await resizeImage(picked);
+    if (resized.size > MAX_PHOTO_BYTES) {
+      toast.error("Foto masih lebih dari 4MB");
+      return;
+    }
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(resized);
+    setPhotoPreview(URL.createObjectURL(resized));
+  };
+
+  const clearPhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(null);
+    setPhotoPreview("");
+  };
 
   const {
     register,
@@ -182,6 +265,7 @@ export function RsvpPanel() {
         guest_count: values.attendance === "hadir" ? values.guest_count : 0,
         message: values.message || "",
         guest_code: nameLocked ? guest?.code : undefined,
+        photo,
       });
       confetti({
         particleCount: 120,
@@ -191,6 +275,7 @@ export function RsvpPanel() {
       });
       setSent({ name: values.name.trim().split(" ")[0], attendance: values.attendance });
       reset({ name: nameLocked ? guest?.name : "", attendance: "hadir", guest_count: 1, message: "" });
+      clearPhoto();
       load(1).catch(() => undefined);
     } catch {
       toast.error("Gagal mengirim. Silakan coba lagi.");
@@ -328,7 +413,7 @@ export function RsvpPanel() {
                 rows={3}
                 maxLength={500}
                 placeholder="Tuliskan ucapan untuk kedua mempelai..."
-                className="mt-1 w-full resize-none rounded-[10px] crayon-box bg-white/85 px-3 font-script text-xl outline-none placeholder:text-[#2B2522]/35"
+                className="mt-1 w-full resize-none rounded-[10px] crayon-box bg-white/85 px-3 font-script text-xl outline-none placeholder:text-[#2F3D35]/35"
                 style={{
                   // ruled notebook paper: one line per 30px row
                   lineHeight: "30px",
@@ -340,6 +425,61 @@ export function RsvpPanel() {
               {errors.message && (
                 <p className="mt-1 font-code text-[10px] text-[#C0392B]">{errors.message.message}</p>
               )}
+            </div>
+
+            <div>
+              <span className={label}>
+                Foto lucu <span className="normal-case tracking-normal opacity-70">(opsional)</span>
+              </span>
+              <input
+                ref={photoInput}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  pickPhoto(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              <div className="relative mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => photoInput.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    pickPhoto(e.dataTransfer.files?.[0]);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-[12px] border-2 border-dashed border-[#2F3D35]/40 bg-white/60 p-2.5 pr-10 text-left transition-colors hover:bg-white"
+                >
+                  {photoPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoPreview} alt="Foto terpilih" className="h-16 w-16 flex-none rounded-[6px] object-cover" />
+                  ) : (
+                    <span className="grid h-16 w-16 flex-none place-items-center rounded-[6px] bg-white/80">
+                      <ImagePlus className="h-6 w-6 opacity-60" />
+                    </span>
+                  )}
+                  <span className="min-w-0">
+                    <span className="font-heading block truncate text-lg leading-tight">
+                      {photo ? "Foto terlampir" : "Tambah satu foto lucu"}
+                    </span>
+                    <span className="font-code block text-[10px] opacity-60">
+                      {photo ? "Ketuk untuk mengganti" : "Muncul di dinding ucapan · maks. 4MB"}
+                    </span>
+                  </span>
+                </button>
+                {photo && (
+                  <button
+                    type="button"
+                    aria-label="Hapus foto"
+                    onClick={clearPhoto}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full crayon-pill bg-white/90 p-1"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             <motion.button

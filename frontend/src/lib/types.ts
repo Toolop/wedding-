@@ -82,6 +82,8 @@ export interface Wish {
   attendance: Attendance;
   guest_count: number;
   message: string;
+  /** optional fun photo attached to the wish */
+  photo_url?: string;
   /** set when sent through a guest's personal link */
   guest_id?: number | null;
   created_at: string;

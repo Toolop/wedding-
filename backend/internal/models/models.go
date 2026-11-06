@@ -97,6 +97,8 @@ type Wish struct {
 	Attendance AttendanceStatus `json:"attendance"`
 	GuestCount int              `json:"guest_count"`
 	Message    string           `json:"message"`
+	// optional fun photo the guest attached to their wish
+	PhotoURL string `json:"photo_url"`
 	// set when the RSVP came through a guest's personal link
 	GuestID   *uint     `gorm:"index" json:"guest_id"`
 	CreatedAt time.Time `json:"created_at"`

@@ -30,6 +30,11 @@ var allowedExt = map[string]bool{
 	".jpg": true, ".jpeg": true, ".png": true, ".webp": true, ".gif": true,
 }
 
+var audioExt = map[string]bool{".mp3": true, ".ogg": true, ".m4a": true, ".wav": true}
+
+// the hosted API rejects request bodies over ~4.5MB, so audio stays under that
+const maxAudioBytes = 4 * 1024 * 1024
+
 func (h *UploadHandler) Upload(c *gin.Context) {
 	target := c.PostForm("target") // hero | couple | groom | bride | akad_map | resepsi_map | gallery
 	if target == "" {
@@ -43,7 +48,16 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 	}
 
 	ext := strings.ToLower(filepath.Ext(file.Filename))
-	if !allowedExt[ext] {
+	if target == "music" {
+		if !audioExt[ext] {
+			utils.Error(c, 400, "unsupported file type")
+			return
+		}
+		if file.Size > maxAudioBytes {
+			utils.Error(c, 400, "audio too large (max 4MB)")
+			return
+		}
+	} else if !allowedExt[ext] {
 		utils.Error(c, 400, "unsupported file type")
 		return
 	}
@@ -85,6 +99,8 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 		h.db.Model(&models.Settings{}).Where("1 = 1").Update("akad_venue_photo", publicURL)
 	case "resepsi_venue":
 		h.db.Model(&models.Settings{}).Where("1 = 1").Update("resepsi_venue_photo", publicURL)
+	case "music":
+		h.db.Model(&models.Settings{}).Where("1 = 1").Update("music_url", publicURL)
 	case "gallery":
 		var maxOrder struct{ Max int }
 		h.db.Model(&models.GalleryImage{}).Select("COALESCE(MAX(sort_order), 0) as max").Scan(&maxOrder)
