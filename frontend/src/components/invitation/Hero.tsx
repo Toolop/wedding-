@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, CalendarHeart, ExternalLink, MapPinned, X } from "lucide-react";
 import { getWishes, mediaUrl } from "@/lib/api";
-import { parseLooseDate } from "@/lib/dates";
 import type { InvitationData, Settings, WishesResponse } from "@/lib/types";
 import { CountdownStrip, useCountdown } from "./Countdown";
 import { usePortalRoot } from "../ThemeProvider";
@@ -20,7 +19,6 @@ import {
   HeartBurst,
   Illustration,
   MapPin,
-  OpenBook,
   Phone,
   Rings,
   WashBackdrop,
@@ -32,7 +30,6 @@ import { GiftPanel } from "./GiftPanel";
 import { CeremonyPanel } from "./CeremonyPanel";
 import { ContactPanel, CouplePanel, DatePanel, splitTime } from "./PortalPanels";
 import { RsvpPanel } from "./RsvpPanel";
-import { StoryPanel } from "./StoryPanel";
 
 /* ------------------------------------------------------------- date utils */
 function parseDate(value: string) {
@@ -133,7 +130,7 @@ function PhotoFan({ urls, mini = false }: { urls: string[]; mini?: boolean }) {
 }
 
 function buildCards(data: InvitationData, live: Live): CardDef[] {
-  const { settings, story, gallery, gifts } = data;
+  const { settings, gallery, gifts } = data;
   const face = calendarFace(settings.wedding_date);
   const gcal = calendarUrl(settings);
   const wedding = parseDate(settings.wedding_date);
@@ -146,11 +143,6 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
   const photos = gallery.length
     ? gallery.map((g) => mediaUrl(g.image_url))
     : PEEK_PHOTOS.map((n) => `/images/illustrations/${n}.jpeg`);
-  const years = story
-    .map((s) => parseLooseDate(s.event_date)?.getFullYear())
-    .filter((y): y is number => !!y);
-  const since = years.length ? Math.min(...years) : null;
-
   return [
     {
       key: "date",
@@ -259,37 +251,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       mini: <PhotoFan urls={photos} mini />,
       peekOnly: true,
       detail: <GalleryPanel gallery={gallery} />,
-      actions: [{ label: "Kisah kami", card: "story" }],
-    },
-    {
-      key: "story",
-      tone: "coral",
-      title: "Planning Timeline",
-      subtitle: "Track our progress",
-      tilt: -2.8,
-      art: <OpenBook className="h-16 w-auto" />,
-      chip: story.length ? `${story.length} bab` : undefined,
-      peek: since !== null && (
-        <span className="flex w-full items-center gap-1.5 px-1">
-          <span className="font-code text-[10px] opacity-70">{since}</span>
-          <span className="relative h-2 flex-1">
-            <span
-              className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2"
-              style={{ backgroundImage: `repeating-linear-gradient(90deg, ${INK}88 0 5px, transparent 5px 9px)` }}
-            />
-            {story.slice(0, 6).map((s, i, all) => (
-              <span
-                key={s.id}
-                className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                style={{ left: `${(i / Math.max(1, all.length)) * 100}%`, borderColor: INK, backgroundColor: INK }}
-              />
-            ))}
-          </span>
-          <Heart className="h-5 w-auto flex-none" color={BLUSH} animate={false} />
-        </span>
-      ),
-      detail: <StoryPanel story={story} settings={settings} />,
-      actions: [{ label: "Lihat galeri", card: "gallery" }],
+      actions: [],
     },
     {
       key: "rsvp",
@@ -318,7 +280,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       tilt: 0,
       art: <Rings className="h-14 w-auto" />,
       detail: <CouplePanel settings={settings} />,
-      actions: [{ label: "Kisah kami", card: "story" }],
+      actions: [],
     },
     {
       key: "contact",
@@ -803,7 +765,7 @@ export default function Hero({ data }: { data: InvitationData }) {
 
           {/* ---- bottom dock: place / time / contact as tappable chips, rings as the monogram ---- */}
           <div
-            className="flex flex-none items-center justify-between gap-3 crayon-rule-t py-2.5 pl-3 pr-[76px] text-[#2F3D35] sm:px-6 sm:py-3"
+            className="flex flex-none items-center justify-between gap-3 crayon-rule-t px-3 py-2.5 text-[#2F3D35] sm:px-6 sm:py-3"
             style={{ backgroundColor: "#E4EEDF" }}
           >
             <motion.button
@@ -834,9 +796,9 @@ export default function Hero({ data }: { data: InvitationData }) {
                   transition={{ delay: 1.1 + i * 0.1, duration: 0.5 }}
                   whileHover={{ y: -3, rotate: i % 2 ? 0.8 : -0.8 }}
                   whileTap={{ scale: 0.96 }}
-                  className="crayon-box flex min-w-0 flex-1 items-center gap-1.5 rounded-[12px] bg-white/70 px-2 py-1.5 text-left shadow-[3px_3px_0_rgba(63,107,87,0.2)] sm:flex-none sm:gap-2.5 sm:px-3.5"
+                  className="crayon-box flex min-w-0 flex-1 items-center gap-2 rounded-[12px] bg-white/70 px-2.5 py-1.5 text-left shadow-[3px_3px_0_rgba(63,107,87,0.2)] sm:flex-none sm:gap-2.5 sm:px-3.5"
                 >
-                  <span className="flex-none max-sm:[&>svg]:h-5">{item.icon}</span>
+                  <span className="flex-none">{item.icon}</span>
                   <span className="min-w-0">
                     <span className="font-heading block text-sm leading-tight sm:text-base">{item.label}</span>
                     <span className="font-eyebrow block max-w-[110px] truncate text-[8px] uppercase opacity-60 sm:text-[9px]">{item.sub}</span>
