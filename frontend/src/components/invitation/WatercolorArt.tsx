@@ -429,7 +429,7 @@ export function Trophy({ className = "", animate = true, delay = 0 }: ArtProps) 
 type Wash = { color: string; opacity: number; pos: string; d: string };
 
 const WASHES: Wash[] = [
-  { color: BLUSH, opacity: 0.45, pos: "-right-28 -top-28 h-[440px] w-[540px]", d: "M80 120 C140 20 360 0 440 90 C510 170 470 320 340 340 C220 360 40 300 60 200 Z" },
+  { color: "#C6DFCB", opacity: 0.5, pos: "-right-28 -top-28 h-[440px] w-[540px]", d: "M80 120 C140 20 360 0 440 90 C510 170 470 320 340 340 C220 360 40 300 60 200 Z" },
   { color: DENIM, opacity: 0.38, pos: "-bottom-32 -left-28 h-[400px] w-[540px]", d: "M60 200 C40 110 180 40 300 70 C430 100 500 220 420 300 C340 370 110 330 60 200 Z" },
   { color: "#B9D8C2", opacity: 0.45, pos: "-left-16 -top-20 h-[260px] w-[320px]", d: "M40 120 C30 50 140 20 220 50 C290 80 290 170 220 200 C150 230 50 200 40 120 Z" },
   { color: "#F2D4BE", opacity: 0.4, pos: "-bottom-24 -right-20 h-[300px] w-[380px]", d: "M60 150 C60 70 200 40 290 80 C360 110 350 220 270 250 C180 280 60 230 60 150 Z" },
