@@ -76,7 +76,7 @@ export default function OpeningScreen({
         transition={{ delay: 0.5, duration: 0.9 }}
         className="font-script text-6xl font-bold leading-tight sm:text-7xl"
       >
-        {settings.groom_name || "Groom"} &amp; {settings.bride_name || "Bride"}
+        {settings.bride_name || "Bride"} &amp; {settings.groom_name || "Groom"}
       </motion.h1>
 
       <motion.div

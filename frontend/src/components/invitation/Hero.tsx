@@ -103,24 +103,28 @@ function PhotoFan({ urls, mini = false }: { urls: string[]; mini?: boolean }) {
   const shown = urls.slice(0, mini ? 3 : 5);
   const mid = (shown.length - 1) / 2;
   return (
-    <span className="flex max-w-full items-center justify-center py-2">
+    <span className={`flex max-w-full items-center justify-center ${mini ? "h-full" : "py-2"}`}>
       {shown.map((src, i) => {
         const off = i - mid;
         return (
           <span
             key={i}
             className={`relative block flex-none bg-white shadow-[3px_4px_0_rgba(47,61,53,0.22)] transition-transform duration-300 group-hover:-translate-y-1 ${
-              mini ? "w-[46px] p-1 pb-2" : "w-[84px] p-1.5 pb-4"
+              mini ? "flex aspect-[46/57] h-[78%] flex-col p-1 pb-2" : "w-[84px] p-1.5 pb-4"
             }`}
             style={{
               marginLeft: i ? (mini ? "-14px" : "-26px") : 0,
               rotate: `${off * 6}deg`,
-              translate: `0 ${Math.abs(off) * 4}px`,
+              translate: `0 ${Math.abs(off) * (mini ? 2 : 4)}px`,
               zIndex: 10 - Math.round(Math.abs(off) * 2),
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" className="aspect-[4/5] w-full object-cover" />
+            <img
+              src={src}
+              alt=""
+              className={mini ? "min-h-0 w-full flex-1 object-cover" : "aspect-[4/5] w-full object-cover"}
+            />
           </span>
         );
       })}
@@ -354,15 +358,15 @@ function StickerCard({
       }}
       whileHover={{ y: -6, rotate: 0, scale: 1.035 }}
       whileTap={{ scale: 0.96, rotate: 0 }}
-      className={`group relative flex h-full min-h-0 flex-col items-center gap-0.5 overflow-hidden rounded-[14px] crayon-box wc px-2.5 pb-2 pt-2.5 text-center sm:px-3 ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""}`}
+      className={`group relative flex h-full min-h-0 flex-col items-center gap-0.5 overflow-hidden rounded-[14px] crayon-box wc px-2.5 pb-1.5 pt-2 text-center sm:px-3 sm:pb-2 sm:pt-2.5 ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""}`}
       style={{
         backgroundColor: tone.bg,
         color: tone.ink,
         boxShadow: `4px 5px 0 0 ${tone.edge}`,
       }}
     >
-      <span className="font-heading text-base leading-tight sm:text-xl">{card.title}</span>
-      <span className="font-eyebrow text-[8px] uppercase opacity-70 sm:text-[9px]">{card.subtitle}</span>
+      <span className="font-heading shrink-0 text-[15px] leading-[1.1] sm:text-xl sm:leading-tight">{card.title}</span>
+      <span className="font-eyebrow shrink-0 text-[8px] uppercase opacity-70 sm:text-[9px]">{card.subtitle}</span>
 
       {/* middle: a live preview on roomy screens, the hand-drawn art otherwise */}
       <span className={`flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 overflow-hidden py-1 ${card.wide ? "!flex-row gap-3 sm:gap-8" : ""}`}>
@@ -370,7 +374,7 @@ function StickerCard({
           <span className="hidden w-full justify-center lg:[@media(min-height:720px)]:flex">{card.peek}</span>
         )}
         {card.mini && (
-          <span className="flex justify-center lg:[@media(min-height:720px)]:hidden">{card.mini}</span>
+          <span className="flex min-h-0 self-stretch justify-center lg:[@media(min-height:720px)]:hidden">{card.mini}</span>
         )}
         <span
           className={`hidden items-end justify-center [@media(min-height:740px)]:flex ${
@@ -381,7 +385,7 @@ function StickerCard({
         </span>
       </span>
 
-      <span className="flex w-full items-center justify-center gap-1 px-5">
+      <span className="flex w-full shrink-0 items-center justify-center gap-1 px-5">
         {card.chip && (
           <span
             className="truncate rounded-full bg-white/75 px-2 py-0.5 font-code text-[10px] leading-tight sm:text-[11px]"
@@ -799,7 +803,7 @@ export default function Hero({ data }: { data: InvitationData }) {
 
           {/* ---- bottom dock: place / time / contact as tappable chips, rings as the monogram ---- */}
           <div
-            className="flex flex-none items-center justify-between gap-3 crayon-rule-t px-3 py-2.5 text-[#2F3D35] sm:px-6 sm:py-3"
+            className="flex flex-none items-center justify-between gap-3 crayon-rule-t py-2.5 pl-3 pr-[76px] text-[#2F3D35] sm:px-6 sm:py-3"
             style={{ backgroundColor: "#E4EEDF" }}
           >
             <motion.button
@@ -813,7 +817,7 @@ export default function Hero({ data }: { data: InvitationData }) {
             >
               <Rings className="h-8 w-auto" delay={1.4} />
               <span className="font-script text-xl leading-none text-[#2F3D35]/75">
-                {groom} &amp; {bride}
+                {bride} &amp; {groom}
               </span>
             </motion.button>
             <div className="flex min-w-0 flex-1 items-stretch justify-center gap-2 sm:flex-none sm:gap-3">
@@ -830,9 +834,9 @@ export default function Hero({ data }: { data: InvitationData }) {
                   transition={{ delay: 1.1 + i * 0.1, duration: 0.5 }}
                   whileHover={{ y: -3, rotate: i % 2 ? 0.8 : -0.8 }}
                   whileTap={{ scale: 0.96 }}
-                  className="crayon-box flex min-w-0 flex-1 items-center gap-2 rounded-[12px] bg-white/70 px-2.5 py-1.5 text-left shadow-[3px_3px_0_rgba(63,107,87,0.2)] sm:flex-none sm:gap-2.5 sm:px-3.5"
+                  className="crayon-box flex min-w-0 flex-1 items-center gap-1.5 rounded-[12px] bg-white/70 px-2 py-1.5 text-left shadow-[3px_3px_0_rgba(63,107,87,0.2)] sm:flex-none sm:gap-2.5 sm:px-3.5"
                 >
-                  <span className="flex-none">{item.icon}</span>
+                  <span className="flex-none max-sm:[&>svg]:h-5">{item.icon}</span>
                   <span className="min-w-0">
                     <span className="font-heading block text-sm leading-tight sm:text-base">{item.label}</span>
                     <span className="font-eyebrow block max-w-[110px] truncate text-[8px] uppercase opacity-60 sm:text-[9px]">{item.sub}</span>
