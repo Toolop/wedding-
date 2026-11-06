@@ -11,7 +11,6 @@ import {
   NAVY,
   PAPER,
   RED,
-  TEAL,
   type IllustrationKey,
 } from "./watercolor";
 
@@ -121,6 +120,13 @@ export function Illustration({ name, className = "" }: { name: IllustrationKey; 
       alt={art.alt}
       draggable={false}
       className={`select-none mix-blend-multiply ${className}`}
+      // feather the edges so the white paper of the scan melts into tinted backgrounds
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent)",
+        maskComposite: "intersect",
+        WebkitMaskComposite: "source-in",
+      }}
     />
   );
 }
@@ -253,7 +259,7 @@ export function Camera({ className = "", animate = true, delay = 0 }: ArtProps) 
       paint={
         <>
           <Paint d={body} color={NAVY} />
-          <Paint d={lens} color="#DCE5F2" />
+          <Paint d={lens} color="#D5E7DA" />
           <Paint d="M68 30 H76 V35 H68 Z" color={HONEY} />
         </>
       }
@@ -301,7 +307,7 @@ export function Envelope({ className = "", animate = true, delay = 0 }: ArtProps
       delay={delay}
       paint={
         <>
-          <Paint d="M8 20 H112 V84 H8 Z" color="#FFF1DF" />
+          <Paint d="M8 20 H112 V84 H8 Z" color="#F1F6EA" />
           <Paint d={seal} color={RED} />
         </>
       }
@@ -324,7 +330,7 @@ export function Rings({ className = "", animate = true, delay = 0 }: ArtProps) {
       paint={
         <>
           <path d={circles} fill="none" stroke={HONEY} strokeWidth={6} transform="translate(1.2 1.4)" />
-          <Paint d="M26 21 L32 12 L38 21 L32 27 Z" color="#DCE5F2" />
+          <Paint d="M26 21 L32 12 L38 21 L32 27 Z" color="#D5E7DA" />
         </>
       }
     >
@@ -363,7 +369,7 @@ export function Phone({ className = "", animate = true, delay = 0 }: ArtProps) {
       className={className}
       animate={animate}
       delay={delay}
-      paint={<><Paint d={body} color={NAVY} /><Paint d="M17 14 H45 V64 H17 Z" color="#B8C7E2" /></>}
+      paint={<><Paint d={body} color={NAVY} /><Paint d="M17 14 H45 V64 H17 Z" color="#C6DCCB" /></>}
     >
       <Outline d={body} width={3} />
       <Outline d="M26 70 H36" width={3} dashed={false} />
@@ -424,9 +430,9 @@ type Wash = { color: string; opacity: number; pos: string; d: string };
 
 const WASHES: Wash[] = [
   { color: BLUSH, opacity: 0.45, pos: "-right-28 -top-28 h-[440px] w-[540px]", d: "M80 120 C140 20 360 0 440 90 C510 170 470 320 340 340 C220 360 40 300 60 200 Z" },
-  { color: DENIM, opacity: 0.3, pos: "-bottom-32 -left-28 h-[400px] w-[540px]", d: "M60 200 C40 110 180 40 300 70 C430 100 500 220 420 300 C340 370 110 330 60 200 Z" },
-  { color: HONEY, opacity: 0.32, pos: "-left-16 -top-20 h-[260px] w-[320px]", d: "M40 120 C30 50 140 20 220 50 C290 80 290 170 220 200 C150 230 50 200 40 120 Z" },
-  { color: TEAL, opacity: 0.22, pos: "-bottom-24 -right-20 h-[300px] w-[380px]", d: "M60 150 C60 70 200 40 290 80 C360 110 350 220 270 250 C180 280 60 230 60 150 Z" },
+  { color: DENIM, opacity: 0.38, pos: "-bottom-32 -left-28 h-[400px] w-[540px]", d: "M60 200 C40 110 180 40 300 70 C430 100 500 220 420 300 C340 370 110 330 60 200 Z" },
+  { color: "#B9D8C2", opacity: 0.45, pos: "-left-16 -top-20 h-[260px] w-[320px]", d: "M40 120 C30 50 140 20 220 50 C290 80 290 170 220 200 C150 230 50 200 40 120 Z" },
+  { color: "#F2D4BE", opacity: 0.4, pos: "-bottom-24 -right-20 h-[300px] w-[380px]", d: "M60 150 C60 70 200 40 290 80 C360 110 350 220 270 250 C180 280 60 230 60 150 Z" },
 ];
 
 /** soft bleeding paint washes on the page, like a sheet of watercolour paper */
@@ -457,11 +463,11 @@ const SPOTS: Spot[] = [
 /** hearts, sparkle marks and café props drifting behind a panel */
 export function DoodleField({ kind = "love" }: { kind?: "love" | "cafe" | "win" }) {
   const render = (i: number) => {
-    if (i % 3 === 1) return <Emphasis className="h-8 w-auto text-[#2B2522]/45" flip={i % 2 === 0} />;
-    if (i % 3 === 2) return <Heart className="h-6 w-auto text-[#2B2522]/55" animate={false} />;
-    if (kind === "cafe") return <CoffeeCup className="h-10 w-auto text-[#2B2522]/60" animate={false} />;
-    if (kind === "win") return <Trophy className="h-12 w-auto text-[#2B2522]/60" animate={false} />;
-    return <Heart color={BLUSH} className="h-8 w-auto text-[#2B2522]/60" animate={false} />;
+    if (i % 3 === 1) return <Emphasis className="h-8 w-auto text-[#2F3D35]/45" flip={i % 2 === 0} />;
+    if (i % 3 === 2) return <Heart className="h-6 w-auto text-[#2F3D35]/55" animate={false} />;
+    if (kind === "cafe") return <CoffeeCup className="h-10 w-auto text-[#2F3D35]/60" animate={false} />;
+    if (kind === "win") return <Trophy className="h-12 w-auto text-[#2F3D35]/60" animate={false} />;
+    return <Heart color={BLUSH} className="h-8 w-auto text-[#2F3D35]/60" animate={false} />;
   };
 
   return (

@@ -26,7 +26,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAF5EC] px-6 text-center text-[#2B2522]">
+      <div className="flex min-h-screen items-center justify-center bg-[#F2F6EF] px-6 text-center text-[#2F3D35]">
         <p className="font-heading text-xl">Gagal memuat undangan. Silakan muat ulang halaman.</p>
       </div>
     );
@@ -34,14 +34,14 @@ export default function Home() {
 
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#FAF5EC]">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#F2F6EF]">
         <motion.div
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 1.2, repeat: Infinity }}
         >
-          <Heart className="h-9 w-9 fill-[#E9A195] text-[#2B2522]" strokeWidth={1.6} />
+          <Heart className="h-9 w-9 fill-[#E9A195] text-[#2F3D35]" strokeWidth={1.6} />
         </motion.div>
-        <p className="font-script text-2xl text-[#2B2522]/75">Memuat undangan...</p>
+        <p className="font-script text-2xl text-[#2F3D35]/75">Memuat undangan...</p>
       </div>
     );
   }

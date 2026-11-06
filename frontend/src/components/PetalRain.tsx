@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
-const COLORS = ["#E9A195", "#F2C66D", "#D2574A", "#8CC3BA", "#F7D9D2"];
+// baby's-breath white, sage and the odd blush petal
+const COLORS = ["#FFFFFF", "#F4F8F1", "#CFE3D4", "#A9C3A6", "#F3DDD8"];
 
 interface PetalStyle extends CSSProperties {
   "--drift"?: string;

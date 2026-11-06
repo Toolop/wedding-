@@ -57,7 +57,7 @@ export function KnownName({
   return (
     <div>
       <span className={labelClass}>Nama</span>
-      <div className="mt-1 flex items-baseline justify-between gap-3 border-b-2 border-dashed border-[#2B2522]/25 px-0.5 pb-1.5 pt-1">
+      <div className="mt-1 flex items-baseline justify-between gap-3 border-b-2 border-dashed border-[#2F3D35]/25 px-0.5 pb-1.5 pt-1">
         <p className="font-heading min-w-0 truncate text-xl">{name}</p>
         <button
           type="button"

@@ -92,7 +92,7 @@ function ProgressMeter({ chapters, wedding, now }: { chapters: Chapter[]; weddin
             className="absolute bottom-full mb-1.5 -translate-x-1/2 whitespace-nowrap"
             style={{ left: `${clamp(today, 10, 90)}%` }}
           >
-            <span className="font-script rounded-full bg-white px-2 py-0.5 text-base shadow-[2px_2px_0_rgba(43,37,34,0.2)]">
+            <span className="font-script rounded-full bg-white px-2 py-0.5 text-base shadow-[2px_2px_0_rgba(47,61,53,0.2)]">
               kita di sini
             </span>
           </motion.span>
@@ -137,7 +137,7 @@ function ChapterRow({ chapter, index, last }: { chapter: Chapter; index: number;
       {/* date stamp */}
       <div
         className={`relative z-[1] flex h-[52px] w-[52px] flex-col items-center justify-center rounded-full text-center ${
-          chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2B2522]/50"
+          chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2F3D35]/50"
         }`}
         style={{ backgroundColor: chapter.past ? t.bg : PAPER, rotate: `${-tilt * 3}deg` }}
       >
@@ -152,7 +152,7 @@ function ChapterRow({ chapter, index, last }: { chapter: Chapter; index: number;
       </div>
 
       <div
-        className={`relative rounded-[14px] px-4 py-3 ${chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2B2522]/45"}`}
+        className={`relative rounded-[14px] px-4 py-3 ${chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2F3D35]/45"}`}
         style={{
           backgroundColor: chapter.past ? t.bg : "rgba(255,255,255,0.55)",
           boxShadow: chapter.past ? `4px 5px 0 0 ${t.edge}` : "none",

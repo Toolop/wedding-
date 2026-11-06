@@ -1,31 +1,34 @@
 /**
- * Watercolour-comic palette, sampled from the couple illustrations:
- * warm white paper, soft crayon ink, navy polos, cream hijab, blush cheeks,
- * batik teal, honey highlights.
+ * Sage & mint palette: soft mint paper, baby's-breath white, sage and
+ * olive stickers, deep forest green for the strong buttons, a dusty rose
+ * for hearts and the circled date.
  */
-export const PAGE = "#FAF5EC";
-export const PAPER = "#FFFDF8";
-export const CHROME = "#F5E9D7";
-export const INK = "#2B2522";
-export const NAVY = "#3E4A6B";
-export const RED = "#D2574A";
-export const BLUSH = "#E9A195";
-export const HONEY = "#F2C66D";
-export const TEAL = "#5FA39A";
-export const DENIM = "#6F8FBF";
+export const PAGE = "#F2F6EF";
+export const PAPER = "#FCFDF9";
+export const CHROME = "#E4EEDF";
+export const INK = "#2F3D35";
+export const NAVY = "#3F6B57";
+export const RED = "#C2676A";
+export const BLUSH = "#E9A9A1";
+export const HONEY = "#E6CF8A";
+export const TEAL = "#7FA98F";
+export const DENIM = "#9CC9AE";
 
 /**
  * Sticker tones for the portal cards (keys kept from the original layout).
  * `edge` is the soft paint shadow; outlines are always crayon ink.
  */
 export const TONES = {
-  mauve: { bg: "#F7D9D2", edge: "#E9B5AA", ink: INK },
-  cream: { bg: "#F6EAD6", edge: "#E0CBA9", ink: INK },
-  sky: { bg: "#DCE5F2", edge: "#B5C5DE", ink: INK },
-  teal: { bg: "#D3E8E4", edge: "#A7CBC4", ink: INK },
-  coral: { bg: "#F8DEC4", edge: "#E8BF97", ink: INK },
-  magenta: { bg: NAVY, edge: "#27304A", ink: "#FFF7EC" },
-  butter: { bg: "#F8DC96", edge: "#E6BD5C", ink: INK },
+  mauve: { bg: "#E6EDD8", edge: "#C3D0AE", ink: INK },
+  cream: { bg: "#D9E6CC", edge: "#B4C9A3", ink: INK },
+  sky: { bg: "#D4E8DA", edge: "#AACAB4", ink: INK },
+  teal: { bg: "#C8E1D4", edge: "#9FC4B1", ink: INK },
+  coral: { bg: "#BFD3B5", edge: "#96AF8C", ink: INK },
+  magenta: { bg: NAVY, edge: "#2A4A3C", ink: "#F6FAF2" },
+  butter: { bg: "#EEF0CF", edge: "#D3D7A6", ink: INK },
+  olive: { bg: "#6F8A55", edge: "#4F663B", ink: "#F6FAF2" },
+  // the one warm sticker: "berhalangan" on the RSVP
+  rose: { bg: "#EEAAA3", edge: RED, ink: INK },
 } as const;
 
 export type ToneKey = keyof typeof TONES;

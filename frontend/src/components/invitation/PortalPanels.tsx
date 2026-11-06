@@ -77,10 +77,10 @@ function MonthCalendar({ date }: { date: Date }) {
         {/* binder rings */}
         <span aria-hidden className="absolute inset-x-10 -top-1 flex justify-between">
           {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="h-3.5 w-1.5 rounded-full border-2 border-[#2B2522] bg-[#FFFDF8]" />
+            <span key={i} className="h-3.5 w-1.5 rounded-full border-2 border-[#2F3D35] bg-[#FCFDF9]" />
           ))}
         </span>
-        <span className="font-poster text-lg uppercase tracking-[0.18em] text-[#FFF7EC]">{title}</span>
+        <span className="font-poster text-lg uppercase tracking-[0.18em] text-[#F6FAF2]">{title}</span>
       </div>
 
       <div className="grid grid-cols-7 gap-y-0.5 px-2.5 pb-3 pt-2 text-center sm:px-4">
@@ -174,7 +174,7 @@ export function DatePanel({ settings }: { settings: Settings }) {
       {date && <MonthCalendar date={date} />}
 
       {settings.quote && (
-        <figure className="relative mx-1 rotate-[-0.8deg] bg-white/90 px-5 pb-5 pt-6 shadow-[3px_5px_0_rgba(62,74,107,0.16)]"
+        <figure className="relative mx-1 rotate-[-0.8deg] bg-white/90 px-5 pb-5 pt-6 shadow-[3px_5px_0_rgba(63,107,87,0.16)]"
           style={{
             // torn bottom edge
             clipPath:
@@ -242,11 +242,11 @@ function Person({
         <img
           src={mediaUrl(image)}
           alt={name}
-          className="mx-auto aspect-square w-24 rounded-full border-2 border-dashed border-[#2B2522]/60 object-cover"
+          className="mx-auto aspect-square w-24 rounded-full border-2 border-dashed border-[#2F3D35]/60 object-cover"
           style={{}}
         />
       ) : (
-        <div className="mx-auto grid aspect-square w-24 place-items-center rounded-full border-2 border-dashed border-[#2B2522]/60" style={{}}>
+        <div className="mx-auto grid aspect-square w-24 place-items-center rounded-full border-2 border-dashed border-[#2F3D35]/60" style={{}}>
           <Heart className="h-10 w-auto" />
         </div>
       )}

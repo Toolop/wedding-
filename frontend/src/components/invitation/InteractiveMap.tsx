@@ -13,7 +13,7 @@ const SCRAP = "#F4E7CD";
 /** the venue pin, drawn like the red pin on the illustrated map */
 export function VenuePin({ size, color = RED }: { size: number; color?: string }) {
   return (
-    <svg viewBox="0 0 40 52" width={size} height={size * 1.3} aria-hidden className="drop-shadow-[1px_2px_0_rgba(43,37,34,0.35)]">
+    <svg viewBox="0 0 40 52" width={size} height={size * 1.3} aria-hidden className="drop-shadow-[1px_2px_0_rgba(47,61,53,0.35)]">
       <path
         d="M20 50 C20 50 4 31 4 19 C4 9.6 11.2 3 20 3 C28.8 3 36 9.6 36 19 C36 31 20 50 20 50 Z"
         fill={color}
@@ -21,7 +21,7 @@ export function VenuePin({ size, color = RED }: { size: number; color?: string }
         strokeWidth={2.6}
         strokeLinejoin="round"
       />
-      <circle cx="20" cy="19" r="6.5" fill="#FFFDF8" stroke={INK} strokeWidth={2} />
+      <circle cx="20" cy="19" r="6.5" fill="#FCFDF9" stroke={INK} strokeWidth={2} />
       <path d="M11 13 C12.5 9.5 15 8 17.5 7.6" stroke="#fff" strokeOpacity={0.6} strokeWidth={2.4} strokeLinecap="round" fill="none" />
     </svg>
   );
@@ -36,7 +36,7 @@ function FeatureSwatch({ feature }: { feature: MapFeature }) {
         </svg>
       );
     case "jalan":
-      return <span className="block h-2.5 w-7 rounded-full border border-[#2B2522]/30" style={{ backgroundColor: "#A7A3C4" }} />;
+      return <span className="block h-2.5 w-7 rounded-full border border-[#2F3D35]/30" style={{ backgroundColor: "#A7A3C4" }} />;
     case "gang":
       return <span className="block h-1.5 w-7 rounded-full" style={{ backgroundColor: "#CBC8DC" }} />;
     case "bangunan":
@@ -61,7 +61,7 @@ function MarkerDot({ kind, size }: { kind: MarkerKind; size: number }) {
         width: size,
         height: size,
         backgroundColor: meta.color,
-        boxShadow: `0 0 0 1.5px ${INK}, 1px 2px 0 1.5px rgba(43,37,34,0.3)`,
+        boxShadow: `0 0 0 1.5px ${INK}, 1px 2px 0 1.5px rgba(47,61,53,0.3)`,
       }}
     >
       <Icon className="text-white" style={{ width: size * 0.55, height: size * 0.55 }} strokeWidth={2.6} />
@@ -96,7 +96,7 @@ export function TornPaper({
 }) {
   const clip = tornPath(seed);
   return (
-    <div className={`relative ${className}`} style={{ filter: "drop-shadow(3px 4px 0 rgba(62,74,107,0.2))" }}>
+    <div className={`relative ${className}`} style={{ filter: "drop-shadow(3px 4px 0 rgba(63,107,87,0.2))" }}>
       <div style={{ clipPath: clip, backgroundColor: INK, padding: 2 }}>
         <div className="wc" style={{ clipPath: clip, backgroundColor: SCRAP }}>
           {children}
@@ -106,7 +106,7 @@ export function TornPaper({
         <span
           aria-hidden
           className={`absolute -top-2.5 h-5 w-16 opacity-85 ${tape === "left" ? "-left-3 -rotate-[28deg]" : "left-1/2 -translate-x-1/2 -rotate-3"}`}
-          style={{ backgroundColor: "#E7D3A8", boxShadow: "inset 0 0 0 1px rgba(43,37,34,0.12)" }}
+          style={{ backgroundColor: "#C9DBBE", boxShadow: "inset 0 0 0 1px rgba(47,61,53,0.12)" }}
         />
       )}
     </div>
@@ -151,12 +151,12 @@ export function VenuePolaroid({ src, caption }: { src: string; caption: string }
   return (
     <div
       className="relative w-full rounded-[4px] crayon-box bg-white p-2 pb-1"
-      style={{ boxShadow: "3px 5px 0 rgba(62,74,107,0.2)" }}
+      style={{ boxShadow: "3px 5px 0 rgba(63,107,87,0.2)" }}
     >
       <span
         aria-hidden
         className="absolute -top-2.5 left-1/2 z-10 h-5 w-14 -translate-x-1/2 -rotate-6 opacity-85"
-        style={{ backgroundColor: "#E7D3A8" }}
+        style={{ backgroundColor: "#C9DBBE" }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={`Foto ${caption}`} className="block aspect-[4/3] w-full rounded-[2px] object-cover" />
@@ -182,7 +182,7 @@ export function Compass({ size, className = "", delay = 0.5 }: { size: number; c
       transition={{ delay, type: "spring", stiffness: 90, damping: 11 }}
       className={className}
     >
-      <path d="M30 8 L33.5 26.5 L52 30 L33.5 33.5 L30 52 L26.5 33.5 L8 30 L26.5 26.5 Z" fill="#9AA6C4" stroke={NAVY} strokeWidth={1.3} strokeLinejoin="round" />
+      <path d="M30 8 L33.5 26.5 L52 30 L33.5 33.5 L30 52 L26.5 33.5 L8 30 L26.5 26.5 Z" fill="#A9C3A6" stroke={NAVY} strokeWidth={1.3} strokeLinejoin="round" />
       <path d="M30 4 L34 30 L30 56 L26 30 Z" fill={NAVY} stroke={NAVY} strokeWidth={1} strokeLinejoin="round" />
       <path d="M4 30 L30 26 L56 30 L30 34 Z" fill={NAVY} stroke={NAVY} strokeWidth={1} strokeLinejoin="round" />
       <path d="M30 4 L34 30 L30 30 Z M4 30 L30 26 L30 30 Z" fill="#B9C3DD" />
@@ -285,7 +285,7 @@ function Marker({
             initial={{ opacity: 0, x: flip ? 6 : -6 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}
-            className="whitespace-nowrap rounded-full bg-white/90 px-1.5 py-px font-heading text-[12px] leading-tight shadow-[1px_1px_0_rgba(43,37,34,0.2)]"
+            className="whitespace-nowrap rounded-full bg-white/90 px-1.5 py-px font-heading text-[12px] leading-tight shadow-[1px_1px_0_rgba(47,61,53,0.2)]"
             style={{ color: kind.color }}
           >
             {marker.label}
@@ -344,7 +344,7 @@ export function InteractiveMap({
       {/* a soft paper veil so the labels read clearly once everything is shown */}
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[#FFFDF8]"
+        className="pointer-events-none absolute inset-0 bg-[#FCFDF9]"
         animate={{ opacity: revealed ? 0.18 : 0 }}
       />
 
@@ -410,7 +410,7 @@ export function InteractiveMap({
                   animate={{ opacity: 1, scale: 1, rotate: -6 }}
                   exit={{ opacity: 0, scale: 0.5 }}
                   transition={{ delay: 0.25, type: "spring", stiffness: 300, damping: 14 }}
-                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-px text-base leading-tight text-white shadow-[2px_2px_0_rgba(43,37,34,0.3)]"
+                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-px text-base leading-tight text-white shadow-[2px_2px_0_rgba(47,61,53,0.3)]"
                   style={{ backgroundColor: RED }}
                 >
                   di sini!
@@ -422,7 +422,7 @@ export function InteractiveMap({
                   animate={{ opacity: 1, y: [0, -4, 0] }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ y: { repeat: Infinity, duration: 1.6, ease: "easeInOut" } }}
-                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-base leading-tight shadow-[2px_2px_0_rgba(43,37,34,0.25)]"
+                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-base leading-tight shadow-[2px_2px_0_rgba(47,61,53,0.25)]"
                 >
                   ketuk aku!
                 </motion.span>

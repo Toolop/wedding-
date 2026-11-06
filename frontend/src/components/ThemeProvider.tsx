@@ -31,7 +31,7 @@ export default function ThemeProvider({
     "--font-body": settings.font_body || "'Nunito', sans-serif",
     fontFamily: "var(--font-body)",
     // the watercolour invitation always sits on warm paper, whatever the admin colours are
-    backgroundColor: "#FAF5EC",
+    backgroundColor: "#F2F6EF",
   } as CSSProperties;
 
   return (

@@ -204,7 +204,7 @@ function MapViewer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#3E4A6B]/70 p-3 sm:p-6"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#3F6B57]/70 p-3 sm:p-6"
           onClick={onClose}
         >
           <motion.div
@@ -213,7 +213,7 @@ function MapViewer({
             exit={{ scale: 0.92, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
             className="flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-[14px] crayon-box wc"
-            style={{ backgroundColor: PAPER, color: INK, boxShadow: "8px 10px 0 0 rgba(62,74,107,0.4)" }}
+            style={{ backgroundColor: PAPER, color: INK, boxShadow: "8px 10px 0 0 rgba(63,107,87,0.4)" }}
           >
             <div className="crayon-rule-b flex items-center justify-between gap-3 px-4 py-2.5">
               <p className="font-heading truncate text-xl">{map.venue || map.label}</p>
@@ -303,7 +303,7 @@ function MapViewer({
                   href={map.maps}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#FFF7EC] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#F6FAF2] transition-transform hover:-translate-y-0.5"
                   style={{ backgroundColor: TONES.magenta.bg }}
                 >
                   Buka di Google Maps <ExternalLink className="h-3 w-3" />
@@ -491,7 +491,7 @@ function MapSection({
             href={map.maps}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#FFF7EC] transition-transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#F6FAF2] transition-transform hover:-translate-y-0.5"
             style={{ backgroundColor: TONES.magenta.bg }}
           >
             Google Maps <ExternalLink className="h-3 w-3" />

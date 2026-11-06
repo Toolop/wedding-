@@ -37,7 +37,7 @@ function Polaroid({
       whileHover={{ rotate: 0, scale: 1.03, zIndex: 10 }}
       whileTap={{ scale: 0.98 }}
       className="relative mb-4 block w-full break-inside-avoid rounded-[6px] bg-white p-1.5 pb-0 text-left"
-      style={{ boxShadow: "0 1px 0 rgba(43,37,34,0.15), 3px 5px 0 rgba(62,74,107,0.18)" }}
+      style={{ boxShadow: "0 1px 0 rgba(47,61,53,0.15), 3px 5px 0 rgba(63,107,87,0.18)" }}
     >
       <span
         aria-hidden
@@ -93,10 +93,10 @@ function Lightbox({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[80] flex flex-col items-center justify-center gap-3 bg-[#2B2522]/80 p-3 sm:p-6"
+      className="fixed inset-0 z-[80] flex flex-col items-center justify-center gap-3 bg-[#2F3D35]/80 p-3 sm:p-6"
       onClick={onClose}
     >
-      <div className="flex w-full max-w-2xl items-center justify-between text-[#FFF7EC]">
+      <div className="flex w-full max-w-2xl items-center justify-between text-[#F6FAF2]">
         <span className="font-code text-xs tabular-nums opacity-80">
           {index + 1} / {gallery.length}
         </span>
@@ -123,7 +123,7 @@ function Lightbox({
             dragElastic={0.5}
             onDragEnd={onDragEnd}
             className="max-w-full touch-pan-y rounded-[6px] bg-white p-2 pb-0"
-            style={{ boxShadow: "8px 10px 0 0 rgba(62,74,107,0.45)" }}
+            style={{ boxShadow: "8px 10px 0 0 rgba(63,107,87,0.45)" }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -173,7 +173,7 @@ function Lightbox({
               onClick={() => onJump(i)}
               aria-label={`Foto ${i + 1}`}
               className={`h-12 w-12 flex-none overflow-hidden rounded-[4px] bg-white p-0.5 transition ${
-                i === index ? "scale-110 opacity-100 ring-2 ring-[#F2C66D]" : "opacity-55 hover:opacity-90"
+                i === index ? "scale-110 opacity-100 ring-2 ring-[#E6CF8A]" : "opacity-55 hover:opacity-90"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
