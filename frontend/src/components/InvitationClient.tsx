@@ -23,7 +23,9 @@ export default function InvitationClient({
   data: InvitationData;
   access: GuestAccess;
 }) {
-  const [current, setStage] = useState<Stage>("opened");
+  const [current, setStage] = useState<Stage>("comic");
+  // the song begins when the guest opens their eyes in the comic (or skips it)
+  const [music, setMusic] = useState(false);
   const { settings } = data;
   const allowed = access.status === "ok";
   // without a valid personal link the envelope stays shut, whatever stage we start at
@@ -52,24 +54,29 @@ export default function InvitationClient({
           position="top-center"
           toastOptions={{
             style: {
-              background: "#FFFDF8",
-              color: "#2B2522",
-              border: "2px dashed #2B2522",
+              background: "#FCFDF9",
+              color: "#2F3D35",
+              border: "2px dashed #2F3D35",
               borderRadius: "999px",
               fontFamily: "Nunito, sans-serif",
               fontWeight: 600,
             },
-            iconTheme: { primary: "#D2574A", secondary: "#FFFDF8" },
+            iconTheme: { primary: "#C2676A", secondary: "#FCFDF9" },
           }}
         />
+        {/* same paper as the comic and envelope, so the gap between their fades doesn't flash */}
+        {stage !== "opened" && <div aria-hidden className="fixed inset-0 -z-10 bg-[#F2F6EF]" />}
         <PetalRain />
         <AnimatePresence mode="wait">
           {stage === "comic" && (
             <ComicIntro
               key="comic"
               settings={settings}
-              story={data.story}
-              onFinish={() => setStage("envelope")}
+              onWake={() => setMusic(true)}
+              onFinish={() => {
+                setMusic(true);
+                setStage("envelope");
+              }}
             />
           )}
           {stage === "envelope" && (
@@ -82,10 +89,12 @@ export default function InvitationClient({
           )}
         </AnimatePresence>
 
-        {stage === "opened" && <MusicToggle musicUrl={settings.music_url} autoStart />}
+        {/* mounted for the whole visit so the song runs through comic, envelope and invitation */}
+        <MusicToggle musicUrl={settings.music_url} start={music} />
 
-        {/* without a valid link the envelope stays shut, so the invitation isn't rendered behind it */}
-        {allowed && <Hero data={data} />}
+        {/* mounted only once the envelope opens: the comic and envelope fade in and out,
+            and anything rendered behind them would flash through during those fades */}
+        {stage === "opened" && <Hero data={data} />}
       </ThemeProvider>
     </GuestProvider>
   );
