@@ -79,6 +79,30 @@ export default function OpeningScreen({
         {settings.bride_name || "Bride"} &amp; {settings.groom_name || "Groom"}
       </motion.h1>
 
+      {(settings.bride_parents || settings.groom_parents) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="mt-3 grid w-full max-w-sm gap-2 font-body text-xs leading-relaxed text-[#2F3D35]/75 sm:grid-cols-2 sm:gap-4"
+        >
+          {settings.bride_parents && (
+            <p>
+              <span className="font-heading text-sm text-[#2F3D35]">{settings.bride_name}</span>
+              <br />
+              {settings.bride_parents}
+            </p>
+          )}
+          {settings.groom_parents && (
+            <p>
+              <span className="font-heading text-sm text-[#2F3D35]">{settings.groom_name}</span>
+              <br />
+              {settings.groom_parents}
+            </p>
+          )}
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

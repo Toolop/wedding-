@@ -645,6 +645,25 @@ export default function Hero({ data }: { data: InvitationData }) {
                 dengan penuh cinta, kami mengundangmu
               </motion.p>
 
+              {/* an obvious, tappable door to the couple pop-up */}
+              <motion.button
+                type="button"
+                onClick={() => setOpenKey("couple")}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.85, duration: 0.5 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                className="crayon-pill mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 font-code text-xs text-[#3F6B57] shadow-[3px_3px_0_rgba(63,107,87,0.2)] transition-colors hover:bg-[#E4EEDF] sm:text-sm"
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C9626A] opacity-70" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#C9626A]" />
+                </span>
+                Kenalan dengan mempelai
+                <ArrowRight className="h-3.5 w-3.5" />
+              </motion.button>
+
               {/* save-the-date ticket: date on the stub, live countdown and venue on the body */}
               <motion.button
                 initial={{ opacity: 0, y: 12 }}
