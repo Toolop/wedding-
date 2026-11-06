@@ -155,7 +155,6 @@ export default function WakeUp({
 
             <span className="relative flex flex-col items-center gap-1.5">
               <span className="font-script text-2xl sm:text-3xl">ketuk untuk membuka mata</span>
-              <span className="font-eyebrow text-[10px] text-[#F6FAF2]/50">{"// sebuah undangan interaktif"}</span>
             </span>
           </motion.button>
         )}
