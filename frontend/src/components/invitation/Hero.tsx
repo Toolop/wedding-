@@ -100,17 +100,17 @@ function PhotoFan({ urls, mini = false }: { urls: string[]; mini?: boolean }) {
   const shown = urls.slice(0, mini ? 3 : 5);
   const mid = (shown.length - 1) / 2;
   return (
-    <span className={`flex max-w-full items-center justify-center ${mini ? "h-full" : "py-2"}`}>
+    <span className={`flex max-w-full items-center justify-center ${mini ? "" : "py-2"}`}>
       {shown.map((src, i) => {
         const off = i - mid;
         return (
           <span
             key={i}
             className={`relative block flex-none bg-white shadow-[3px_4px_0_rgba(47,61,53,0.22)] transition-transform duration-300 group-hover:-translate-y-1 ${
-              mini ? "flex aspect-[46/57] h-[78%] flex-col p-1 pb-2" : "w-[84px] p-1.5 pb-4"
+              mini ? "w-[46px] p-[3px] pb-1.5" : "w-[84px] p-1.5 pb-4"
             }`}
             style={{
-              marginLeft: i ? (mini ? "-14px" : "-26px") : 0,
+              marginLeft: i ? (mini ? "-12px" : "-26px") : 0,
               rotate: `${off * 6}deg`,
               translate: `0 ${Math.abs(off) * (mini ? 2 : 4)}px`,
               zIndex: 10 - Math.round(Math.abs(off) * 2),
@@ -120,7 +120,7 @@ function PhotoFan({ urls, mini = false }: { urls: string[]; mini?: boolean }) {
             <img
               src={src}
               alt=""
-              className={mini ? "min-h-0 w-full flex-1 object-cover" : "aspect-[4/5] w-full object-cover"}
+              className="aspect-[4/5] w-full object-cover"
             />
           </span>
         );
@@ -320,7 +320,7 @@ function StickerCard({
       }}
       whileHover={{ y: -6, rotate: 0, scale: 1.035 }}
       whileTap={{ scale: 0.96, rotate: 0 }}
-      className={`group relative flex h-full min-h-0 flex-col items-center gap-0.5 overflow-hidden rounded-[14px] crayon-box wc px-2.5 pb-1.5 pt-2 text-center sm:px-3 sm:pb-2 sm:pt-2.5 ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""}`}
+      className={`group relative flex h-full min-h-0 flex-col items-center gap-0.5 overflow-hidden rounded-[14px] crayon-box wc px-2.5 pb-1.5 pt-2 text-center sm:px-3 sm:pb-2 sm:pt-2.5 ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""} ${card.key === "gallery" ? "max-sm:order-2" : ""}`}
       style={{
         backgroundColor: tone.bg,
         color: tone.ink,
@@ -336,7 +336,7 @@ function StickerCard({
           <span className="hidden w-full justify-center lg:[@media(min-height:720px)]:flex">{card.peek}</span>
         )}
         {card.mini && (
-          <span className="flex min-h-0 self-stretch justify-center lg:[@media(min-height:720px)]:hidden">{card.mini}</span>
+          <span className="flex justify-center lg:[@media(min-height:720px)]:hidden">{card.mini}</span>
         )}
         <span
           className={`hidden items-end justify-center [@media(min-height:740px)]:flex ${
