@@ -59,7 +59,10 @@ export function formatPhone(phone: string) {
 
 // ---- Excel ----
 
-const HEADER_MATCH: Record<keyof GuestInput, RegExp> = {
+/** the columns a sheet can carry; how the invitation opens is set in the admin, not in Excel */
+type SheetColumn = "name" | "phone" | "category";
+
+const HEADER_MATCH: Record<SheetColumn, RegExp> = {
   name: /^(nama|name|nama tamu|tamu)/i,
   // a bare "No" column is row numbering, not a phone number
   phone: /(whatsapp|\bwa\b|\bhp\b|telp|telepon|phone|ponsel|nomor|^no\.?\s+\S)/i,
@@ -93,7 +96,7 @@ export async function parseGuestSheet(file: File): Promise<ParsedRow[]> {
   if (!sheet) return [];
   const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: true, blankrows: true });
 
-  const cols: Record<keyof GuestInput, number> = { name: 0, phone: 1, category: 2 };
+  const cols: Record<SheetColumn, number> = { name: 0, phone: 1, category: 2 };
   let start = 0;
   const header = (rows[0] ?? []).map(cellText);
   const nameCol = header.findIndex((h) => HEADER_MATCH.name.test(h));

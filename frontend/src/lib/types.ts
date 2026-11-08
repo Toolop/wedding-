@@ -120,6 +120,8 @@ export interface InvitationData {
   gifts?: GiftAccount[];
 }
 
+export type GuestMode = "" | "dashboard" | "scroll";
+
 export interface Guest {
   id: number;
   /** token in the guest's personal link (/?u=<code>) */
@@ -128,6 +130,10 @@ export interface Guest {
   /** digits only, 62..., or "" when unknown */
   phone: string;
   category: string;
+  /** how their invitation opens; "" follows the default (dashboard) */
+  mode: GuestMode;
+  /** jump straight to the envelope, without the comic intro */
+  skip_comic: boolean;
   sent_at: string | null;
   opened_at: string | null;
   created_at: string;

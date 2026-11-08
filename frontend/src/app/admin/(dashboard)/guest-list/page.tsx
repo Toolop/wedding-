@@ -3,6 +3,11 @@
 import {
   ChevronLeft,
   ChevronRight,
+  Clapperboard,
+  LayoutDashboard,
+  ScrollText,
+  Settings2,
+  SkipForward,
   Copy,
   Download,
   Link2Off,
@@ -26,7 +31,7 @@ import { toast } from "sonner";
 import { AttendanceBadge } from "@/components/admin/attendance";
 import { useAdminData } from "@/components/admin/admin-data";
 import { BroadcastDialog } from "@/components/admin/guest-broadcast";
-import { GuestFormDialog, GuestImportDialog } from "@/components/admin/guest-dialogs";
+import { GUEST_MODES, GuestFormDialog, GuestImportDialog } from "@/components/admin/guest-dialogs";
 import { SaveBar, useSettingsDraft } from "@/components/admin/settings-form";
 import { PageHeader } from "@/components/admin/site-header";
 import {
@@ -46,6 +51,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -74,7 +80,7 @@ import {
   guestLink,
   waLink,
 } from "@/lib/guests";
-import type { Guest } from "@/lib/types";
+import type { Guest, GuestMode } from "@/lib/types";
 
 const PAGE_SIZE = 20;
 const TEMPLATE_KEYS = ["wa_template"] as const;
@@ -264,6 +270,25 @@ export default function GuestListPage() {
     }
   };
 
+  /** set how the chosen guests' invitations open, a few requests at a time */
+  const applyOpening = async (targets: Guest[], patch: { mode?: GuestMode; skip_comic?: boolean }, label: string) => {
+    const token = getToken();
+    if (!token || !targets.length) return;
+    const id = toast.loading(`Mengatur ${targets.length} tamu…`);
+    let failed = 0;
+    for (let i = 0; i < targets.length; i += 8) {
+      const results = await Promise.allSettled(
+        targets.slice(i, i + 8).map((g) => adminUpdateGuest(token, g.id, patch))
+      );
+      for (const r of results) {
+        if (r.status === "fulfilled") patchGuest(r.value);
+        else failed++;
+      }
+    }
+    if (failed) toast.error(`${failed} tamu gagal diatur`, { id });
+    else toast.success(`${targets.length} tamu: ${label}`, { id });
+  };
+
   const confirmDelete = async () => {
     const token = getToken();
     if (!token || !deleting) return;
@@ -391,6 +416,36 @@ export default function GuestListPage() {
           </div>
           {selectedGuests.length > 0 ? (
             <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Settings2 />
+                    Atur tampilan
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Tampilan undangan</DropdownMenuLabel>
+                  {GUEST_MODES.map((m) => (
+                    <DropdownMenuItem
+                      key={m.value || "default"}
+                      onClick={() => applyOpening(selectedGuests, { mode: m.value }, `tampilan ${m.label}`)}
+                    >
+                      {m.value === "scroll" ? <ScrollText /> : m.value === "dashboard" ? <LayoutDashboard /> : <RotateCcw />}
+                      {m.label}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Komik pembuka</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => applyOpening(selectedGuests, { skip_comic: false }, "komik ditampilkan")}>
+                    <Clapperboard />
+                    Tampilkan komik
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => applyOpening(selectedGuests, { skip_comic: true }, "komik dilewati")}>
+                    <SkipForward />
+                    Lewati komik
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="outline" className="text-destructive" onClick={() => setDeleting(selectedGuests)}>
                 <Trash2 />
                 Hapus {selectedGuests.length}
@@ -470,6 +525,22 @@ export default function GuestListPage() {
                       <TableCell>
                         <p className="font-medium">{g.name}</p>
                         {g.category && <p className="text-xs text-muted-foreground">{g.category}</p>}
+                        {(g.mode || g.skip_comic) && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {g.mode && (
+                              <Badge variant="secondary" className="gap-1 px-1.5 text-[10px] font-normal">
+                                {g.mode === "scroll" ? <ScrollText className="size-3" /> : <LayoutDashboard className="size-3" />}
+                                {g.mode === "scroll" ? "Scroll" : "Dashboard"}
+                              </Badge>
+                            )}
+                            {g.skip_comic && (
+                              <Badge variant="secondary" className="gap-1 px-1.5 text-[10px] font-normal">
+                                <SkipForward className="size-3" />
+                                Tanpa komik
+                              </Badge>
+                            )}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground tabular-nums">
                         {g.phone ? formatPhone(g.phone) : "—"}

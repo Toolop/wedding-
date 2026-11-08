@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { useInvitedGuest } from "./guest";
 import { BLUSH, HONEY } from "./watercolor";
 import { Emphasis, Heart } from "./WatercolorArt";
@@ -155,7 +155,6 @@ function Peeker({
 }) {
   const art = ART[who];
   const left = who === "tiara";
-  const reduce = useReducedMotion();
   const peek = usePeekaboo(delay);
   const { out } = peek;
   const [hops, setHops] = useState(0);
@@ -209,28 +208,17 @@ function Peeker({
       onAnimationComplete={front ? undefined : peek.settled}
     >
       {/* idle: bob, plus a small lean in toward the window every few seconds */}
-      <motion.span
-        className="block h-full w-full"
-        style={{ transformOrigin: left ? "100% 100%" : "0% 100%" }}
-        animate={
-          reduce || !out
-            ? undefined
-            : {
-                x: left ? [0, 0, 6, 6, 0, 0] : [0, 0, -6, -6, 0, 0],
-                rotate: left ? [0, 0, 2, 1, 0, 0] : [0, 0, -2, -1, 0, 0],
-              }
-        }
-        transition={{ duration: 7, times: [0, 0.55, 0.62, 0.75, 0.82, 1], repeat: Infinity, delay: left ? 0 : 3.2 }}
+      <span
+        className={`block h-full w-full ${out ? (left ? "anim-lean-l" : "anim-lean-r") : ""}`}
+        style={{ transformOrigin: left ? "100% 100%" : "0% 100%", "--dur": "7s", "--delay": left ? "0s" : "3.2s" } as CSSProperties}
       >
         <motion.span
           key={hops}
-          className="block h-full w-full"
-          animate={hops ? { y: [0, -18, 0, -6, 0] } : reduce ? undefined : { y: [0, -4, 0] }}
-          transition={
-            hops
-              ? { duration: 0.6, ease: "easeOut" }
-              : { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: left ? 0 : 0.8 }
-          }
+          // the idle bob is a CSS loop (GPU); framer only plays the one-off hop on a tap
+          className={`block h-full w-full ${hops ? "" : "anim-bob"}`}
+          style={{ "--dur": "2.6s", "--delay": left ? "0s" : "0.8s" } as CSSProperties}
+          animate={hops ? { y: [0, -18, 0, -6, 0] } : undefined}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -240,7 +228,7 @@ function Peeker({
             className="h-full w-full select-none drop-shadow-[2px_3px_0_rgba(47,61,53,0.12)]"
           />
         </motion.span>
-      </motion.span>
+      </span>
     </motion.span>
   );
 
@@ -271,29 +259,25 @@ function Peeker({
             <motion.span
               className={`absolute top-[-4%] ${left ? "left-[-6%]" : "right-[-6%]"}`}
               initial={{ scale: 0 }}
-              animate={{ scale: 1, y: [0, -6, 0], rotate: [-8, 6, -8] }}
-              transition={{
-                scale: { type: "spring", stiffness: 300, damping: 12 },
-                y: { duration: 3, repeat: Infinity },
-                rotate: { duration: 3, repeat: Infinity },
-              }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 12 }}
             >
-              <Heart color={BLUSH} animate={false} className="h-6 w-auto text-[#2F3D35]" />
+              <span className="anim-float block" style={{ "--dur": "3s" } as CSSProperties}>
+                <Heart color={BLUSH} animate={false} className="h-6 w-auto text-[#2F3D35]" />
+              </span>
             </motion.span>
-            <motion.span
-              className={`absolute top-[48%] ${left ? "left-[-18%]" : "right-[-18%]"}`}
-              animate={{ scale: [0.6, 1, 0.6], rotate: [0, 45, 0] }}
-              transition={{ duration: 2.2, repeat: Infinity, delay: left ? 0.4 : 1.1 }}
+            <span
+              className={`anim-twinkle absolute top-[48%] ${left ? "left-[-18%]" : "right-[-18%]"}`}
+              style={{ "--dur": "2.2s", "--delay": left ? "0.4s" : "1.1s" } as CSSProperties}
             >
               <Twinkle className="h-5 w-5" />
-            </motion.span>
-            <motion.span
-              className={`absolute top-[10%] ${left ? "left-[-20%]" : "right-[-20%]"}`}
-              animate={{ opacity: [0, 1, 1, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 2.5, delay: left ? 1 : 2 }}
+            </span>
+            <span
+              className={`anim-blink absolute top-[10%] ${left ? "left-[-20%]" : "right-[-20%]"}`}
+              style={{ "--dur": "4.3s", "--delay": left ? "1s" : "2s" } as CSSProperties}
             >
               <Emphasis className="h-7 w-auto" flip={!left} />
-            </motion.span>
+            </span>
           </>
         )}
 
@@ -325,9 +309,26 @@ function Peeker({
  * standing in the margin with a hand over the border.
  * Render inside a `relative` box that is exactly the window.
  */
+/** true from Tailwind's `xl` up, where the full-size peekers stand beside the window */
+const XL = "(min-width: 1280px)";
+function useIsXl() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(XL);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(XL).matches,
+    () => false
+  );
+}
+
 export function PeekingCouple() {
   const guest = useInvitedGuest();
+  const isXl = useIsXl();
   const hello = guest?.name ? `Hai, ${guest.name.split(" ")[0]}! 👋` : "Hai! 👋";
+  // mounted only where it shows: hidden with CSS, its peekaboo timers and springs kept running
+  if (!isXl) return null;
   return (
     // no z-index here: the body and hand layers have to stack around the window itself
     <div className="pointer-events-none absolute inset-0 hidden xl:block">
@@ -366,9 +367,10 @@ function CornerPeeker({ who, side, delay, onSay }: { who: Who; side: "left" | "r
     >
       <motion.span
         key={hops}
-        className="block h-full w-full"
-        animate={hops ? { y: [0, -14, 0] } : { y: [0, -3, 0], rotate: side === "left" ? [0, 3, 0] : [0, -3, 0] }}
-        transition={hops ? { duration: 0.5 } : { duration: 2.8, repeat: Infinity }}
+        className={`block h-full w-full ${hops ? "" : "anim-bob"}`}
+        style={{ "--dur": "2.8s" } as CSSProperties}
+        animate={hops ? { y: [0, -14, 0] } : undefined}
+        transition={{ duration: 0.5 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={art.src} alt="" draggable={false} className="h-full w-full select-none" />
@@ -383,6 +385,7 @@ function CornerPeeker({ who, side, delay, onSay }: { who: Who; side: "left" | "r
  */
 export function PeekingCoupleCorners() {
   const [bubble, say] = useBubble();
+  if (useIsXl()) return null;
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden xl:hidden">
       <div className="pointer-events-auto">

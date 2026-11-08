@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Music2 } from "lucide-react";
+import { Music2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { mediaUrl } from "@/lib/api";
 import { onMusicDuck } from "./musicDuck";
@@ -80,10 +80,14 @@ export default function MusicToggle({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1 }}
-          className="wc fixed left-3 top-3 z-[60] flex h-10 w-10 sm:bottom-4 sm:left-auto sm:right-4 sm:top-auto sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 border-dashed border-[#2F3D35] bg-[#F3DDD8] text-[#2F3D35] shadow-[3px_4px_0_0_#C3D0AE]"
-          aria-label="Toggle music"
+          className={`wc fixed left-3 top-3 z-[60] flex h-10 w-10 sm:bottom-4 sm:left-auto sm:right-4 sm:top-auto sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 border-dashed border-[#2F3D35] text-[#2F3D35] shadow-[3px_4px_0_0_#C3D0AE] transition-colors ${
+            playing ? "bg-[#F3DDD8]" : "bg-[#E4EEDF] text-[#2F3D35]/60"
+          }`}
+          aria-label={playing ? "Matikan musik" : "Nyalakan musik"}
+          aria-pressed={playing}
         >
-          <Music2 className={`h-5 w-5 ${playing ? "animate-spin-slow" : ""}`} />
+          {/* a spinning note while it plays; a crossed-out speaker once muted */}
+          {playing ? <Music2 className="h-5 w-5 animate-spin-slow" /> : <VolumeX className="h-5 w-5" />}
         </motion.button>
       )}
     </>

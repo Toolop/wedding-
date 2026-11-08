@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { parseDate } from "@/lib/dates";
 import { INK, TONES, type ToneKey } from "./watercolor";
@@ -34,6 +33,34 @@ export function useCountdown(target: string) {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/**
+ * A digit that animates when its value changes: the old value plays `outClass` while the
+ * new one plays `inClass`. Both are one-shot CSS keyframes (see .digit-* in globals.css),
+ * so a ticking clock costs the main thread nothing between seconds.
+ */
+function RollingValue({ value, inClass, outClass, className }: { value: string; inClass: string; outClass: string; className: string }) {
+  const [shown, setShown] = useState(value);
+  const [prev, setPrev] = useState<string | null>(null);
+  // adjust state while rendering (React's documented pattern for "derived from a prop change")
+  if (value !== shown) {
+    setPrev(shown);
+    setShown(value);
+  }
+  return (
+    <>
+      {prev !== null && (
+        // the leaving value lies on top; the arriving one stays in flow and sizes the box
+        <span key={`out-${prev}`} aria-hidden className={`${className} ${outClass} absolute inset-0`}>
+          {prev}
+        </span>
+      )}
+      <span key={`in-${shown}`} className={`${className} ${prev !== null ? inClass : ""}`}>
+        {shown}
+      </span>
+    </>
+  );
+}
+
 /** one split-flap tile: the number drops in from above whenever it changes */
 function FlipTile({
   value,
@@ -61,20 +88,14 @@ function FlipTile({
         <span aria-hidden className="absolute inset-x-0 top-0 h-1/2 bg-white/25" />
         {/* clip-path, not just overflow, so the 3D flip can't leak past the tile */}
         <span className="absolute inset-0 [clip-path:inset(0)]">
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.span
-              key={value}
-              initial={{ y: "-55%", opacity: 0, rotateX: 70 }}
-              animate={{ y: "0%", opacity: 1, rotateX: 0 }}
-              exit={{ y: "45%", opacity: 0, rotateX: -60 }}
-              transition={{ duration: 0.38, ease: "easeOut" }}
-              className={`absolute inset-0 grid place-items-center font-poster tabular-nums ${
-                big ? "text-[34px] sm:text-[40px]" : "text-[22px] sm:text-2xl"
-              }`}
-            >
-              {value}
-            </motion.span>
-          </AnimatePresence>
+          <RollingValue
+            value={value}
+            inClass="digit-flip-in"
+            outClass="digit-flip-out"
+            className={`absolute inset-0 grid place-items-center font-poster tabular-nums ${
+              big ? "text-[34px] sm:text-[40px]" : "text-[22px] sm:text-2xl"
+            }`}
+          />
         </span>
       </div>
       <span className={`font-eyebrow uppercase opacity-60 ${big ? "text-[9px]" : "text-[8px]"}`}>{label}</span>
@@ -133,18 +154,12 @@ export function CountdownStrip({ target }: { target: string }) {
           )}
           <span className="flex flex-col items-center">
             <span className="relative block h-7 min-w-[2ch] font-poster text-[26px] leading-7 tabular-nums [clip-path:inset(0)]">
-              <AnimatePresence initial={false} mode="popLayout">
-                <motion.span
-                  key={u.value}
-                  initial={{ y: "-100%", opacity: 0 }}
-                  animate={{ y: "0%", opacity: 1 }}
-                  exit={{ y: "100%", opacity: 0 }}
-                  transition={{ duration: 0.32, ease: "easeOut" }}
-                  className="block text-center"
-                >
-                  {u.value}
-                </motion.span>
-              </AnimatePresence>
+              <RollingValue
+                value={u.value}
+                inClass="digit-roll-in"
+                outClass="digit-roll-out"
+                className="block text-center"
+              />
             </span>
             <span className="font-eyebrow text-[8px] uppercase opacity-55">{u.label}</span>
           </span>

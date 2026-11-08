@@ -47,7 +47,7 @@ function calendarFace(value: string) {
 }
 
 /** Google Calendar "add event" link for the wedding day. */
-function calendarUrl(settings: Settings) {
+export function calendarUrl(settings: Settings) {
   const d = parseDate(settings.wedding_date);
   if (!d) return "";
   const stamp = (date: Date) =>
@@ -306,6 +306,7 @@ function StickerCard({
   onOpen: () => void;
 }) {
   const tone = TONES[card.tone];
+  const dark = card.tone === "magenta";
   return (
     <motion.button
       type="button"
@@ -320,45 +321,94 @@ function StickerCard({
       }}
       whileHover={{ y: -6, rotate: 0, scale: 1.035 }}
       whileTap={{ scale: 0.96, rotate: 0 }}
-      className={`group relative flex h-full min-h-0 flex-col items-center gap-0.5 overflow-hidden rounded-[14px] crayon-box wc px-2.5 pb-1.5 pt-2 text-center sm:px-3 sm:pb-2 sm:pt-2.5 ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""} ${card.key === "gallery" ? "max-sm:order-2" : ""}`}
+      className={`group relative h-full min-h-0 overflow-hidden rounded-[14px] crayon-box wc ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""} ${card.key === "gallery" ? "max-sm:order-2" : ""}`}
       style={{
         backgroundColor: tone.bg,
         color: tone.ink,
         boxShadow: `4px 5px 0 0 ${tone.edge}`,
       }}
     >
-      <span className="font-heading shrink-0 text-[15px] leading-[1.1] sm:text-xl sm:leading-tight">{card.title}</span>
-      <span className="font-eyebrow shrink-0 text-[8px] uppercase opacity-70 sm:text-[9px]">{card.subtitle}</span>
-
-      {/* middle: a live preview on roomy screens, the hand-drawn art otherwise */}
-      <span className={`flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 overflow-hidden py-1 ${card.wide ? "!flex-row gap-3 sm:gap-8" : ""}`}>
-        {card.peek && (
-          <span className="hidden w-full justify-center lg:[@media(min-height:720px)]:flex">{card.peek}</span>
-        )}
-        {card.mini && (
-          <span className="flex justify-center lg:[@media(min-height:720px)]:hidden">{card.mini}</span>
-        )}
-        <span
-          className={`hidden items-end justify-center [@media(min-height:740px)]:flex ${
-            card.peek ? (card.peekOnly ? "lg:[@media(min-height:720px)]:!hidden" : "lg:[@media(min-height:720px)]:[&>*]:h-12") : ""
-          }`}
-        >
-          {card.art}
+      {/* phones and tablets: a compact tile. Icon badge and arrow on top, the words and the
+          live fact at the bottom, so the card is full at any height instead of half empty */}
+      <span className={`flex h-full w-full gap-3 p-3 text-left lg:hidden ${card.wide ? "flex-row items-stretch" : "flex-col"}`}>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-start justify-between gap-2">
+            <span
+              className={`grid h-12 w-12 flex-none place-items-center rounded-full shadow-[2px_3px_0_rgba(47,61,53,0.15)] [&>*]:!h-8 [&>*]:!w-auto ${
+                dark ? "bg-[#F6FAF2]" : "bg-white/85"
+              }`}
+              style={{ color: INK }}
+            >
+              {card.art}
+            </span>
+            {!card.wide && (
+              <span
+                className={`grid h-7 w-7 flex-none place-items-center rounded-full transition-transform group-active:translate-x-0.5 ${
+                  dark ? "bg-white/15" : "bg-white/60"
+                }`}
+              >
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            )}
+          </span>
+          <span className="mt-auto pt-2">
+            <span className="font-heading block text-[17px] leading-[1.1]">{card.title}</span>
+            <span className="font-eyebrow mt-0.5 block text-[8px] uppercase opacity-70">{card.subtitle}</span>
+            {card.chip && (
+              <span
+                className="mt-1.5 inline-block max-w-full truncate rounded-full bg-white/80 px-2 py-0.5 font-code text-[10px] leading-tight"
+                style={{ color: INK }}
+              >
+                {card.chip}
+              </span>
+            )}
+          </span>
         </span>
-      </span>
-
-      <span className="flex w-full shrink-0 items-center justify-center gap-1 px-5">
-        {card.chip && (
-          <span
-            className="truncate rounded-full bg-white/75 px-2 py-0.5 font-code text-[10px] leading-tight sm:text-[11px]"
-            style={{ color: INK }}
-          >
-            {card.chip}
+        {card.wide && (
+          <span className="flex flex-none flex-col items-end justify-between">
+            <span className={`grid h-7 w-7 place-items-center rounded-full ${dark ? "bg-white/15" : "bg-white/60"}`}>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+            {card.mini}
           </span>
         )}
       </span>
-      <span className="pointer-events-none absolute bottom-2 right-2 opacity-40 transition-all group-hover:translate-x-0.5 group-hover:opacity-90">
-        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+
+      {/* desktop: the original sticker, with a live preview when there is room */}
+      <span className="hidden h-full w-full flex-col items-center gap-0.5 px-3 pb-2 pt-2.5 text-center lg:flex">
+        <span className="font-heading shrink-0 text-xl leading-tight">{card.title}</span>
+        <span className="font-eyebrow shrink-0 text-[9px] uppercase opacity-70">{card.subtitle}</span>
+
+        {/* middle: a live preview on roomy screens, the hand-drawn art otherwise */}
+        <span className={`flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 overflow-hidden py-1 ${card.wide ? "!flex-row gap-8" : ""}`}>
+          {card.peek && (
+            <span className="hidden w-full justify-center [@media(min-height:720px)]:flex">{card.peek}</span>
+          )}
+          {card.mini && (
+            <span className="flex justify-center [@media(min-height:720px)]:hidden">{card.mini}</span>
+          )}
+          <span
+            className={`hidden items-end justify-center [@media(min-height:740px)]:flex ${
+              card.peek ? (card.peekOnly ? "[@media(min-height:720px)]:!hidden" : "[@media(min-height:720px)]:[&>*]:h-12") : ""
+            }`}
+          >
+            {card.art}
+          </span>
+        </span>
+
+        <span className="flex w-full shrink-0 items-center justify-center gap-1 px-5">
+          {card.chip && (
+            <span
+              className="truncate rounded-full bg-white/75 px-2 py-0.5 font-code text-[11px] leading-tight"
+              style={{ color: INK }}
+            >
+              {card.chip}
+            </span>
+          )}
+        </span>
+        <span className="pointer-events-none absolute bottom-2 right-2 opacity-40 transition-all group-hover:translate-x-0.5 group-hover:opacity-90">
+          <ArrowRight className="h-4 w-4" />
+        </span>
       </span>
     </motion.button>
   );
@@ -562,7 +612,7 @@ export default function Hero({ data }: { data: InvitationData }) {
 
   return (
     <section
-      className="relative isolate flex h-[100dvh] w-full items-center justify-center overflow-hidden px-3 py-3 sm:px-6 sm:py-5"
+      className="relative isolate flex min-h-[100dvh] w-full items-center justify-center overflow-hidden px-3 py-3 sm:px-6 sm:py-5 lg:h-[100dvh]"
       style={{
         backgroundColor: "#F2F6EF",
       }}
@@ -571,7 +621,7 @@ export default function Hero({ data }: { data: InvitationData }) {
       <FlowerFrame />
 
       {/* the whole invitation lives inside this one browser window; the couple peeks around its edges */}
-      <div className="relative z-10 flex max-h-full w-full max-w-6xl flex-col">
+      <div className="relative z-10 flex w-full max-w-6xl flex-col lg:max-h-full">
         <motion.div
           initial={{ opacity: 0, y: 34, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -579,16 +629,18 @@ export default function Hero({ data }: { data: InvitationData }) {
           className="wc relative z-10 flex min-h-0 w-full flex-col overflow-hidden rounded-[18px] crayon-box bg-[#FCFDF9]/90 backdrop-blur-[2px]"
           style={{ boxShadow: "10px 12px 0 0 rgba(63,107,87,0.28)" }}
         >
+          {/* the window's top bar. On phones the music button (fixed, top-left) sits in its
+              left end, so the dots step aside there */}
           <div
-            className="flex flex-none items-center gap-2 crayon-rule-b px-3 py-2"
+            className="flex flex-none items-center gap-2 crayon-rule-b py-2 pl-14 pr-3 sm:px-3"
             style={{ backgroundColor: CHROME }}
           >
-            <span className="flex gap-1.5">
+            <span className="hidden gap-1.5 sm:flex">
               {["#E9A9A1", "#E6CF8A", "#8CC3BA"].map((c) => (
                 <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#2F3D35]/40" style={{ backgroundColor: c }} />
               ))}
             </span>
-            <span className="ml-1 flex-1 truncate rounded-full border border-dashed border-[#2F3D35]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2F3D35]/70">
+            <span className="ml-1 min-w-0 flex-1 truncate rounded-full border border-dashed border-[#2F3D35]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2F3D35]/70">
               ours.co — your wedding portal
             </span>
           </div>
@@ -640,28 +692,81 @@ export default function Hero({ data }: { data: InvitationData }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.75, duration: 0.6 }}
-                className="mt-1 font-script text-lg leading-snug text-[#2F3D35]/70 sm:text-xl lg:text-2xl"
+                className="mt-2 flex items-center gap-3 font-script text-lg leading-snug text-[#2F3D35]/70 sm:text-xl lg:text-2xl"
               >
-                dengan penuh cinta, kami mengundangmu
+                <span>dengan penuh cinta, kami mengundangmu</span>
+                <Heart color={BLUSH} className="h-4 w-auto flex-none" />
               </motion.p>
 
-              {/* an obvious, tappable door to the couple pop-up */}
+              {/* the couple card: both of them, their parents, and a clear "open" cue; the whole card is the button */}
               <motion.button
                 type="button"
                 onClick={() => setOpenKey("couple")}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.85, duration: 0.5 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.96 }}
-                className="crayon-pill mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 font-code text-xs text-[#3F6B57] shadow-[3px_3px_0_rgba(63,107,87,0.2)] transition-colors hover:bg-[#E4EEDF] sm:text-sm"
+                whileHover={{ y: -3 }}
+                whileTap={{ y: 2, scale: 0.985 }}
+                aria-label="Kenalan dengan mempelai"
+                className="group relative mt-4 block w-full max-w-xl shrink-0 overflow-hidden rounded-[20px] bg-white text-left shadow-[5px_6px_0_rgba(63,107,87,0.2)] ring-1 ring-[#3F6B57]/15"
               >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C9626A] opacity-70" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#C9626A]" />
+                {/* the two of them facing each other, an "&" seal on the seam between */}
+                <span className="relative grid grid-cols-2">
+                  {[
+                    { name: groom, full: settings.groom_full_name, parents: settings.groom_parents, img: settings.groom_photo, bg: "#E4EEDF" },
+                    { name: bride, full: settings.bride_full_name, parents: settings.bride_parents, img: settings.bride_photo, bg: "#F6E4E0" },
+                  ].map((p, i) => (
+                    <span
+                      key={i}
+                      className={`flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:py-3.5 ${
+                        i ? "flex-row-reverse pl-6 text-right sm:pl-7" : "pr-6 sm:pr-7"
+                      }`}
+                      style={{ backgroundColor: p.bg }}
+                    >
+                      <span className="grid h-10 w-10 flex-none place-items-center overflow-hidden rounded-full bg-white p-0.5 shadow-[0_2px_6px_rgba(47,61,53,0.18)] sm:h-14 sm:w-14">
+                        <span className="grid h-full w-full place-items-center overflow-hidden rounded-full">
+                          {p.img ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={mediaUrl(p.img)} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <Heart color="#E9A9A1" animate={false} className="h-5 w-auto" />
+                          )}
+                        </span>
+                      </span>
+                      <span className="flex min-w-0 flex-col">
+                        <span className="font-eyebrow hidden text-[8px] uppercase tracking-[0.15em] text-[#3F6B57]/70 sm:block">
+                          {i ? "Mempelai wanita" : "Mempelai pria"}
+                        </span>
+                        <span className="font-heading line-clamp-2 text-[15px] leading-[1.15] text-[#2F3D35] sm:text-lg sm:leading-[1.15]">
+                          {p.full || p.name}
+                        </span>
+                        {p.parents && (
+                          <span className="mt-0.5 line-clamp-2 font-body text-[10px] leading-snug text-[#2F3D35]/65 sm:text-[11px]">
+                            {p.parents}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                  ))}
+                  <span
+                    aria-hidden
+                    className="absolute left-1/2 top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white font-script text-2xl leading-none shadow-[0_2px_6px_rgba(47,61,53,0.2)] transition-transform group-hover:scale-110"
+                    style={{ color: RED }}
+                  >
+                    &amp;
+                  </span>
                 </span>
-                Kenalan dengan mempelai
-                <ArrowRight className="h-3.5 w-3.5" />
+                {/* footer: what tapping does */}
+                <span className="flex items-center justify-between gap-3 bg-[#3F6B57] px-4 py-1.5 text-[#F6FAF2]">
+                  <span className="font-eyebrow text-[9px] uppercase tracking-[0.15em] sm:text-[10px]">Kenalan dengan mempelai</span>
+                  <span className="inline-flex items-center gap-1.5 font-code text-[11px] transition-transform group-hover:translate-x-0.5">
+                    lihat
+                    <span className="relative grid h-5 w-5 place-items-center rounded-full bg-[#F6FAF2] text-[#3F6B57]">
+                      <span className="absolute inset-0 animate-ping rounded-full bg-[#F6FAF2]/50" />
+                      <ArrowRight className="relative h-3 w-3" strokeWidth={2.8} />
+                    </span>
+                  </span>
+                </span>
               </motion.button>
 
               {/* save-the-date ticket: date on the stub, live countdown and venue on the body */}
@@ -747,7 +852,7 @@ export default function Hero({ data }: { data: InvitationData }) {
                 initial={{ opacity: 0, y: 16, rotate: -8 }}
                 animate={{ opacity: 1, y: 0, rotate: -3 }}
                 transition={{ delay: 1.2, type: "spring", stiffness: 140, damping: 16 }}
-                className="mt-auto hidden min-h-0 items-end gap-3 pt-3 lg:[@media(min-height:700px)]:flex"
+                className="mt-auto hidden min-h-0 items-end gap-3 pt-3 lg:[@media(min-height:900px)]:flex"
               >
                 <span
                   className="relative block flex-none rounded-[4px] bg-white p-1.5 pb-5"
@@ -770,7 +875,7 @@ export default function Hero({ data }: { data: InvitationData }) {
             </div>
 
             {/* ---- sticker board ---- */}
-            <div className="grid min-h-0 grid-cols-2 gap-2.5 sm:grid-cols-3 lg:col-span-7 lg:gap-4">
+            <div className="grid min-h-0 auto-rows-[9.5rem] grid-cols-2 gap-2.5 sm:grid-cols-3 lg:col-span-7 lg:auto-rows-auto lg:gap-4">
               {board.map((card, i) => (
                 <StickerCard
                   key={card.key}

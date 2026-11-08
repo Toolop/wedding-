@@ -6,20 +6,14 @@ import type { CSSProperties } from "react";
 // baby's-breath white, sage and the odd blush petal
 const COLORS = ["#FFFFFF", "#F4F8F1", "#CFE3D4", "#A9C3A6", "#F3DDD8"];
 
-interface PetalStyle extends CSSProperties {
-  "--drift"?: string;
-  "--spin"?: number;
-}
-
 interface Petal {
   id: number;
   left: number;
   size: number;
   duration: number;
   delay: number;
-  drift: number;
+  path: number;
   color: string;
-  spin: number;
 }
 
 function generatePetals(count: number): Petal[] {
@@ -29,9 +23,8 @@ function generatePetals(count: number): Petal[] {
     size: 8 + Math.random() * 10,
     duration: 10 + Math.random() * 10,
     delay: -Math.random() * 20,
-    drift: Math.round((Math.random() - 0.5) * 160),
+    path: Math.floor(Math.random() * 4),
     color: COLORS[i % COLORS.length],
-    spin: Math.random() > 0.5 ? 1 : -1,
   }));
 }
 
@@ -46,17 +39,16 @@ export default function PetalRain({ count = 16 }: { count?: number }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
       {petals.map((p) => {
-        const style: PetalStyle = {
+        const style: CSSProperties = {
           left: `${p.left}%`,
           width: p.size,
           height: p.size * 0.8,
           backgroundColor: p.color,
           animationDuration: `${p.duration}s`,
           animationDelay: `${p.delay}s`,
-          "--drift": `${p.drift}px`,
-          "--spin": p.spin,
         };
-        return <span key={p.id} className="petal absolute" style={style} />;
+        // one of four baked fall paths (drift + spin), see .petal-N in globals.css
+        return <span key={p.id} className={`petal petal-${p.path} absolute`} style={style} />;
       })}
     </div>
   );

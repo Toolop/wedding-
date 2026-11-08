@@ -1,6 +1,7 @@
 import axios from "axios";
 import { clearToken } from "./auth";
 import type {
+  GuestMode,
   GalleryImage,
   GiftAccount,
   GiftConfirmation,
@@ -63,7 +64,7 @@ export async function getInvitation(): Promise<InvitationData> {
 export async function getGuestByCode(
   code: string,
   preview = false
-): Promise<{ name: string; code: string } | null> {
+): Promise<{ name: string; code: string; mode?: GuestMode; skip_comic?: boolean } | null> {
   try {
     const res = await api.get(`/guests/${encodeURIComponent(code)}`, {
       params: preview ? { preview: 1 } : undefined,
@@ -267,7 +268,13 @@ export async function adminDeleteGiftConfirmation(token: string, id: number): Pr
   await api.delete(`/admin/gift-confirmations/${id}`, authHeader(token));
 }
 
-export type GuestInput = { name: string; phone: string; category: string };
+export type GuestInput = {
+  name: string;
+  phone: string;
+  category: string;
+  mode?: GuestMode;
+  skip_comic?: boolean;
+};
 
 export async function adminListGuests(
   token: string

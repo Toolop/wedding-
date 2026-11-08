@@ -131,6 +131,54 @@ export function Illustration({ name, className = "" }: { name: IllustrationKey; 
   );
 }
 
+/**
+ * One of the couple illustrations as a round sticker: cropped to a circle in a white,
+ * ink-ringed frame, tilted a little, with a heart on its corner. For the small pictures
+ * that sit on a card's corner or beside a heading, where a feathered scan looks smudgy.
+ * Size it with `className` (h-/w-); `tilt` in degrees.
+ */
+export function IllustrationBadge({
+  name,
+  className = "h-20 w-20",
+  tilt = 6,
+  focus = "50% 40%",
+}: {
+  name: IllustrationKey;
+  className?: string;
+  tilt?: number;
+  /** object-position, to keep both faces in the circle */
+  focus?: string;
+}) {
+  const art = ILLUSTRATIONS[name];
+  return (
+    <motion.span
+      className={`relative inline-block flex-none ${className}`}
+      initial={{ opacity: 0, scale: 0.6, rotate: tilt - 20 }}
+      animate={{ opacity: 1, scale: 1, rotate: tilt }}
+      transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.15 }}
+    >
+      {/* a slow bob so it reads as a sticker stuck on, not a printed picture */}
+      <span className="anim-bob block h-full w-full" style={{ "--dur": "3.2s" } as CSSProperties}>
+        <span className="block h-full w-full rounded-full bg-white p-[5%] shadow-[3px_4px_0_rgba(63,107,87,0.25)] ring-2 ring-[#2F3D35]/75">
+          <span className="block h-full w-full overflow-hidden rounded-full border border-dashed border-[#2F3D35]/30">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={art.src}
+              alt={art.alt}
+              draggable={false}
+              className="h-full w-full scale-110 select-none object-cover"
+              style={{ objectPosition: focus }}
+            />
+          </span>
+        </span>
+        <span className="absolute -right-1 -top-1 drop-shadow-[1px_1px_0_rgba(47,61,53,0.25)]">
+          <Heart color={BLUSH} animate={false} className="h-[28%] min-h-4 w-auto" />
+        </span>
+      </span>
+    </motion.span>
+  );
+}
+
 /* ---------------------------------------------------------------- accents */
 
 const HEART =
@@ -473,15 +521,14 @@ export function DoodleField({ kind = "love" }: { kind?: "love" | "cafe" | "win" 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {SPOTS.map((s, i) => (
-        <motion.div
+        // CSS loop, not framer: idle motion this endless belongs on the compositor
+        <div
           key={i}
-          className="absolute"
-          style={s.style}
-          animate={{ y: [0, -12, 0], rotate: [-6, 6, -6] }}
-          transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
+          className="anim-float absolute"
+          style={{ ...s.style, "--dur": `${s.dur}s`, "--delay": `${s.delay}s` } as CSSProperties}
         >
           {render(i)}
-        </motion.div>
+        </div>
       ))}
     </div>
   );

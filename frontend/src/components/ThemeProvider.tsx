@@ -17,9 +17,11 @@ export function usePortalRoot() {
 
 export default function ThemeProvider({
   settings,
+  scroll = false,
   children,
 }: {
   settings: Settings;
+  scroll?: boolean;
   children: ReactNode;
 }) {
   const style = {
@@ -35,7 +37,8 @@ export default function ThemeProvider({
   } as CSSProperties;
 
   return (
-    <div style={style} className="h-[100dvh] overflow-hidden">
+    // the dashboard is exactly one screen; the scroll mode is a long page and must be free to grow
+    <div style={style} className={`invite ${scroll ? "min-h-[100dvh]" : "h-[100dvh] overflow-hidden"}`}>
       {children}
       {/* pop-ups render here: outside the hero's stacking context, inside the theme vars */}
       <div id={PORTAL_ID} />

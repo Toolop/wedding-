@@ -138,6 +138,11 @@ type Guest struct {
 	Name     string `json:"name"`
 	Phone    string `json:"phone"` // digits only, international form (62...)
 	Category string `json:"category"`
+	// how this guest's invitation opens: Mode is "dashboard", "scroll" or "" (the
+	// default, dashboard); SkipComic jumps straight to the envelope. Both zero
+	// values mean "as usual", so existing rows need no backfill.
+	Mode      string `gorm:"size:16" json:"mode"`
+	SkipComic bool   `json:"skip_comic"`
 	// when the invitation was sent over WhatsApp, and when the link was first opened
 	SentAt    *time.Time `json:"sent_at"`
 	OpenedAt  *time.Time `json:"opened_at"`

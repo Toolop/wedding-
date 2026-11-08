@@ -13,7 +13,7 @@ import { getWishes, mediaUrl, submitWish } from "@/lib/api";
 import { resizeImage } from "@/lib/resize-image";
 import type { Attendance, Wish, WishesResponse } from "@/lib/types";
 import { INK, TONES } from "./watercolor";
-import { Illustration } from "./WatercolorArt";
+import { Illustration, IllustrationBadge } from "./WatercolorArt";
 import { KnownName, useInvitedGuest } from "./guest";
 
 const schema = z.object({
@@ -297,13 +297,12 @@ export function RsvpPanel() {
             className="relative space-y-4 rounded-[14px] crayon-box wc px-4 pb-4 pt-3 sm:px-5"
             style={{ backgroundColor: TONES.cream.bg, boxShadow: `4px 5px 0 0 ${TONES.cream.edge}` }}
           >
-            <p className="font-script pr-16 text-2xl leading-snug">
+            <p className="font-script pr-20 text-2xl leading-snug">
               Bisa datang? Kabari kami, ya.
             </p>
-            <Illustration
-              name="cafe"
-              className="pointer-events-none absolute -top-3 right-2 h-16 w-auto rotate-3"
-            />
+            <span className="pointer-events-none absolute -right-2 -top-6">
+              <IllustrationBadge name="cafe" className="h-20 w-20" tilt={8} />
+            </span>
 
             {nameLocked && guest ? (
               <KnownName

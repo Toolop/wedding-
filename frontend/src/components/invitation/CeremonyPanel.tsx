@@ -9,10 +9,10 @@ import { parseDate, parseLooseDate } from "@/lib/dates";
 import { parseMapMeta, type MapMeta } from "@/lib/map-meta";
 import type { Settings } from "@/lib/types";
 import { usePortalRoot } from "../ThemeProvider";
-import { InteractiveMap, MapLegend, VenuePolaroid, VenueTitleCard } from "./InteractiveMap";
+import { InteractiveMap, MapLegend, VenuePolaroid } from "./InteractiveMap";
 import { formatLongDate, splitTime } from "./PortalPanels";
 import { BLUSH, INK, PAPER, TONES } from "./watercolor";
-import { ClockFace, Heart, Illustration, Rings } from "./WatercolorArt";
+import { ClockFace, Heart, IllustrationBadge, Rings } from "./WatercolorArt";
 
 type EventInfo = {
   key: "akad" | "resepsi";
@@ -128,6 +128,99 @@ function EventTicket({
               >
                 Petunjuk arah <ExternalLink className="h-3 w-3" />
               </a>
+            )}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+/** the scroll mode's version of a ticket: a tall arched card, centred, with the time as its headline */
+function EventArch({
+  event,
+  showDate,
+  index,
+  onShowMap,
+}: {
+  event: EventInfo;
+  showDate: boolean;
+  index: number;
+  onShowMap?: () => void;
+}) {
+  const t = TONES[event.tone];
+  const time = splitTime(event.time);
+  return (
+    <motion.div
+      // akad swings in from the left, resepsi from the right, each settling straight
+      initial={{ opacity: 0, x: index % 2 ? 70 : -70, rotate: index % 2 ? 5 : -5 }}
+      whileInView={{ opacity: 1, x: 0, rotate: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ type: "spring", stiffness: 70, damping: 16 }}
+      className="relative mx-auto w-full max-w-[340px] rounded-b-[22px] rounded-t-[170px] bg-white p-2 shadow-[6px_8px_0_rgba(63,107,87,0.18)]"
+    >
+      <div
+        className="wc flex flex-col items-center rounded-b-[16px] rounded-t-[164px] border-2 border-dashed px-6 pb-6 pt-10 text-center"
+        style={{ backgroundColor: t.bg, color: t.ink, borderColor: `${INK}30` }}
+      >
+        {/* venue photo in a round window when there is one, the event's little drawing otherwise */}
+        <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border-[3px] border-white bg-white/70 shadow-[2px_3px_0_rgba(63,107,87,0.18)]">
+          {event.venuePhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={mediaUrl(event.venuePhoto)} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span className="scale-125">{event.art}</span>
+          )}
+        </span>
+
+        <p className="font-eyebrow mt-4 text-[10px] uppercase tracking-[0.25em] opacity-60">
+          {String(index + 1).padStart(2, "0")} · {showDate && event.date ? event.date : "Acara"}
+        </p>
+        <h3 className="font-script text-[2.6rem] leading-none">{event.kicker}</h3>
+
+        <div className="my-4 flex w-full items-center gap-3">
+          <span className="h-px flex-1 bg-current opacity-25" />
+          <ClockFace className="h-7 w-7 flex-none" animate={false} />
+          <span className="h-px flex-1 bg-current opacity-25" />
+        </div>
+
+        {event.time ? (
+          <p className="font-poster text-[2rem] leading-none tabular-nums">
+            {time.start}
+            {time.end && <span className="font-heading text-xl opacity-70"> – {time.end}</span>}
+            {time.zone && <span className="font-eyebrow ml-1.5 align-middle text-[10px] uppercase opacity-60">{time.zone}</span>}
+          </p>
+        ) : (
+          <p className="font-heading text-xl opacity-60">Waktu menyusul</p>
+        )}
+
+        {event.location && <p className="font-heading mt-4 text-xl leading-snug">{event.location}</p>}
+        {event.address && (
+          <p className="mt-1 flex max-w-[260px] items-start justify-center gap-1 text-[13px] leading-snug opacity-75">
+            <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none" />
+            <span>{event.address}</span>
+          </p>
+        )}
+
+        {(onShowMap || event.maps) && (
+          <div className="mt-5 flex w-full flex-col gap-2">
+            {event.maps && (
+              <a
+                href={event.maps}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3F6B57] px-4 py-2.5 font-code text-xs text-[#F6FAF2] shadow-[0_3px_0_#2A4A3C] transition-transform hover:-translate-y-0.5"
+              >
+                <MapPin className="h-3.5 w-3.5" /> Petunjuk arah
+              </a>
+            )}
+            {onShowMap && (
+              <button
+                onClick={onShowMap}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#3F6B57]/50 bg-white/70 px-4 py-2 font-code text-xs text-[#3F6B57] transition-transform hover:-translate-y-0.5"
+              >
+                <MapIcon className="h-3.5 w-3.5" /> Lihat peta ilustrasi
+              </button>
             )}
           </div>
         )}
@@ -348,28 +441,31 @@ function MapSection({
   const hasLayer = !!map.meta.pin || map.meta.markers.length > 0;
 
   return (
-    <section ref={sectionRef} className="scroll-mt-3 space-y-2.5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h4 className="flex items-center gap-2 font-heading text-2xl leading-none">
-            Peta lokasi
-            {maps.length === 1 && map.events.length > 1 && (
-              <span
-                className="rounded-full px-2 py-0.5 font-code text-[10px]"
-                style={{ backgroundColor: TONES.mauve.bg }}
-              >
-                Akad &amp; Resepsi
-              </span>
-            )}
-          </h4>
-          {hasLayer && (
-            <p className="font-script text-lg leading-tight opacity-70">
-              {map.meta.pin ? "ketuk pin merah untuk melihat sekitarnya" : "buka keterangan untuk melihat sekitarnya"}
+    <section
+      ref={sectionRef}
+      className="scroll-mt-3 rounded-[22px] bg-white p-2 shadow-[6px_8px_0_rgba(63,107,87,0.18)]"
+    >
+      {/* header: what this map is of, and a switch when akad and resepsi are at different places */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-2 pb-2.5 pt-1.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span
+            className="grid h-10 w-10 flex-none place-items-center rounded-full"
+            style={{ backgroundColor: TONES.mauve.bg }}
+          >
+            <MapPin className="h-5 w-5" style={{ color: TONES.magenta.bg }} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-eyebrow flex items-center gap-1.5 text-[9px] uppercase tracking-[0.2em] opacity-60">
+              Peta lokasi
+              {maps.length === 1 && (
+                <span className="rounded-full bg-[#E4EEDF] px-1.5 py-px normal-case tracking-normal">{map.label}</span>
+              )}
             </p>
-          )}
+            <p className="font-heading truncate text-lg leading-tight">{map.venue}</p>
+          </div>
         </div>
         {maps.length > 1 && (
-          <div role="tablist" className="flex gap-1 rounded-full crayon-pill bg-white/70 p-1">
+          <div role="tablist" className="flex gap-1 rounded-full bg-[#E4EEDF] p-1">
             {maps.map((m, i) => (
               <button
                 key={m.id}
@@ -404,22 +500,7 @@ function MapSection({
           transition={{ duration: 0.25 }}
           className="relative"
         >
-          {/* torn title card, taped over the top edge of the map */}
-          {(map.venue || map.address) && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, rotate: -4 }}
-              animate={{ opacity: 1, y: 0, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 18 }}
-              className="relative z-20 -mb-5 ml-1 mr-8 sm:mr-24"
-            >
-              <VenueTitleCard venue={map.venue} address={map.address} compact={narrow} />
-            </motion.div>
-          )}
-
-          <div
-            className="overflow-hidden rounded-[14px] crayon-box wc"
-            style={{ backgroundColor: PAPER, boxShadow: `4px 5px 0 0 ${TONES.sky.edge}` }}
-          >
+          <div className="relative overflow-hidden rounded-[16px] border-2 border-[#2F3D35]/10" style={{ backgroundColor: PAPER }}>
             <InteractiveMap
               src={map.src}
               alt={`Peta lokasi ${map.venue}`}
@@ -427,6 +508,14 @@ function MapSection({
               revealed={revealed}
               onToggle={onToggle}
             />
+            {/* zoom sits on the map itself, like any map app */}
+            <button
+              onClick={() => setZoomed(true)}
+              aria-label="Perbesar peta"
+              className="absolute right-2 top-2 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-[#2F3D35] shadow-[0_2px_8px_rgba(47,61,53,0.25)] backdrop-blur transition-transform hover:scale-105"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </button>
           </div>
 
           {/* polaroid of the venue and the map key, pinned under the map once it's opened */}
@@ -469,34 +558,40 @@ function MapSection({
         </motion.div>
       </AnimatePresence>
 
-      <div className="flex flex-wrap gap-2">
+      {/* footer: the address, a hint, and the two things a guest actually does here */}
+      <div className="px-2 pb-1.5 pt-3">
+        {map.address && (
+          <p className="flex items-start gap-1.5 text-[13px] leading-snug opacity-75">
+            <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none" />
+            <span>{map.address}</span>
+          </p>
+        )}
         {hasLayer && (
-          <button
-            onClick={onToggle}
-            className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
-            style={{ backgroundColor: revealed ? "rgba(255,255,255,0.8)" : TONES.butter.bg }}
-          >
-            {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            {revealed ? "Sembunyikan keterangan" : "Tampilkan keterangan"}
-          </button>
+          <p className="font-script mt-1 text-lg leading-tight opacity-60">
+            {map.meta.pin ? "ketuk pin merah untuk melihat sekitarnya" : "buka keterangan untuk melihat sekitarnya"}
+          </p>
         )}
-        <button
-          onClick={() => setZoomed(true)}
-          className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/80 px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
-        >
-          <Maximize2 className="h-3.5 w-3.5" /> Perbesar peta
-        </button>
-        {map.maps && (
-          <a
-            href={map.maps}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#F6FAF2] transition-transform hover:-translate-y-0.5"
-            style={{ backgroundColor: TONES.magenta.bg }}
-          >
-            Google Maps <ExternalLink className="h-3 w-3" />
-          </a>
-        )}
+        <div className={`mt-3 grid gap-2 ${hasLayer && map.maps ? "grid-cols-2" : "grid-cols-1"}`}>
+          {hasLayer && (
+            <button
+              onClick={onToggle}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-[#3F6B57]/40 bg-white px-3 py-2 font-code text-[11px] text-[#3F6B57] transition-transform hover:-translate-y-0.5"
+            >
+              {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {revealed ? "Tutup keterangan" : "Keterangan"}
+            </button>
+          )}
+          {map.maps && (
+            <a
+              href={map.maps}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#3F6B57] px-3 py-2 font-code text-[11px] text-[#F6FAF2] shadow-[0_3px_0_#2A4A3C] transition-transform hover:-translate-y-0.5"
+            >
+              Buka Google Maps <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
       </div>
 
       <MapViewer open={zoomed} onClose={closeZoom} map={map} revealed={revealed} onToggle={onToggle} />
@@ -504,7 +599,15 @@ function MapSection({
   );
 }
 
-export function CeremonyPanel({ settings }: { settings: Settings }) {
+export function CeremonyPanel({
+  settings,
+  variant = "popup",
+}: {
+  settings: Settings;
+  /** "scroll": arched cards for the long page; the date lives in its own section there */
+  variant?: "popup" | "scroll";
+}) {
+  const scroll = variant === "scroll";
   const events = (
     [
       {
@@ -596,6 +699,28 @@ export function CeremonyPanel({ settings }: { settings: Settings }) {
 
   return (
     <div className="space-y-5" style={{ color: INK }}>
+      {scroll ? (
+        <div>
+          {events.map((event, i) => (
+            <div key={event.key}>
+              {i > 0 && (
+                <div aria-hidden className="flex flex-col items-center py-3">
+                  <span className="h-5 border-l-2 border-dashed" style={{ borderColor: `${INK}55` }} />
+                  <span className="font-script text-xl opacity-60">lalu…</span>
+                  <span className="h-5 border-l-2 border-dashed" style={{ borderColor: `${INK}55` }} />
+                </div>
+              )}
+              <EventArch
+                event={event}
+                showDate={!sameDay}
+                index={i}
+                onShowMap={venueMaps.some((m) => m.events.includes(event.key)) ? () => showMap(event.key) : undefined}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+      <>
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           {weekday && sameDay && <p className="font-eyebrow text-[10px] uppercase opacity-60">{weekday}</p>}
@@ -604,7 +729,7 @@ export function CeremonyPanel({ settings }: { settings: Settings }) {
             {!sameDay ? "dua hari, dua momen" : events.length > 1 ? "satu hari, dua momen" : "satu hari bahagia"}
           </p>
         </div>
-        <Illustration name="dinner" className="h-20 w-auto flex-none sm:h-24" />
+        <IllustrationBadge name="dinner" className="h-20 w-20 sm:h-24 sm:w-24" tilt={6} focus="50% 30%" />
       </div>
 
       <div>
@@ -625,6 +750,8 @@ export function CeremonyPanel({ settings }: { settings: Settings }) {
           </div>
         ))}
       </div>
+      </>
+      )}
 
       {venueMaps.length > 0 && (
         <MapSection
@@ -641,7 +768,7 @@ export function CeremonyPanel({ settings }: { settings: Settings }) {
       )}
 
       <div
-        className="mx-1 flex rotate-[-1.2deg] items-center gap-3 rounded-[10px] crayon-box wc px-3 py-2.5"
+        className={`mx-1 flex items-center gap-3 rounded-[10px] crayon-box wc px-3 py-2.5 ${scroll ? "mx-auto max-w-[340px]" : "rotate-[-1.2deg]"}`}
         style={{
           backgroundColor: TONES.butter.bg,
           color: TONES.butter.ink,

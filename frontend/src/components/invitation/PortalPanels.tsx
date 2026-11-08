@@ -7,7 +7,7 @@ import { parseDate } from "@/lib/dates";
 import type { Settings } from "@/lib/types";
 import { FlipCountdown } from "./Countdown";
 import { BLUSH, INK, PAPER, RED, TONES } from "./watercolor";
-import { Heart, Illustration, Rings } from "./WatercolorArt";
+import { Heart, Illustration, IllustrationBadge, Rings } from "./WatercolorArt";
 
 /* ------------------------------------------------------------ primitives */
 
@@ -160,7 +160,7 @@ export function DatePanel({ settings }: { settings: Settings }) {
             </p>
           )}
         </div>
-        <Illustration name="champions" className="h-20 w-auto flex-none sm:h-24" />
+        <IllustrationBadge name="champions" className="h-20 w-20 sm:h-24 sm:w-24" tilt={-6} focus="50% 18%" />
       </div>
 
       <div>

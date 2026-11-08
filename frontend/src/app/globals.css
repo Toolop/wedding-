@@ -162,22 +162,38 @@ body::before {
   animation: spinSlow 20s linear infinite;
 }
 
-@keyframes petalFall {
-  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
-  8% { opacity: 0.85; }
-  92% { opacity: 0.85; }
-  100% {
-    transform: translateY(110vh) translateX(var(--drift, 60px))
-      rotate(calc(360deg * var(--spin, 1)));
-    opacity: 0;
-  }
+/* falling confetti hearts. Four fixed paths (drift and spin baked in) rather than one
+ * var()-driven keyframe, so the compositor can play them without main-thread work. */
+@keyframes petalFall0 {
+  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
+  8%, 92% { opacity: 0.85; }
+  100% { transform: translate(70px, 110vh) rotate(360deg); opacity: 0; }
 }
-/* falling confetti hearts */
+@keyframes petalFall1 {
+  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
+  8%, 92% { opacity: 0.85; }
+  100% { transform: translate(-60px, 110vh) rotate(-360deg); opacity: 0; }
+}
+@keyframes petalFall2 {
+  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
+  8%, 92% { opacity: 0.85; }
+  100% { transform: translate(30px, 110vh) rotate(-300deg); opacity: 0; }
+}
+@keyframes petalFall3 {
+  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
+  8%, 92% { opacity: 0.85; }
+  100% { transform: translate(-25px, 110vh) rotate(300deg); opacity: 0; }
+}
 .petal {
   top: 0;
   clip-path: polygon(50% 100%, 10% 60%, 0% 34%, 6% 12%, 22% 2%, 38% 6%, 50% 20%, 62% 6%, 78% 2%, 94% 12%, 100% 34%, 90% 60%);
-  animation: petalFall linear infinite;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
+.petal-0 { animation-name: petalFall0; }
+.petal-1 { animation-name: petalFall1; }
+.petal-2 { animation-name: petalFall2; }
+.petal-3 { animation-name: petalFall3; }
 
 @keyframes borderGlow {
   0%, 100% {
@@ -295,4 +311,102 @@ body::before {
   .click-heart {
     display: none;
   }
+}
+
+/* ---- ambient loops ----
+ * Endless idle motion (bobbing, swaying, drifting) runs as CSS transform animations so
+ * the compositor plays it on the GPU, with no JavaScript or style work per frame.
+ * Keyframes hold fixed values on purpose: a var() inside a keyframe makes Chrome run the
+ * animation on the main thread again. Per element, only --dur and --delay are tunable.
+ */
+@keyframes ambientBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes ambientNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@keyframes ambientFloat {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+}
+@keyframes ambientSway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes ambientTwinkle {
+  0%, 100% { transform: scale(0.6) rotate(0deg); }
+  50% { transform: scale(1) rotate(45deg); }
+}
+@keyframes ambientDrift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes ambientBeat {
+  0%, 40%, 100% { transform: scale(1); }
+  10% { transform: scale(1.25); }
+  25% { transform: scale(1.15); }
+}
+@keyframes ambientBlink { 0%, 100% { opacity: 0; } 20%, 60% { opacity: 1; } }
+/* the peeking couple leaning in toward the window now and then */
+@keyframes ambientLeanL {
+  0%, 55%, 82%, 100% { transform: translateX(0) rotate(0deg); }
+  62% { transform: translateX(6px) rotate(2deg); }
+  75% { transform: translateX(6px) rotate(1deg); }
+}
+@keyframes ambientLeanR {
+  0%, 55%, 82%, 100% { transform: translateX(0) rotate(0deg); }
+  62% { transform: translateX(-6px) rotate(-2deg); }
+  75% { transform: translateX(-6px) rotate(-1deg); }
+}
+.anim-bob, .anim-nudge, .anim-float, .anim-sway, .anim-twinkle, .anim-drift, .anim-beat,
+.anim-blink, .anim-lean-l, .anim-lean-r {
+  animation-duration: var(--dur, 3s);
+  animation-delay: var(--delay, 0s);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+.anim-bob { animation-name: ambientBob; }
+.anim-nudge { animation-name: ambientNudge; }
+.anim-float { animation-name: ambientFloat; }
+.anim-sway { animation-name: ambientSway; }
+.anim-twinkle { animation-name: ambientTwinkle; }
+.anim-drift { animation-name: ambientDrift; animation-timing-function: linear; }
+.anim-beat { animation-name: ambientBeat; }
+.anim-blink { animation-name: ambientBlink; }
+.anim-lean-l { animation-name: ambientLeanL; }
+.anim-lean-r { animation-name: ambientLeanR; }
+
+/* one-shot rolls for countdown digits: the new value comes in, the old one goes out */
+@keyframes digitRollIn { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes digitRollOut { from { transform: none; opacity: 1; } to { transform: translateY(100%); opacity: 0; } }
+@keyframes digitFlipIn {
+  from { transform: translateY(-55%) rotateX(70deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes digitFlipOut {
+  from { transform: none; opacity: 1; }
+  to { transform: translateY(45%) rotateX(-60deg); opacity: 0; }
+}
+.digit-roll-in { animation: digitRollIn 0.32s ease-out both; }
+.digit-roll-out { animation: digitRollOut 0.32s ease-out both; }
+.digit-flip-in { animation: digitFlipIn 0.38s ease-out both; }
+.digit-flip-out { animation: digitFlipOut 0.38s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-bob, .anim-nudge, .anim-float, .anim-sway, .anim-twinkle, .anim-drift, .anim-beat,
+  .anim-blink, .anim-lean-l, .anim-lean-r { animation: none; }
+  .digit-roll-in, .digit-roll-out, .digit-flip-in, .digit-flip-out { animation-duration: 0.01s; }
+}
+
+/* ---- heavier type inside the invitation ----
+ * The hand-drawn faces read thin on phones, worst over the comic's busy art. Only the
+ * invitation (ThemeProvider's .invite wrapper) changes; the admin keeps its own weights.
+ * Patrick Hand ships a single weight, so it gets a hairline outline in its own colour,
+ * painted behind the fill so it adds weight without eating into the letters.
+ */
+.invite {
+  font-weight: 500;
+}
+.invite .font-script {
+  font-weight: 600;
+}
+.invite .font-code {
+  font-weight: 700;
+}
+.invite .font-eyebrow {
+  font-weight: 800;
+}
+.invite .font-heading {
+  -webkit-text-stroke: 0.03em currentColor;
+  paint-order: stroke fill;
 }

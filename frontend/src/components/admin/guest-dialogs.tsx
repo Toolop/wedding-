@@ -27,8 +27,65 @@ import {
   parseGuestText,
   type ParsedRow,
 } from "@/lib/guests";
-import type { Guest } from "@/lib/types";
+import type { Guest, GuestMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+export const GUEST_MODES: { value: GuestMode; label: string; hint: string }[] = [
+  { value: "", label: "Default", hint: "Ikut bawaan: Dashboard" },
+  { value: "dashboard", label: "Dashboard", hint: "Satu layar, tiap bagian dibuka sebagai pop-up" },
+  { value: "scroll", label: "Scroll", hint: "Satu halaman panjang yang di-scroll" },
+];
+
+/** how a guest's invitation opens: which layout, and whether the comic plays first */
+export function GuestOpeningFields({
+  mode,
+  skipComic,
+  onChange,
+}: {
+  mode: GuestMode;
+  skipComic: boolean;
+  onChange: (next: { mode?: GuestMode; skip_comic?: boolean }) => void;
+}) {
+  return (
+    <div className="grid gap-3 rounded-lg border bg-muted/30 p-3">
+      <div className="grid gap-2">
+        <Label>Tampilan undangan</Label>
+        <div role="radiogroup" className="grid grid-cols-3 gap-1.5">
+          {GUEST_MODES.map((m) => (
+            <button
+              key={m.value || "default"}
+              type="button"
+              role="radio"
+              aria-checked={mode === m.value}
+              onClick={() => onChange({ mode: m.value })}
+              className={cn(
+                "rounded-md border px-2 py-1.5 text-sm transition-colors",
+                mode === m.value ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+              )}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">{GUEST_MODES.find((m) => m.value === mode)?.hint}</p>
+      </div>
+      <label className="flex items-start gap-2.5 text-sm">
+        <input
+          type="checkbox"
+          className="mt-0.5 size-4 accent-primary"
+          checked={!skipComic}
+          onChange={(e) => onChange({ skip_comic: !e.target.checked })}
+        />
+        <span>
+          Tampilkan komik pembuka
+          <span className="block text-xs text-muted-foreground">
+            Kalau dimatikan, tamu langsung melihat amplop &quot;Buka Undangan&quot;.
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
 
 /** add one guest, or edit `guest` when given */
 export function GuestFormDialog({
@@ -44,7 +101,8 @@ export function GuestFormDialog({
   categories: string[];
   onSaved: () => void;
 }) {
-  const [draft, setDraft] = useState<GuestInput>({ name: "", phone: "", category: "" });
+  const empty: GuestInput = { name: "", phone: "", category: "", mode: "", skip_comic: false };
+  const [draft, setDraft] = useState<GuestInput>(empty);
   const [saving, setSaving] = useState(false);
   const [lastOpen, setLastOpen] = useState(false);
   // reset the form each time the dialog opens
@@ -53,8 +111,14 @@ export function GuestFormDialog({
     if (open) {
       setDraft(
         guest
-          ? { name: guest.name, phone: guest.phone ? `+${guest.phone}` : "", category: guest.category }
-          : { name: "", phone: "", category: "" }
+          ? {
+              name: guest.name,
+              phone: guest.phone ? `+${guest.phone}` : "",
+              category: guest.category,
+              mode: guest.mode ?? "",
+              skip_comic: guest.skip_comic ?? false,
+            }
+          : empty
       );
     }
   }
@@ -73,7 +137,8 @@ export function GuestFormDialog({
       onSaved();
       if (guest) onOpenChange(false);
       // keep the dialog open for adding the next guest
-      else setDraft((d) => ({ name: "", phone: "", category: d.category }));
+      // (and the category and opening choices, which usually repeat for a batch)
+      else setDraft((d) => ({ ...empty, category: d.category, mode: d.mode, skip_comic: d.skip_comic }));
     } catch (err) {
       toast.error(apiErrorMessage(err, "Gagal menyimpan tamu"));
     } finally {
@@ -134,6 +199,11 @@ export function GuestFormDialog({
               ))}
             </datalist>
           </div>
+          <GuestOpeningFields
+            mode={draft.mode ?? ""}
+            skipComic={draft.skip_comic ?? false}
+            onChange={(next) => setDraft({ ...draft, ...next })}
+          />
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               {guest ? "Batal" : "Selesai"}
