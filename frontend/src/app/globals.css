@@ -162,39 +162,6 @@ body::before {
   animation: spinSlow 20s linear infinite;
 }
 
-/* falling confetti hearts. Four fixed paths (drift and spin baked in) rather than one
- * var()-driven keyframe, so the compositor can play them without main-thread work. */
-@keyframes petalFall0 {
-  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
-  8%, 92% { opacity: 0.85; }
-  100% { transform: translate(70px, 110vh) rotate(360deg); opacity: 0; }
-}
-@keyframes petalFall1 {
-  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
-  8%, 92% { opacity: 0.85; }
-  100% { transform: translate(-60px, 110vh) rotate(-360deg); opacity: 0; }
-}
-@keyframes petalFall2 {
-  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
-  8%, 92% { opacity: 0.85; }
-  100% { transform: translate(30px, 110vh) rotate(-300deg); opacity: 0; }
-}
-@keyframes petalFall3 {
-  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
-  8%, 92% { opacity: 0.85; }
-  100% { transform: translate(-25px, 110vh) rotate(300deg); opacity: 0; }
-}
-.petal {
-  top: 0;
-  clip-path: polygon(50% 100%, 10% 60%, 0% 34%, 6% 12%, 22% 2%, 38% 6%, 50% 20%, 62% 6%, 78% 2%, 94% 12%, 100% 34%, 90% 60%);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-.petal-0 { animation-name: petalFall0; }
-.petal-1 { animation-name: petalFall1; }
-.petal-2 { animation-name: petalFall2; }
-.petal-3 { animation-name: petalFall3; }
-
 @keyframes borderGlow {
   0%, 100% {
     box-shadow: 0 0 15px color-mix(in srgb, var(--color-accent) 20%, transparent);

@@ -7,7 +7,7 @@ import { mediaUrl } from "@/lib/api";
 import type { InvitationData, Settings } from "@/lib/types";
 import { useInvitedGuest } from "./guest";
 import { BLUSH, INK, NAVY, PAPER, RED, type IllustrationKey } from "./watercolor";
-import { DoodleField, Emphasis, Heart, Illustration, Rings, WashBackdrop } from "./WatercolorArt";
+import { Emphasis, Heart, Illustration, Rings, WashBackdrop } from "./WatercolorArt";
 import { Flower, FlowerFrame } from "./Flowers";
 import { FlipCountdown } from "./Countdown";
 import { formatLongDate } from "./PortalPanels";
@@ -767,7 +767,6 @@ function SidePanel({ settings }: { settings: Settings }) {
     <aside className="fixed inset-y-0 left-0 hidden w-[calc(100%-480px)] flex-col items-center justify-center overflow-hidden bg-[#F2F6EF] px-10 text-center text-[#2F3D35] lg:flex">
       <WashBackdrop />
       <FlowerFrame />
-      <DoodleField kind="love" />
       <div className="crayon-box pointer-events-none absolute inset-6 rounded-[18px]" />
 
       <motion.div

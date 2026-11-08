@@ -5,7 +5,6 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Toaster } from "react-hot-toast";
 import type { InvitationData } from "@/lib/types";
 import { GuestProvider, type GuestAccess, type InvitedGuest } from "./invitation/guest";
-import PetalRain from "./PetalRain";
 import ThemeProvider from "./ThemeProvider";
 import ComicIntro from "./invitation/ComicIntro";
 import CuteCursor from "./invitation/CuteCursor";
@@ -98,7 +97,6 @@ export default function InvitationClient({
         />
         {/* same paper as the comic and envelope, so the gap between their fades doesn't flash */}
         {stage !== "opened" && <div aria-hidden className="fixed inset-0 -z-10 bg-[#F2F6EF]" />}
-        <PetalRain />
         <AnimatePresence mode="wait">
           {stage === "comic" && (
             <ComicIntro
@@ -116,12 +114,10 @@ export default function InvitationClient({
               key="envelope"
               settings={settings}
               blocked={allowed ? null : access.status}
-              onOpen={() => {
-                if (!allowed) return;
-                // a tap is the gesture browsers need before they let the song play
-                setMusic(true);
-                setStage("opened");
-              }}
+              // the song starts on the tap itself (browsers only allow sound right after a
+              // gesture); the page changes once the envelope-opening animation has played
+              onTap={() => allowed && setMusic(true)}
+              onOpen={() => allowed && setStage("opened")}
             />
           )}
         </AnimatePresence>
