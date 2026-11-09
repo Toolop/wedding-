@@ -33,7 +33,7 @@ const ART = {
   faces: { groom: { x: 330, y: 127 }, bride: { x: 722, y: 177 } } as Faces,
 };
 /** how close a tap has to land, in image pixels (photo neighbours sit ~45px apart) */
-const HIT = 30;
+const HIT = 36;
 const ZOOM = 4;
 const ORDER: Who[] = ["bride", "groom"];
 const MISS_LINES = ["Bukan, itu rekan kerja 😄", "Hmm, belum ketemu…", "Hampir! Coba lagi", "Itu teman satu divisi 😅"];
@@ -104,9 +104,14 @@ export function useFindUs({
     faces: drawn ? ART.faces : PHOTO.faces,
     misses,
     note,
-    /** after a few misses the target starts to glow */
-    showRing: missCount >= 4,
-    canHelp: missCount >= 3,
+    /** a wide search zone from the start that tightens with every miss */
+    zone: missCount >= 4 ? { r: 70, off: 0 } : missCount >= 2 ? { r: 105, off: 0 } : { r: 190, off: 1 },
+    /** what the one being searched for looks like */
+    look:
+      want === "bride"
+        ? "hijab navy, barisan belakang"
+        : "kemeja putih, paling belakang sebelah kiri",
+    canHelp: missCount >= 2,
     pick,
     help: () => want && reveal(want),
   };
@@ -232,18 +237,18 @@ export function FindUsArt({ game, active }: { game: FindUsGame; active: boolean 
               />
             </g>
           ))}
-          {game.showRing && game.want && (
+          {game.want && (
             <motion.circle
-              cx={FACES[game.want].x}
-              cy={FACES[game.want].y}
-              r={90}
+              key={game.zone.r}
+              cx={FACES[game.want].x + game.zone.off * 45}
+              cy={FACES[game.want].y + game.zone.off * 25}
+              r={game.zone.r}
               fill="none"
               stroke={RED}
               strokeWidth={6}
               strokeDasharray="14 12"
-              animate={{ opacity: [0.15, 0.7, 0.15], scale: [1.15, 0.95, 1.15] }}
-              style={{ transformOrigin: `${FACES[game.want].x}px ${FACES[game.want].y}px` }}
-              transition={{ duration: 1.6, repeat: Infinity }}
+              animate={{ opacity: [0.25, 0.8, 0.25] }}
+              transition={{ duration: 1.8, repeat: Infinity }}
             />
           )}
         </svg>
@@ -396,7 +401,7 @@ export function FindUsInset({ game, done }: { game: FindUsGame; done: boolean })
             ) : (
               game.note ?? (
                 <span className="inline-flex items-center gap-1">
-                  <Search className="h-3 w-3" /> tahan & geser kaca pembesar, cari {game.names[game.want]}
+                  <Search className="h-3 w-3 flex-none" /> cari {game.names[game.want]} di lingkaran merah — {game.look}. Tahan & geser kaca pembesar
                 </span>
               )
             )}

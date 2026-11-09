@@ -23,7 +23,7 @@ import {
   type ReactNode,
   type WheelEvent as ReactWheelEvent,
 } from "react";
-import { ChevronLeft, Hand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Hand, Play } from "lucide-react";
 import { parseDate } from "@/lib/dates";
 import type { Settings } from "@/lib/types";
 import { Float } from "./CrayonDoodles";
@@ -253,45 +253,27 @@ function Hint({ children }: { children: ReactNode }) {
   );
 }
 
-/** cover: tap the heart three times to fill it with paint */
+/** cover: a play button that starts the story */
 function HeartInset({ done, onDone }: InsetProps) {
-  const need = 3;
-  const [taps, setTaps] = useState(0);
-  const fill = done ? 1 : taps / need;
-
-  const tap = () => {
-    if (done) return;
-    const n = taps + 1;
-    setTaps(n);
-    if (n >= need) onDone();
-  };
-
   return (
     <InsetCard>
       <button
         type="button"
-        onClick={tap}
-        aria-label="Ketuk hatinya"
+        onClick={() => !done && onDone()}
+        aria-label="Mulai cerita"
         className="flex h-full w-full items-center justify-center gap-4"
       >
-        <motion.div
-          key={taps}
-          initial={{ scale: taps ? 1.3 : 1 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 420, damping: 10 }}
-          className="relative aspect-[48/46] h-[66%]"
+        <motion.span
+          animate={done ? { scale: [1, 1.25, 1] } : { scale: [1, 1.08, 1] }}
+          transition={done ? { duration: 0.5 } : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          className="grid aspect-square h-[62%] place-items-center rounded-full border-2 border-[#2F3D35] text-[#2F3D35]"
+          style={{ background: done ? BLUSH : "#FCFDF9", boxShadow: "3px 3px 0 0 #BFD2B5" }}
         >
-          <Heart animate={false} className="absolute inset-0 h-full w-full text-[#2F3D35]" />
-          <div
-            className="absolute inset-0 transition-[clip-path] duration-500"
-            style={{ clipPath: `inset(${(1 - fill) * 100}% 0 0 0)` }}
-          >
-            <Heart animate={false} color={BLUSH} className="h-full w-full text-[#2F3D35]" />
-          </div>
-        </motion.div>
+          <Play className="ml-0.5 h-1/2 w-1/2 fill-[#2F3D35]" />
+        </motion.span>
         <div className="flex flex-col items-start gap-1">
-          <span className="font-poster text-base text-[#2F3D35] sm:text-lg">{done ? "penuh!" : `${need - taps}×`}</span>
-          <Hint>{done ? "hatinya terisi" : "ketuk hatinya"}</Hint>
+          <span className="font-poster text-base text-[#2F3D35] sm:text-lg">Mulai Cerita</span>
+          <Hint>{done ? "dimulai…" : "klik untuk memulai"}</Hint>
         </div>
       </button>
     </InsetCard>
@@ -322,7 +304,7 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
         </motion.div>
         <div className="flex flex-col items-start gap-1">
           <span className="font-poster text-base text-[#2F3D35] sm:text-lg">Buka Amplop</span>
-          <Hint>{done ? "membuka…" : "ketuk untuk membuka"}</Hint>
+          <Hint>{done ? "membuka…" : "klik untuk membuka"}</Hint>
         </div>
         {done && <HeartBurst className="absolute -top-10 left-1/2 h-14 w-auto -translate-x-1/2 text-[#2F3D35]" />}
       </button>
@@ -923,7 +905,10 @@ export default function ComicIntro({
                   present={settled && i === index}
                   done={done[i]}
                   nudge={i === index ? nudge : 0}
-                  onDone={() => markDone(i)}
+                  onDone={() => {
+                    markDone(i);
+                    if (i === 0) go(1);
+                  }}
                   onFinish={onFinish}
                 />
               </div>
@@ -963,7 +948,7 @@ export default function ComicIntro({
         onClick={onFinish}
         className="wc crayon-pill absolute right-5 top-4 z-30 rounded-full bg-[#FCFDF9] px-4 py-1.5 font-code text-xs text-[#2F3D35]/80 transition-transform hover:-translate-y-0.5"
       >
-        Lewati
+        Ke Undangan
       </button>
 
       <AnimatePresence>
@@ -988,15 +973,15 @@ export default function ComicIntro({
             exit={{ opacity: 0 }}
             transition={{ delay: 0.9 }}
             onClick={() => go(index + 1)}
-            className="wc crayon-pill absolute bottom-6 right-5 z-30 flex items-center gap-2 rounded-full bg-[#FCFDF9] px-4 py-2 font-code text-xs text-[#2F3D35]"
+            aria-label="Panel selanjutnya"
+            className="absolute bottom-6 right-5 z-30 grid h-11 w-11 sm:right-24 place-items-center text-[#2F3D35]"
           >
             <motion.span
-              animate={{ x: [8, -8, 8] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ x: [-3, 5, -3] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Hand className="h-4 w-4" />
+              <ChevronRight className="h-9 w-9" strokeWidth={2.5} />
             </motion.span>
-            geser
           </motion.button>
         )}
       </AnimatePresence>

@@ -13,6 +13,7 @@ import { Bubble, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chap
  */
 
 const SRC = "/images/illustrations/comifuro.jpg";
+const TRAIN = "/images/illustrations/kereta.png";
 const STOPS = 3;
 
 /** 0 at the festival · 1 on the train · 2 home */
@@ -56,13 +57,46 @@ export function useComifuro({
   };
 }
 
+/** the train picture, panned like a camera tracking it: slow drift plus a light rattle */
+function TrainShot() {
+  return (
+    <motion.div
+      className="absolute inset-0 overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      <motion.div
+        className="absolute inset-0"
+        animate={{ x: ["-3%", "3%", "-3%"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          animate={{ y: [0, -1.5, 0, 1.2, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={TRAIN}
+            alt="Kereta melaju pulang"
+            draggable={false}
+            className="pointer-events-none h-full w-full scale-[1.12] rounded-[6px] object-cover"
+            style={{ objectPosition: "60% 50%" }}
+          />
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ------------------------------------------------------------ main panel */
 
 export function ComifuroArt({ game, active }: { game: ComifuroGame; active: boolean }) {
   const onTrain = game.step >= 1;
   return (
     <Stage>
-      <Frame src={SRC} position="50% 45%" />
+      {onTrain ? <TrainShot /> : <Frame src={SRC} position="50% 45%" />}
 
       {/* festival sparkle */}
       {!onTrain &&
@@ -83,25 +117,31 @@ export function ComifuroArt({ game, active }: { game: ComifuroGame; active: bool
           </motion.span>
         ))}
 
-      {/* going home: the day turns to dusk and station lights stream past the window */}
+      {/* going home: the train rolls along, grass and sky streak past, the carriage rocks */}
       <AnimatePresence>
         {onTrain && (
           <motion.div
-            key="dusk"
-            className="pointer-events-none absolute inset-0"
+            key="ride"
+            className="pointer-events-none absolute inset-0 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
+            transition={{ duration: 0.8 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-[#2A3550]/55 via-[#E6A57A]/20 to-[#1E2A23]/50" />
-            {[22, 48, 70].map((y, i) => (
+            {/* grass + sky streaks rushing the opposite way */}
+            {[
+              [8, 1.1, 0],
+              [16, 1.7, 0.4],
+              [84, 0.9, 0.2],
+              [91, 1.4, 0.7],
+              [75, 1.2, 0.5],
+            ].map(([y, d, delay], i) => (
               <motion.span
-                key={y}
-                className="absolute h-1.5 w-[30%] rounded-full bg-[#FFE7A8]/70 blur-[2px]"
+                key={i}
+                className="absolute h-[2px] w-[28%] rounded-full bg-[#FCFDF9]/70"
                 style={{ top: `${y}%` }}
                 initial={{ left: "110%" }}
-                animate={{ left: "-40%" }}
-                transition={{ duration: 1.6 + i * 0.4, repeat: Infinity, delay: i * 0.7, ease: "linear" }}
+                animate={{ left: "-35%" }}
+                transition={{ duration: d, repeat: Infinity, delay, ease: "linear" }}
               />
             ))}
           </motion.div>

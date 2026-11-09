@@ -107,36 +107,28 @@ export default function OpeningScreen({
               The Wedding Of
               <span aria-hidden className="h-px w-6 bg-current opacity-40" />
             </p>
-            <motion.h1
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55, duration: 0.8 }}
-              className="font-script mt-1 text-[2.9rem] font-bold leading-[1.05] [@media(min-height:760px)]:text-[3.3rem]"
-            >
-              {bride} <span className="text-[#C2676A]">&amp;</span> {groom}
-            </motion.h1>
-            {dateLine && <p className="font-code mt-1 text-xs tracking-[0.3em] text-[#2F3D35]/70">{dateLine}</p>}
 
             {(settings.bride_parents || settings.groom_parents) && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.7 }}
-                className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-[16px] bg-[#F4F8F1] px-3 py-3 font-body text-[13px] leading-snug text-[#2F3D35]/80"
+                className="mt-3 flex flex-col items-center gap-1 px-3 py-1 text-center font-body text-[13px] leading-snug text-[#2F3D35]/80"
               >
                 <p>
-                  <span className="font-heading mb-0.5 block text-[19px] leading-tight text-[#2F3D35]">{bride}</span>
+                  <span className="font-script mb-0.5 block text-[2.4rem] font-bold leading-[1.05] text-[#3F6B57]">{bride}</span>
                   {settings.bride_parents}
                 </p>
-                <span aria-hidden className="font-script text-2xl leading-none text-[#C2676A]">
+                <span aria-hidden className="font-script text-2xl leading-none text-[#3F6B57]">
                   &amp;
                 </span>
                 <p>
-                  <span className="font-heading mb-0.5 block text-[19px] leading-tight text-[#2F3D35]">{groom}</span>
+                  <span className="font-script mb-0.5 block text-[2.4rem] font-bold leading-[1.05] text-[#3F6B57]">{groom}</span>
                   {settings.groom_parents}
                 </p>
               </motion.div>
             )}
+            {dateLine && <p className="font-code mt-3 text-xs tracking-[0.3em] text-[#2F3D35]/70">{dateLine}</p>}
           </div>
 
 
