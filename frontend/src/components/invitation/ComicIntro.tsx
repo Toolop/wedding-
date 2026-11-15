@@ -31,7 +31,13 @@ import { Frame, Stage } from "./chapterKit";
 import { ComifuroArt, ComifuroInset, useComifuro } from "./Comifuro";
 import { ConfessArt, ConfessInset, useConfess } from "./Confess";
 import { FindUsArt, FindUsInset, useFindUs } from "./FindUs";
-import { BotanicalCorner, BotanicalFrame, DoubleFrame, Eyebrow, Ornament } from "./classy";
+import {
+  BotanicalCorner,
+  BotanicalFrame,
+  DoubleFrame,
+  Eyebrow,
+  Ornament,
+} from "./classy";
 import { GbkArt, GbkInset, useGbk } from "./Gbk";
 import { LunchArt, LunchInset, useLunch } from "./Lunch";
 import { MovieArt, MovieInset, useMovie } from "./Movie";
@@ -73,17 +79,36 @@ type Interlude = { from: Date; to: Date; label: string };
 type Milestone = { date: Date; label: string };
 
 const pad = (n: number, len = 2) => String(Math.max(0, n)).padStart(len, "0");
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.min(hi, Math.max(lo, v));
 
-const MONTHS = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+const MONTHS = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MEI",
+  "JUN",
+  "JUL",
+  "AGU",
+  "SEP",
+  "OKT",
+  "NOV",
+  "DES",
+];
 
 /** a chapter's day: plain "YYYY-MM-DD" is read as a local calendar day, anything else as a timestamp */
 function chapterDay(value: string) {
   const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : (parseDate(value) ?? new Date());
+  return m
+    ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+    : (parseDate(value) ?? new Date());
 }
 
-function buildStory(settings: Settings): { scenes: Scene[]; interludes: Interlude[] } {
+function buildStory(settings: Settings): {
+  scenes: Scene[];
+  interludes: Interlude[];
+} {
   const groom = settings.groom_name || "Dia";
   const bride = settings.bride_name || "Dia";
 
@@ -91,49 +116,50 @@ function buildStory(settings: Settings): { scenes: Scene[]; interludes: Interlud
     {
       key: "cover",
       tag: { title: "Sebuah Kisah", chapter: "Chapter 01" },
-      caption: "Dari rekan kerja, menjadi teman cerita, hingga akhirnya bersama selamanya.",
+      caption:
+        "Dari rekan kerja, menjadi teman cerita, hingga akhirnya bersama selamanya.",
     },
     {
       key: "findus",
       tag: { title: "Awal Pertemuan", chapter: "Chapter 02" },
       date: "2024-04-01",
-      caption: `Semua berawal di Sucofindo. ${bride} bergabung lebih dahulu, hingga sebulan kemudian ${groom} menyusul. Saat itu, mereka hanyalah dua orang rekan kerja yang belum saling mengenal. Belum ada yang menyangka bahwa pertemuan sederhana ini akan menjadi awal dari sebuah cerita panjang.`,
+      caption: `Semua berawal di Sucofindo. ${bride} bergabung lebih dulu, lalu sebulan kemudian ${groom} menyusul. Saat itu, mereka hanyalah dua rekan kerja yang belum saling mengenal.`,
     },
     {
       key: "lunch",
       tag: { title: "Makan Siang Pertama", chapter: "Chapter 03" },
       // the couple said "31 April"; April ends on the 30th
       date: "2024-04-30",
-      caption: `Kala itu, ${groom} masih malu-malu dan hampir tidak pernah makan siang bersama teman-teman kantor. Melihat hal itu, ${bride} akhirnya mengajak ${groom} makan siang bersama, karena kasihan melihatnya hanya duduk saat istirahat. Dari ajakan sederhana tersebut, mereka pun mulai mengobrol dan mengenal satu sama lain.`,
+      caption: `${groom} yang masih malu malu jarang makan siang bersama teman kantor. ${bride} pun mengajaknya, dan dari situ mereka mulai mengobrol dan saling mengenal.`,
     },
     {
       key: "gbk",
       tag: { title: "Semakin Dekat", chapter: "Chapter 04" },
-      caption: `${bride} kemudian mengajak ${groom} berolahraga bersama teman-teman kantor di GBK. Dari kegiatan bersama itu, kedekatan mereka mulai tumbuh. Di momen inilah ${groom} mulai mengikuti Instagram ${bride}, menjadi salah satu langkah kecil dalam perjalanan mereka untuk saling mengenal lebih jauh.`,
+      caption: `${bride} mengajak ${groom} berolahraga bersama teman kantor di GBK. Kedekatan mereka mulai tumbuh, dan ${groom} mulai mengikuti Instagram ${bride}.`,
       date: "2024-05-10",
     },
     {
       key: "comifuro",
       tag: { title: "Hobi yang Sama", chapter: "Chapter 05" },
-      caption: `Ternyata, mereka memiliki hobi yang sama, yaitu menyukai dunia anime. ${bride} pun mengajak ${groom} dan teman-teman lainnya untuk datang ke festival anime, Comifuro. Hari itu menjadi momen yang berkesan karena untuk pertama kalinya mereka banyak mengobrol dan pulang bersama naik kereta. Sebuah perjalanan pulang yang sederhana, tetapi menjadi bagian manis dari kisah mereka.`,
+      caption: `Ternyata mereka sama-sama menyukai anime. ${bride} mengajak ${groom} dan teman-teman ke Comifuro. Hari itu mereka banyak mengobrol dan pulang bersama naik kereta. Sederhana, tetapi manis.`,
       date: "2024-05-11",
     },
     {
       key: "movie",
       tag: { title: "Nonton Berdua", chapter: "Chapter 06" },
-      caption: `Setelah semakin sering mengobrol, bertukar pesan, dan menghabiskan waktu bersama, ${groom} akhirnya memberanikan diri mengajak ${bride} pergi berdua. Film Look Back menjadi pilihan mereka untuk menghabiskan waktu bersama. Dari sana, hubungan yang awalnya hanya sebatas rekan kerja perlahan berkembang menjadi sesuatu yang lebih istimewa.`,
+      caption: `Setelah semakin sering bertukar pesan, ${groom} memberanikan diri mengajak ${bride} menonton Look Back berdua. Dari sana, hubungan mereka perlahan menjadi lebih istimewa.`,
       date: "2024-08-10",
     },
     {
       key: "confess",
       tag: { title: "Sebuah Pengakuan", chapter: "Chapter 07" },
-      caption: `Di dalam TransJakarta, ${groom} akhirnya mengumpulkan keberanian untuk mengungkapkan perasaannya kepada ${bride}. Berbekal cokelat SilverQueen dan keberanian yang sudah dikumpulkan, ${groom} menyatakan isi hatinya—lalu langsung kabur karena gugup! Momen yang sederhana sekaligus menggemaskan ini menjadi salah satu kenangan yang tak terlupakan.`,
+      caption: `Di dalam TransJakarta, berbekal cokelat SilverQueen dan keberanian, ${groom} menyatakan perasaannya kepada ${bride}, lalu langsung kabur karena gugup!`,
       date: "2024-08-10",
     },
     {
       key: "answer",
       tag: { title: "Sebuah Jawaban", chapter: "Chapter 08" },
-      caption: `Setelah percakapan panjang, ${bride} akhirnya menerima perasaan ${groom}. Tanggal 31 Agustus 2024, di Pesta Buku Taman Ismail Marzuki, menjadi awal resmi perjalanan mereka sebagai pasangan. Sejak hari itu, mereka mulai menulis cerita bersama, melewati suka dan duka, serta belajar untuk terus tumbuh berdampingan.`,
+      caption: `Setelah percakapan panjang, ${bride} menerima perasaan ${groom} di Pesta Buku Taman Ismail Marzuki, 31 Agustus 2024. Sejak hari itu, mereka mulai menulis cerita bersama.`,
       date: "2024-08-31",
       accent: true,
     },
@@ -141,7 +167,7 @@ function buildStory(settings: Settings): { scenes: Scene[]; interludes: Interlud
       key: "wedding",
       tag: { title: "Forever Begins", chapter: "Chapter 09" },
       caption:
-        "Dua tahun telah berlalu sejak kisah mereka resmi dimulai. Dari pertemuan di kantor, makan siang pertama, perjalanan pulang naik kereta, hingga pengakuan cinta yang penuh keberanian, setiap momen telah membawa mereka ke titik ini. Dan akhirnya, tibalah saatnya untuk membuka babak baru. Bukan lagi sekadar menjadi dua orang yang saling menemukan, tetapi dua hati yang memilih untuk berjalan bersama, membangun rumah, dan menghabiskan sisa hidup berdampingan.",
+        "Dua tahun telah berlalu. Dari pertemuan di kantor, makan siang pertama, hingga pengakuan cinta, setiap momen membawa mereka ke titik ini. Kini saatnya membuka babak baru: dua hati yang memilih berjalan bersama.",
       captionFirst: true,
       date: settings.wedding_date,
       accent: true,
@@ -155,7 +181,10 @@ function buildStory(settings: Settings): { scenes: Scene[]; interludes: Interlud
   // the first calendar rolls in from a year earlier
   const first = milestones[0].date;
   const interludes: Interlude[] = milestones.map((m, i) => ({
-    from: i === 0 ? new Date(first.getFullYear() - 1, first.getMonth(), 1) : milestones[i - 1].date,
+    from:
+      i === 0
+        ? new Date(first.getFullYear() - 1, first.getMonth(), 1)
+        : milestones[i - 1].date,
     to: m.date,
     label: m.label,
   }));
@@ -170,8 +199,16 @@ function subscribeResize(cb: () => void) {
   return () => window.removeEventListener("resize", cb);
 }
 const useViewport = () => ({
-  w: useSyncExternalStore(subscribeResize, () => window.innerWidth, () => 0),
-  h: useSyncExternalStore(subscribeResize, () => window.innerHeight, () => 0),
+  w: useSyncExternalStore(
+    subscribeResize,
+    () => window.innerWidth,
+    () => 0,
+  ),
+  h: useSyncExternalStore(
+    subscribeResize,
+    () => window.innerHeight,
+    () => 0,
+  ),
 });
 
 /* ---------------------------------------------------------------- caption */
@@ -182,7 +219,11 @@ function StoryCaption({ text }: { text: string }) {
     <motion.p
       initial="hidden"
       animate="show"
-      transition={{ staggerChildren: text.length > 360 ? 0.015 : text.length > 160 ? 0.025 : 0.04, delayChildren: 0.25 }}
+      transition={{
+        staggerChildren:
+          text.length > 360 ? 0.015 : text.length > 160 ? 0.025 : 0.04,
+        delayChildren: 0.25,
+      }}
       // a long chapter text gets a smaller hand so it still fits under the panel
       className={`px-6 text-center font-script leading-snug text-ink/90 ${
         text.length > 360
@@ -195,7 +236,10 @@ function StoryCaption({ text }: { text: string }) {
       {text.split(" ").map((w, i) => (
         <motion.span
           key={i}
-          variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+          variants={{
+            hidden: { opacity: 0, y: 8 },
+            show: { opacity: 1, y: 0 },
+          }}
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="inline-block"
         >
@@ -216,7 +260,13 @@ type InsetProps = {
 };
 
 /** the small pop-over panel; `progress` draws a thin gold-ruled meter above it */
-function InsetCard({ children, progress }: { children: ReactNode; progress?: number }) {
+function InsetCard({
+  children,
+  progress,
+}: {
+  children: ReactNode;
+  progress?: number;
+}) {
   return (
     <div className="relative h-full w-full">
       {progress !== undefined && (
@@ -238,7 +288,9 @@ function InsetCard({ children, progress }: { children: ReactNode; progress?: num
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <span className="font-eyebrow pointer-events-none whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">{children}</span>
+    <span className="font-eyebrow pointer-events-none whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">
+      {children}
+    </span>
   );
 }
 
@@ -254,15 +306,24 @@ function HeartInset({ done, onDone }: InsetProps) {
       <span className="grid h-[88px] w-[88px] place-items-center rounded-full border border-gold bg-page p-[5px] shadow-paint-md">
         <motion.span
           animate={done ? { scale: [1, 1.1, 1] } : { scale: [1, 1.04, 1] }}
-          transition={done ? { duration: 0.5 } : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          transition={
+            done
+              ? { duration: 0.5 }
+              : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+          }
           className="grid h-full w-full place-items-center rounded-full border border-honey bg-brand"
         >
-          <Play className="ml-0.5 h-[22px] w-[22px] fill-on-brand text-on-brand" strokeWidth={0} />
+          <Play
+            className="ml-0.5 h-[22px] w-[22px] fill-on-brand text-on-brand"
+            strokeWidth={0}
+          />
         </motion.span>
       </span>
       <span className="flex items-center gap-3">
         <span aria-hidden className="h-px w-7 bg-gold" />
-        <span className="whitespace-nowrap font-serif text-[1.6rem] font-medium italic leading-none text-ink">Mulai Cerita</span>
+        <span className="whitespace-nowrap font-serif text-[1.6rem] font-medium italic leading-none text-ink">
+          Mulai Cerita
+        </span>
         <span aria-hidden className="h-px w-7 bg-gold" />
       </span>
       <Hint>{done ? "dimulai…" : "klik untuk memulai"}</Hint>
@@ -287,13 +348,17 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
       >
         <motion.span
           animate={done ? { y: -6, scale: 1.1 } : { y: [0, -2, 0] }}
-          transition={done ? { duration: 0.6 } : { duration: 2.2, repeat: Infinity }}
+          transition={
+            done ? { duration: 0.6 } : { duration: 2.2, repeat: Infinity }
+          }
           className="grid aspect-square h-[62%] place-items-center rounded-full border border-gold-soft bg-page text-gold-ink"
         >
           <Mail className="h-1/2 w-1/2" strokeWidth={1.3} />
         </motion.span>
         <div className="flex flex-col items-start gap-1">
-          <span className="font-script text-xl leading-none text-ink sm:text-2xl">Buka Undangan</span>
+          <span className="font-script text-xl leading-none text-ink sm:text-2xl">
+            Buka Undangan
+          </span>
           <Hint>{done ? "membuka…" : "klik untuk membuka"}</Hint>
         </div>
       </button>
@@ -306,13 +371,23 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
 function CoverArt({ groom, bride }: { groom: string; bride: string }) {
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center bg-page px-6 pb-[16%] text-center">
-      <Eyebrow className="absolute left-4 top-4 !text-[10px] !text-muted">Chapter I</Eyebrow>
-      <Eyebrow className="absolute right-4 top-4 !text-[10px] !text-muted">Sebuah kisah</Eyebrow>
-      <span className="font-serif text-2xl italic leading-none tracking-[0.1em] text-muted sm:text-3xl">Our</span>
-      <h1 className="font-flourish text-[clamp(3.2rem,12vw,5.5rem)] leading-[1.05] text-brand">Love Story</h1>
+      <Eyebrow className="absolute left-4 top-4 !text-[10px] !text-muted">
+        Chapter I
+      </Eyebrow>
+      <Eyebrow className="absolute right-4 top-4 !text-[10px] !text-muted">
+        Sebuah kisah
+      </Eyebrow>
+      <span className="font-serif text-2xl italic leading-none tracking-[0.1em] text-muted sm:text-3xl">
+        Our
+      </span>
+      <h1 className="font-flourish text-[clamp(3.2rem,12vw,5.5rem)] leading-[1.05] text-brand">
+        Love Story
+      </h1>
       <Ornament className="mt-1" />
       <p className="mt-3 whitespace-nowrap font-serif text-xl font-semibold text-ink sm:text-2xl">
-        {groom} <span className="font-flourish font-normal text-gold">&amp;</span> {bride}
+        {groom}{" "}
+        <span className="font-flourish font-normal text-gold">&amp;</span>{" "}
+        {bride}
       </p>
     </div>
   );
@@ -324,7 +399,10 @@ function WeddingArt() {
     <Stage>
       <Frame src={IMG.wedding} position="50% 40%" />
       <BotanicalCorner className="-left-6 -top-6 h-24 w-28 sm:h-32 sm:w-36" />
-      <BotanicalCorner tone="rose" className="-bottom-6 -right-6 h-24 w-28 rotate-180 sm:h-32 sm:w-36" />
+      <BotanicalCorner
+        tone="rose"
+        className="-bottom-6 -right-6 h-24 w-28 rotate-180 sm:h-32 sm:w-36"
+      />
     </Stage>
   );
 }
@@ -340,7 +418,11 @@ type ChapterProps = InsetProps & {
 };
 
 const CHAPTERS: Record<SceneKind, (p: ChapterProps) => ReactNode> = {
-  cover: (p) => p.children(<CoverArt groom={p.groom} bride={p.bride} />, <HeartInset {...p} />),
+  cover: (p) =>
+    p.children(
+      <CoverArt groom={p.groom} bride={p.bride} />,
+      <HeartInset {...p} />,
+    ),
   findus: function FindUsChapter(p) {
     const game = useFindUs(p);
     return p.children(
@@ -432,7 +514,8 @@ function ScenePanel({
 
   // swiping ahead before the inset is finished wiggles it as a cue
   useEffect(() => {
-    if (nudge && scope.current) shake(scope.current, { x: [0, -10, 10, -6, 6, 0] }, { duration: 0.45 });
+    if (nudge && scope.current)
+      shake(scope.current, { x: [0, -10, 10, -6, 6, 0] }, { duration: 0.45 });
   }, [nudge, scope, shake]);
 
   const Chapter = CHAPTERS[scene.key];
@@ -451,7 +534,13 @@ function ScenePanel({
     >
       {(art, inset) => (
         <>
-          <div className="relative" style={{ width: "var(--panel)", height: "var(--panel-h, var(--panel))" }}>
+          <div
+            className="relative"
+            style={{
+              width: "var(--panel)",
+              height: "var(--panel-h, var(--panel))",
+            }}
+          >
             <div className="h-full w-full rounded-[6px] border border-line bg-paper p-[8px] shadow-paint-sm">
               <div className="relative h-full w-full overflow-hidden rounded-[3px] border border-gold-soft bg-page">
                 {art}
@@ -471,37 +560,67 @@ function ScenePanel({
               <div className="absolute right-full top-[46%] mr-24 hidden w-[220px] flex-col gap-3.5 text-left xl:flex">
                 <Eyebrow>Prolog</Eyebrow>
                 <span aria-hidden className="h-px w-10 bg-gold" />
-                <p className="font-script text-2xl leading-[1.35] text-muted">Setiap kisah punya awal. Inilah awal kisah kami.</p>
+                <p className="font-script text-2xl leading-[1.35] text-muted">
+                  Setiap kisah punya awal. Inilah awal kisah kami.
+                </p>
               </div>
             )}
 
             {/* chapter name tag over the panel's corner */}
-            {!isCover && <motion.div
-              initial={false}
-              animate={present ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-              transition={{ delay: present ? 0.15 : 0, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute -left-3 top-[7%] z-10 rounded-[3px] border border-gold-soft bg-paper px-4 py-2 text-center shadow-paint-sm"
-            >
-              <p className="font-serif text-base font-semibold leading-tight text-ink sm:text-lg">{scene.tag.title}</p>
-              <p className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">{scene.tag.chapter}</p>
-            </motion.div>}
+            {!isCover && (
+              <motion.div
+                initial={false}
+                animate={
+                  present ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }
+                }
+                transition={{
+                  delay: present ? 0.15 : 0,
+                  duration: 0.5,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="absolute -left-3 top-[7%] z-10 rounded-[3px] border border-gold-soft bg-paper px-4 py-2 text-center shadow-paint-sm"
+              >
+                <p className="font-serif text-base font-semibold leading-tight text-ink sm:text-lg">
+                  {scene.tag.title}
+                </p>
+                <p className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">
+                  {scene.tag.chapter}
+                </p>
+              </motion.div>
+            )}
 
             {/* the interactive inset hangs off the bottom edge */}
-            <div ref={scope} className={`absolute inset-x-0 z-20 flex justify-center ${isCover ? "top-full -mt-11" : isFind ? "top-full mt-3" : "top-[80%]"}`}>
+            <div
+              ref={scope}
+              className={`absolute inset-x-0 z-20 flex justify-center ${isCover ? "top-full -mt-11" : isFind ? "top-full mt-3" : "top-[80%]"}`}
+            >
               <AnimatePresence>
                 {present && (
                   <motion.div
                     initial={{ opacity: 0, y: 26, scale: 0.85 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 18, scale: 0.9, transition: { duration: 0.2 } }}
-                    transition={{ delay: 0.35, type: "spring", stiffness: 260, damping: 20 }}
+                    exit={{
+                      opacity: 0,
+                      y: 18,
+                      scale: 0.9,
+                      transition: { duration: 0.2 },
+                    }}
+                    transition={{
+                      delay: 0.35,
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 20,
+                    }}
                     className="relative"
                     style={
                       isCover
                         ? undefined
                         : isFind
                           ? { width: "calc(var(--panel) * 0.96)" }
-                          : { width: "calc(var(--panel) * 0.74)", height: "calc(var(--panel) * 0.34)" }
+                          : {
+                              width: "calc(var(--panel) * 0.74)",
+                              height: "calc(var(--panel) * 0.34)",
+                            }
                     }
                   >
                     {inset}
@@ -513,9 +632,14 @@ function ScenePanel({
 
           <div
             className="flex items-start justify-center"
-            style={{ height: "var(--below)", paddingTop: "var(--cap-pad, calc(var(--panel) * 0.17 + 14px))" }}
+            style={{
+              height: "var(--below)",
+              paddingTop: "var(--cap-pad, calc(var(--panel) * 0.17 + 14px))",
+            }}
           >
-            {(done || scene.captionFirst) && present && <StoryCaption text={scene.caption} />}
+            {(done || scene.captionFirst) && present && (
+              <StoryCaption text={scene.caption} />
+            )}
           </div>
         </>
       )}
@@ -535,7 +659,9 @@ function FlapTile({ value, wide = false }: { value: string; wide?: boolean }) {
   return (
     <span
       className={`relative inline-flex h-14 items-center justify-center overflow-hidden font-serif font-medium text-brand [perspective:220px] sm:h-[4.25rem] ${
-        wide ? "min-w-[4.5rem] px-1 text-[1.7rem] tracking-[0.18em] sm:min-w-[5.5rem] sm:text-[2rem]" : "w-[1.7rem] text-[2.9rem] sm:w-9 sm:text-[3.5rem]"
+        wide
+          ? "min-w-[4.5rem] px-1 text-[1.7rem] tracking-[0.18em] sm:min-w-[5.5rem] sm:text-[2rem]"
+          : "w-[1.7rem] text-[2.9rem] sm:w-9 sm:text-[3.5rem]"
       }`}
     >
       <AnimatePresence initial={false} mode="popLayout">
@@ -543,8 +669,17 @@ function FlapTile({ value, wide = false }: { value: string; wide?: boolean }) {
           key={flip.n}
           initial={{ rotateX: -85, y: "-28%", opacity: 0.4 }}
           animate={{ rotateX: 0, y: 0, opacity: 1 }}
-          exit={{ rotateX: 85, y: "28%", opacity: 0, transition: { duration: 0.12 } }}
-          transition={{ type: "tween", duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          exit={{
+            rotateX: 85,
+            y: "28%",
+            opacity: 0,
+            transition: { duration: 0.12 },
+          }}
+          transition={{
+            type: "tween",
+            duration: 0.28,
+            ease: [0.22, 1, 0.36, 1],
+          }}
           className="block leading-none"
         >
           {value}
@@ -579,7 +714,9 @@ function CalendarRoll({
   const at = (v: number): Ymd => {
     const span = center - start;
     const t = span > 0 ? easeOutQuart(clamp((v - start) / span, 0, 1)) : 1;
-    const d = new Date(data.from.getTime() + (data.to.getTime() - data.from.getTime()) * t);
+    const d = new Date(
+      data.from.getTime() + (data.to.getTime() - data.from.getTime()) * t,
+    );
     return { day: d.getDate(), month: d.getMonth(), year: d.getFullYear() };
   };
 
@@ -592,7 +729,11 @@ function CalendarRoll({
   useMotionValueEvent(cam, "change", (v) => {
     const next = at(v);
     setDate((prev) =>
-      prev.day === next.day && prev.month === next.month && prev.year === next.year ? prev : next,
+      prev.day === next.day &&
+      prev.month === next.month &&
+      prev.year === next.year
+        ? prev
+        : next,
     );
 
     const key = next.year * 12 + next.month;
@@ -609,7 +750,10 @@ function CalendarRoll({
         rot: (forward ? -1 : 1) * (20 + Math.random() * 60),
       };
       setSheets((s) => [...s.slice(-7), sheet]);
-      window.setTimeout(() => setSheets((s) => s.filter((x) => x.id !== id)), 1000);
+      window.setTimeout(
+        () => setSheets((s) => s.filter((x) => x.id !== id)),
+        1000,
+      );
     }
 
     setLanded(Math.abs(v - center) < 4);
@@ -641,11 +785,16 @@ function CalendarRoll({
           transition={{ duration: 0.55, ease: "easeOut" }}
           className="relative z-10"
         >
-          <DoubleFrame className="shadow-paint-md" innerClassName="flex items-center gap-3 px-5 py-3 sm:gap-5 sm:px-7">
+          <DoubleFrame
+            className="shadow-paint-md"
+            innerClassName="flex items-center gap-3 px-5 py-3 sm:gap-5 sm:px-7"
+          >
             <span className="flex">
-              {pad(date.day).split("").map((ch, i) => (
-                <FlapTile key={i} value={ch} />
-              ))}
+              {pad(date.day)
+                .split("")
+                .map((ch, i) => (
+                  <FlapTile key={i} value={ch} />
+                ))}
             </span>
             {rule}
             <FlapTile value={MONTHS[date.month]} wide />
@@ -661,8 +810,14 @@ function CalendarRoll({
 
       {/* once the date lands, a gold ornament draws out under it and the line below it appears */}
       <motion.div
-        animate={landed ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }}
-        transition={{ duration: 0.7, delay: landed ? 0.2 : 0, ease: [0.22, 1, 0.36, 1] }}
+        animate={
+          landed ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }
+        }
+        transition={{
+          duration: 0.7,
+          delay: landed ? 0.2 : 0,
+          ease: [0.22, 1, 0.36, 1],
+        }}
         className="w-48"
       >
         <Ornament className="[&>span:first-child]:flex-1 [&>span:last-child]:flex-1" />
@@ -698,9 +853,13 @@ export default function ComicIntro({
   const { w, h } = useViewport();
   const narrow = w < 640;
   // on a phone the panel takes nearly the full width, so the little games are big enough to play
-  const panel = Math.round(Math.min(w * (narrow ? 0.92 : 0.78), h * (narrow ? 0.56 : 0.5), 460));
+  const panel = Math.round(
+    Math.min(w * (narrow ? 0.92 : 0.78), h * (narrow ? 0.56 : 0.5), 460),
+  );
   // the search game gets an even larger stage: its picture is wide and full of faces
-  const bigPanel = Math.round(Math.min(w * (narrow ? 0.97 : 0.78), h * (narrow ? 0.6 : 0.56), 540));
+  const bigPanel = Math.round(
+    Math.min(w * (narrow ? 0.97 : 0.78), h * (narrow ? 0.6 : 0.56), 540),
+  );
   // distance between panels: room for the flip counter and a glimpse of each panel
   const seg = w * 0.5 + panel + 260;
 
@@ -801,7 +960,8 @@ export default function ComicIntro({
     if (!s) return;
     const dx = e.clientX - s.x0;
     const dy = e.clientY - s.y0;
-    if (Math.abs(dx) < Math.min(w * 0.12, 90) || Math.abs(dx) < Math.abs(dy)) return;
+    if (Math.abs(dx) < Math.min(w * 0.12, 90) || Math.abs(dx) < Math.abs(dy))
+      return;
     if (dx < 0) tryNext();
     else tryBack();
   };
@@ -814,7 +974,8 @@ export default function ComicIntro({
     else tryBack();
   };
 
-  const markDone = (i: number) => setDone((prev) => prev.map((v, j) => (j === i ? true : v)));
+  const markDone = (i: number) =>
+    setDone((prev) => prev.map((v, j) => (j === i ? true : v)));
   const settled = arrived && eyes === "open";
   const canAdvance = settled && done[index] && index < last;
 
@@ -852,60 +1013,73 @@ export default function ComicIntro({
         onWheel={onWheel}
       >
         {w > 0 && (
-          <motion.div className="absolute inset-y-0 left-0 will-change-transform" style={{ x: trackX }}>
+          <motion.div
+            className="absolute inset-y-0 left-0 will-change-transform"
+            style={{ x: trackX }}
+          >
             {scenes.map((scene, i) =>
               // only the panel on screen and its neighbours exist: the rest of the strip is
               // off-camera, and nine live panels at once is what made phones stutter
               Math.abs(i - index) > 1 ? null : (
-              <div
-                key={scene.key}
-                className="absolute inset-y-0 flex flex-col items-center justify-center"
-                style={
-                  {
-                    left: i * seg,
-                    width: w,
-                    ...(scene.key === "gbk" ? { "--panel-h": "calc(var(--panel) * 1.12)" } : {}),
-                    ...(scene.key === "findus"
-                      ? {
-                          "--panel": `${bigPanel}px`,
-                          "--panel-h": `${Math.round(bigPanel * 0.8)}px`,
-                          "--cap-pad": "176px",
-                          "--below": "calc(176px + 7.5rem)",
-                        }
-                      : {}),
-                  } as CSSProperties
-                }
-                inert={i !== index}
-              >
-                <ScenePanel
-                  scene={scene}
-                  settings={settings}
-                  present={settled && i === index}
-                  done={done[i]}
-                  nudge={i === index ? nudge : 0}
-                  onDone={() => {
-                    markDone(i);
-                    if (i === 0) go(1);
-                  }}
-                  onFinish={onFinish}
-                />
-              </div>
+                <div
+                  key={scene.key}
+                  className="absolute inset-y-0 flex flex-col items-center justify-center"
+                  style={
+                    {
+                      left: i * seg,
+                      width: w,
+                      ...(scene.key === "gbk"
+                        ? { "--panel-h": "calc(var(--panel) * 1.12)" }
+                        : {}),
+                      ...(scene.key === "findus"
+                        ? {
+                            "--panel": `${bigPanel}px`,
+                            "--panel-h": `${Math.round(bigPanel * 0.8)}px`,
+                            "--cap-pad": "176px",
+                            "--below": "calc(176px + 7.5rem)",
+                          }
+                        : {}),
+                    } as CSSProperties
+                  }
+                  inert={i !== index}
+                >
+                  <ScenePanel
+                    scene={scene}
+                    settings={settings}
+                    present={settled && i === index}
+                    done={done[i]}
+                    nudge={i === index ? nudge : 0}
+                    onDone={() => {
+                      markDone(i);
+                      if (i === 0) go(1);
+                    }}
+                    onFinish={onFinish}
+                  />
+                </div>
               ),
             )}
             {interludes.map((data, i) =>
               // the calendar between panel i and i+1 is only ever seen from those two
               i !== index && i !== index - 1 ? null : (
-              <div
-                key={i}
-                className="pointer-events-none absolute inset-y-0 flex flex-col items-center justify-center"
-                style={{ left: i * seg + seg / 2, width: w }}
-                aria-hidden
-              >
-                <div className="flex items-center justify-center" style={{ height: "var(--panel)" }}>
-                  <CalendarRoll cam={cam} start={i * seg + seg * 0.06} center={i * seg + seg / 2} data={data} />
+                <div
+                  key={i}
+                  className="pointer-events-none absolute inset-y-0 flex flex-col items-center justify-center"
+                  style={{ left: i * seg + seg / 2, width: w }}
+                  aria-hidden
+                >
+                  <div
+                    className="flex items-center justify-center"
+                    style={{ height: "var(--panel)" }}
+                  >
+                    <CalendarRoll
+                      cam={cam}
+                      start={i * seg + seg * 0.06}
+                      center={i * seg + seg / 2}
+                      data={data}
+                    />
+                  </div>
+                  <div style={{ height: "var(--below)" }} />
                 </div>
-                <div style={{ height: "var(--below)" }} />
-              </div>
               ),
             )}
           </motion.div>
@@ -913,7 +1087,10 @@ export default function ComicIntro({
       </motion.div>
 
       {/* chapter progress: thin segments, the reached ones in green */}
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[68px] z-30 flex -translate-x-1/2 gap-1 sm:top-7 sm:gap-1.5">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[68px] z-30 flex -translate-x-1/2 gap-1 sm:top-7 sm:gap-1.5"
+      >
         {scenes.map((s, i) => (
           <motion.span
             key={s.key}
@@ -931,7 +1108,16 @@ export default function ComicIntro({
         className="absolute right-3 top-3 z-30 inline-flex min-h-11 items-center gap-2 rounded-full border border-gold bg-paper px-4 font-code text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-chrome sm:right-5 sm:px-5 sm:text-[13px] sm:tracking-[0.12em]"
       >
         Ke Undangan
-        <svg aria-hidden width="16" height="10" viewBox="0 0 18 10" fill="none" strokeWidth="1.5" strokeLinecap="round" className="stroke-brand max-sm:hidden">
+        <svg
+          aria-hidden
+          width="16"
+          height="10"
+          viewBox="0 0 18 10"
+          fill="none"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          className="stroke-brand max-sm:hidden"
+        >
           <path d="M1 5h15M12 1l4 4-4 4" />
         </svg>
       </button>
@@ -963,7 +1149,11 @@ export default function ComicIntro({
           >
             <motion.span
               animate={{ x: [-2, 3, -2] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             >
               <ChevronRight className="h-6 w-6" strokeWidth={1.6} />
             </motion.span>
