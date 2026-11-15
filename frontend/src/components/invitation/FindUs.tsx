@@ -220,22 +220,21 @@ export function FindUsArt({ game, active }: { game: FindUsGame; active: boolean 
   };
 
   return (
-    <div className="absolute inset-0 flex flex-col px-[3%] pb-[3%] pt-[68px]">
+    <div className="absolute inset-0 flex flex-col px-[3%] pb-[3%] pt-[92px]">
+      <span className="font-eyebrow pointer-events-none absolute right-[3%] top-3 z-10 inline-flex items-center gap-1 rounded-full border border-line bg-paper px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted">
+        <MapPin className="h-3 w-3" strokeWidth={1.6} /> Sucofindo
+      </span>
       <div ref={area} className="relative flex min-h-0 flex-1 items-center justify-center">
         <div
           ref={box}
           {...handlers}
-          className={`relative touch-none select-none overflow-hidden rounded-[4px] ${live ? "cursor-none" : ""} ${room ? "" : "opacity-0"}`}
+          className={`relative touch-none select-none ${live ? "cursor-none" : ""} ${room ? "" : "opacity-0"}`}
           style={{
             width: boxW,
             height: boxH,
             transition: game.drawn ? "width 1.2s ease-in-out, height 1.2s ease-in-out" : undefined,
           }}
         >
-          <span className="font-eyebrow pointer-events-none absolute right-1.5 top-1.5 z-10 inline-flex items-center gap-1 rounded-full bg-paper/90 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-muted">
-            <MapPin className="h-3 w-3" strokeWidth={1.6} /> Sucofindo
-          </span>
-
           {/* the whole picture; the box above shows only the window (`view`) of it */}
           <motion.div
             className="absolute"
@@ -253,14 +252,14 @@ export function FindUsArt({ game, active }: { game: FindUsGame; active: boolean 
               src={PHOTO.src}
               alt="Foto bersama rekan kerja di Sucofindo"
               draggable={false}
-              className="pointer-events-none h-full w-full"
+              className="pointer-events-none h-full w-full rounded-[4px]"
             />
             {game.drawn && (
               <motion.img
                 src={ART.src}
                 alt=""
                 draggable={false}
-                className="pointer-events-none absolute inset-0 h-full w-full bg-paper"
+                className="pointer-events-none absolute inset-0 h-full w-full rounded-[4px] bg-paper"
                 initial={{ clipPath: `circle(0% at ${cx}% ${cy}%)` }}
                 animate={{ clipPath: `circle(120% at ${cx}% ${cy}%)` }}
                 transition={{ duration: 1.2, ease: "easeInOut" }}
@@ -271,7 +270,7 @@ export function FindUsArt({ game, active }: { game: FindUsGame; active: boolean 
               {/* the gold thread between them once both are found */}
               {game.drawn && (
                 <motion.path
-                  d={`M${FACES.bride.x - 40} ${FACES.bride.y - 40} C${FACES.bride.x - 120} ${FACES.groom.y - 160} ${FACES.groom.x + 140} ${FACES.groom.y - 170} ${FACES.groom.x + 44} ${FACES.groom.y - 40}`}
+                  d={`M${FACES.bride.x - 40} ${FACES.bride.y - 40} C${FACES.bride.x - 120} ${FACES.groom.y - 150} ${FACES.groom.x + 140} ${FACES.groom.y - 160} ${FACES.groom.x + 44} ${FACES.groom.y - 40}`}
                   fill="none"
                   stroke={colors.gold}
                   strokeWidth={4}

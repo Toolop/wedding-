@@ -7,6 +7,8 @@ const ill = (file: string) => `/images/illustrations/${file}`;
 const flower = (file: string) => `/images/flowers/${file}`;
 
 export const IMG = {
+  // the couple's emblem (same art as the site icon)
+  logo: "/images/logo.png",
   // couple
   cafe: ill("cafe.jpeg"),
   hello: ill("hello.jpeg"),

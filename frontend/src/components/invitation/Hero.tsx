@@ -80,7 +80,7 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
     daysLeft === null ? "" : daysLeft > 0 ? `${daysLeft} hari lagi` : daysLeft === 0 ? "Hari ini!" : "Sudah resmi";
   return (
     <DoubleFrame className="h-full" innerClassName="flex flex-col items-center px-2 pb-3 pt-4 text-center sm:pt-5">
-      <span className="font-flourish text-[1.6rem] leading-none text-gold-ink sm:text-[1.75rem]">Save the Date</span>
+      <span className="font-flourish whitespace-nowrap text-[1.45rem] leading-none text-gold-ink sm:text-[1.75rem]">Save the Date</span>
       {wedding ? (
         <>
           <span className="font-eyebrow mt-3 text-[11px] uppercase tracking-[0.25em] text-muted">{weekdayName(wedding)}</span>
@@ -90,7 +90,7 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
           <span className="font-eyebrow text-xs uppercase tracking-[0.3em] text-ink">{longMonth(wedding)}</span>
           <span className="font-serif text-xl italic text-muted">{wedding.getFullYear()}</span>
           <Ornament className="my-3" />
-          <span className="hidden w-full grid-cols-7 gap-0.5 text-[10px] font-semibold text-muted [@media(min-height:780px)]:grid">
+          <span className="grid w-full grid-cols-7 gap-0.5 text-[10px] font-semibold text-muted lg:hidden lg:[@media(min-height:780px)]:grid">
             {WEEK_LETTERS.map((l, i) => (
               <span key={i} className={i === 6 ? "text-gold-ink" : ""}>
                 {l}
@@ -114,7 +114,7 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
       ) : (
         <CalendarHeart className="my-6 h-10 w-10 text-gold-ink" strokeWidth={1.2} />
       )}
-      {left && <span className="mt-auto pt-2 text-xs font-medium text-muted">{left}</span>}
+      {left && <span className="mt-auto pt-3 text-xs font-medium text-muted">{left}</span>}
     </DoubleFrame>
   );
 }
@@ -169,7 +169,7 @@ function GiftFace({ count }: { count: number }) {
         Doa restu Anda adalah karunia terindah bagi kami.
       </span>
       {count > 0 && <span className="sr-only">{count} rekening</span>}
-      <span className="mt-auto flex w-full items-center justify-between border-t border-line">
+      <span className="mt-4 flex w-full items-center justify-between border-t border-line lg:mt-auto">
         <ArrowLink className="w-full justify-between">Kirim hadiah</ArrowLink>
       </span>
     </DoubleFrame>
@@ -197,10 +197,10 @@ function GalleryFace({ photos, total }: { photos: string[]; total: number }) {
           {big && (
             <PhotoCorners>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={big} alt="" className="h-[clamp(5.5rem,17vh,9.5rem)] w-[clamp(4.5rem,14vh,8.25rem)] object-cover" />
+              <img src={big} alt="" className="h-32 w-28 object-cover lg:h-[clamp(5.5rem,17vh,9.5rem)] lg:w-[clamp(4.5rem,14vh,8.25rem)]" />
             </PhotoCorners>
           )}
-          <span className="font-flourish hidden text-2xl leading-[1.1] text-brand [@media(min-height:780px)]:block">
+          <span className="font-flourish text-xl leading-[1.1] text-brand lg:hidden lg:text-2xl lg:[@media(min-height:780px)]:block">
             sampai jumpa di hari H kami
           </span>
         </span>
@@ -209,7 +209,7 @@ function GalleryFace({ photos, total }: { photos: string[]; total: number }) {
           {small.map((src, i) => (
             <PhotoCorners key={i}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="h-[clamp(3rem,8.5vh,5.5rem)] w-[clamp(3rem,8.5vh,5.5rem)] object-cover" />
+              <img src={src} alt="" className="h-14 w-14 object-cover min-[400px]:h-16 min-[400px]:w-16 lg:h-[clamp(3rem,8.5vh,5.5rem)] lg:w-[clamp(3rem,8.5vh,5.5rem)]" />
             </PhotoCorners>
           ))}
         </span>
@@ -221,12 +221,12 @@ function GalleryFace({ photos, total }: { photos: string[]; total: number }) {
 function RsvpFace({ rsvp }: { rsvp: WishesResponse["summary"] | null }) {
   const guests = rsvp?.guests ?? 0;
   return (
-    <DoubleFrame tone="brand" className="h-full" innerClassName="flex flex-col items-center px-3 pb-1 pt-5 text-center">
+    <DoubleFrame tone="brand" className="h-full" innerClassName="flex flex-col items-center gap-y-1 px-3 pb-1 pt-5 text-center">
       <span className="font-serif text-[1.7rem] font-medium italic leading-[1.05] sm:text-3xl">RSVP &amp; Ucapan</span>
       <span className="font-eyebrow mt-1 text-[10px] uppercase tracking-[0.3em] text-honey">Konfirmasi kehadiran</span>
       {guests > 0 ? (
         <>
-          <span className="mt-auto grid h-[104px] w-[104px] place-items-center rounded-full border border-honey/80 p-[5px] sm:h-[116px] sm:w-[116px]">
+          <span className="mt-4 grid h-[104px] w-[104px] place-items-center lg:mt-auto rounded-full border border-honey/80 p-[5px] sm:h-[116px] sm:w-[116px]">
             <span className="grid h-full w-full place-items-center rounded-full border border-honey/40 font-serif text-[3.4rem] font-medium leading-none">
               {guests}
             </span>
@@ -245,7 +245,7 @@ function RsvpFace({ rsvp }: { rsvp: WishesResponse["summary"] | null }) {
           <span className="font-serif px-2 text-lg italic leading-snug text-on-brand-muted">Kabari kami sebelum hari H</span>
         </>
       )}
-      <span className="mt-auto w-full border-t border-honey/35 pt-0">
+      <span className="mt-4 w-full border-t border-honey/35 pt-0 lg:mt-auto">
         <ArrowLink onBrand className="w-full justify-between">Isi RSVP</ArrowLink>
       </span>
     </DoubleFrame>
@@ -265,6 +265,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       key: "date",
       title: "The Date",
       subtitle: "Tandai harinya",
+      span: "max-lg:order-1",
       face: <DateFace wedding={wedding} daysLeft={live.daysLeft} />,
       detail: <DatePanel settings={settings} />,
       actions: [
@@ -276,7 +277,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       key: "ceremony",
       title: "Akad & Resepsi",
       subtitle: "Rangkaian acara",
-      span: "col-span-2",
+      span: "sm:col-span-2 max-lg:order-3",
       face: <CeremonyFace settings={settings} />,
       detail: <CeremonyPanel settings={settings} />,
       actions: [{ label: "Konfirmasi kehadiran", card: "rsvp" }],
@@ -285,6 +286,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       key: "registry",
       title: "Tanda Kasih",
       subtitle: "Wedding gift",
+      span: "max-lg:order-2",
       face: <GiftFace count={accounts} />,
       detail: <GiftPanel settings={settings} gifts={gifts} />,
       actions: [{ label: "Kembali ke RSVP", card: "rsvp" }],
@@ -293,7 +295,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       key: "gallery",
       title: "Galeri Kita",
       subtitle: "Momen kami berdua",
-      span: "col-span-2 lg:col-span-3",
+      span: "sm:col-span-2 max-lg:order-4 lg:col-span-3",
       face: <GalleryFace photos={photos} total={gallery.length} />,
       detail: <GalleryPanel gallery={gallery} />,
       actions: [],
@@ -302,6 +304,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
       key: "rsvp",
       title: "RSVP & Ucapan",
       subtitle: "Konfirmasi kehadiran",
+      span: "max-lg:order-5 sm:max-lg:col-span-2",
       face: <RsvpFace rsvp={live.rsvp} />,
       detail: <RsvpPanel />,
       actions: [{ label: "Info hadiah", card: "registry" }],
@@ -464,7 +467,7 @@ export default function Hero({ data }: { data: InvitationData }) {
     <section className="relative isolate flex min-h-[100dvh] w-full flex-col overflow-hidden bg-page lg:h-[100dvh]">
       <BotanicalFrame />
 
-      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-5 pb-6 pt-8 sm:px-8 lg:px-14 lg:pb-3 lg:pt-8">
+      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 pb-6 pt-[4.5rem] sm:px-8 sm:pt-8 lg:px-14 lg:pb-3 lg:pt-8">
         <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-10">
           {/* ---- left: the invitation itself ---- */}
           <div className="flex min-h-0 flex-col gap-3 [@media(min-height:860px)]:gap-[18px]">
@@ -476,7 +479,7 @@ export default function Hero({ data }: { data: InvitationData }) {
               onClick={() => setOpenKey("couple")}
               {...rise(0.2)}
               aria-label={`${groom} & ${bride}, tentang mempelai`}
-              className="flex w-fit items-baseline gap-3 text-left font-serif font-medium leading-none tracking-[-0.02em] text-ink text-[clamp(3.5rem,min(7vw,10.5vh),6.5rem)]"
+              className="flex w-fit items-baseline gap-3 text-left font-serif font-medium leading-none tracking-[-0.02em] text-ink text-[clamp(2.75rem,15vw,3.75rem)] lg:text-[clamp(3.5rem,min(7vw,10.5vh),6.5rem)]"
             >
               <span>{groom}</span>
               <span className="font-flourish text-[0.85em] font-normal tracking-normal text-gold">&amp;</span>
@@ -587,7 +590,7 @@ export default function Hero({ data }: { data: InvitationData }) {
           </div>
 
           {/* ---- right: the board ---- */}
-          <div className="grid min-h-0 auto-rows-[minmax(15rem,auto)] grid-cols-2 gap-3 lg:grid-cols-4 lg:grid-rows-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-4">
+          <div className="grid min-h-0 auto-rows-auto grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-4">
             {board.map((card, i) => (
               <motion.button
                 key={card.key}
@@ -610,12 +613,12 @@ export default function Hero({ data }: { data: InvitationData }) {
       {/* ---- footer: monogram, place / time / contact ---- */}
       <footer className="relative z-10 flex flex-none flex-wrap items-center gap-x-7 gap-y-2 border-t border-line bg-chrome px-5 py-3 sm:px-8 lg:h-[76px] lg:flex-nowrap lg:px-14 lg:py-0">
         <button onClick={() => setOpenKey("couple")} aria-label="Tentang mempelai" className="flex flex-none items-center gap-3">
-          <Monogram a={groom.charAt(0)} b={bride.charAt(0)} size={44} />
+          <Monogram a={groom.charAt(0)} b={bride.charAt(0)} size={60} />
           <span className="font-flourish text-[1.75rem] leading-none text-brand">
             {groom} &amp; {bride}
           </span>
         </button>
-        <div className="flex min-w-0 flex-1 items-stretch justify-end gap-5 pr-16 sm:gap-9 lg:pr-20">
+        <div className="flex min-w-0 flex-1 items-stretch justify-end gap-5 sm:gap-9 sm:pr-16 lg:pr-20">
           {[
             { key: "place", label: "Lokasi", value: venue || "Lihat peta", target: "ceremony" },
             { key: "time", label: "Waktu", value: wedding ? `${weekday}, ${wedding.getDate()} ${monthShort} ${wedding.getFullYear()}` : "Tanggal", target: "date" },

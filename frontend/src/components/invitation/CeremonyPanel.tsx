@@ -12,6 +12,7 @@ import { usePortalRoot } from "../ThemeProvider";
 import { InteractiveMap, MapLegend, VenuePolaroid } from "./InteractiveMap";
 import { formatLongDate, splitTime } from "./PortalPanels";
 import { colors, alpha, TONES } from "./theme";
+import { Ornament } from "./classy";
 
 type EventInfo = {
   key: "akad" | "resepsi";
@@ -156,23 +157,21 @@ function EventArch({
       whileInView={{ opacity: 1, x: 0}}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ type: "spring", stiffness: 70, damping: 16 }}
-      className="relative mx-auto w-full max-w-[340px] rounded-b-[22px] rounded-t-[170px] bg-white p-2 shadow-wash-lg"
+      className="relative mx-auto w-full max-w-[340px] rounded-b-[6px] rounded-t-[170px] border border-line bg-paper p-2 shadow-paint-md"
     >
       <div
-        className="flex flex-col items-center rounded-[6px] border px-6 pb-6 pt-10 text-center"
-        style={{ backgroundColor: t.bg, color: t.ink, borderColor: `${alpha(colors.ink, 19)}` }}
+        className={`flex flex-col items-center px-6 pb-6 text-center ${event.venuePhoto ? "pt-10" : "pt-20"}`}
+        style={{ color: t.ink }}
       >
-        {/* venue photo in a round window when there is one, the event's little drawing otherwise */}
-        <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border-[3px] border-white bg-white/70 shadow-wash-sm">
-          {event.venuePhoto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaUrl(event.venuePhoto)} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className="scale-125">{event.art}</span>
-          )}
-        </span>
+        {/* venue photo in a round window, only when there is one */}
+        {event.venuePhoto && (
+          <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border border-gold-soft bg-white p-[3px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={mediaUrl(event.venuePhoto)} alt="" className="h-full w-full rounded-full object-cover" />
+          </span>
+        )}
 
-        <p className="font-eyebrow mt-4 text-[10px] uppercase tracking-[0.25em] opacity-60">
+        <p className={`font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink ${event.venuePhoto ? "mt-4" : ""}`}>
           {String(index + 1).padStart(2, "0")} · {showDate && event.date ? event.date : "Acara"}
         </p>
         <h3 className="font-serif text-[2.4rem] font-medium leading-none">{event.kicker}</h3>
@@ -208,7 +207,7 @@ function EventArch({
                 href={event.maps}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 font-code text-xs text-on-brand shadow-press transition-transform hover:-translate-y-0.5"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-4 font-code text-[13px] text-on-brand transition-colors hover:bg-brand-hover"
               >
                 <MapPin className="h-3.5 w-3.5" /> Petunjuk arah
               </a>
@@ -216,7 +215,7 @@ function EventArch({
             {onShowMap && (
               <button
                 onClick={onShowMap}
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand/50 bg-white/70 px-4 py-2 font-code text-xs text-brand transition-transform hover:-translate-y-0.5"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-paper px-4 font-code text-[13px] text-ink transition-colors hover:border-gold"
               >
                 <MapIcon className="h-3.5 w-3.5" /> Lihat peta ilustrasi
               </button>
@@ -442,46 +441,33 @@ function MapSection({
   return (
     <section
       ref={sectionRef}
-      className="scroll-mt-3 rounded-[22px] bg-white p-2 shadow-wash-lg"
+      className="scroll-mt-3 rounded-[6px] border border-line bg-paper p-2 shadow-paint-md"
     >
       {/* header: what this map is of, and a switch when akad and resepsi are at different places */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-2 pb-2.5 pt-1.5">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span
-            className="grid h-10 w-10 flex-none place-items-center rounded-full"
-            style={{ backgroundColor: TONES.sage.bg }}
-          >
-            <MapPin className="h-5 w-5" style={{ color: TONES.brand.bg }} />
-          </span>
-          <div className="min-w-0">
-            <p className="font-eyebrow flex items-center gap-1.5 text-[9px] uppercase tracking-[0.2em] opacity-60">
-              Peta lokasi
-              {maps.length === 1 && (
-                <span className="rounded-full bg-chrome px-1.5 py-px normal-case tracking-normal">{map.label}</span>
-              )}
-            </p>
-            <p className="font-heading truncate text-lg leading-tight">{map.venue}</p>
-          </div>
-        </div>
+      <div className="flex flex-col items-center gap-1 px-2 pb-4 pt-4 text-center">
+        <p className="font-eyebrow text-[11px] uppercase tracking-[0.3em] text-gold-ink">
+          Peta lokasi{maps.length === 1 ? ` · ${map.label}` : ""}
+        </p>
+        <p className="font-serif text-2xl font-semibold leading-tight">{map.venue}</p>
+        <Ornament className="mt-1.5" />
         {maps.length > 1 && (
-          <div role="tablist" className="flex gap-1 rounded-full bg-chrome p-1">
+          <div role="tablist" className="mt-2 flex rounded-full border border-line p-1">
             {maps.map((m, i) => (
               <button
                 key={m.id}
                 role="tab"
                 aria-selected={i === active}
                 onClick={() => onSelect(i)}
-                className="relative rounded-full px-3 py-1 font-code text-[11px] transition-colors"
+                className="relative min-h-9 rounded-full px-4 font-code text-xs transition-colors"
               >
                 {i === active && (
                   <motion.span
                     layoutId="map-tab"
-                    className="absolute inset-0 rounded-full"
-                    style={{ backgroundColor: TONES.brand.bg }}
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    className="absolute inset-0 rounded-full bg-brand"
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   />
                 )}
-                <span className="relative" style={{ color: i === active ? TONES.brand.ink : colors.ink }}>
+                <span className="relative" style={{ color: i === active ? colors.onBrand : colors.ink }}>
                   {m.label}
                 </span>
               </button>
@@ -499,7 +485,7 @@ function MapSection({
           transition={{ duration: 0.25 }}
           className="relative"
         >
-          <div className="relative overflow-hidden rounded-[6px] border-2 border-ink/10" style={{ backgroundColor: colors.paper }}>
+          <div className="relative overflow-hidden rounded-[3px] border border-gold-soft" style={{ backgroundColor: colors.paper }}>
             <InteractiveMap
               src={map.src}
               alt={`Peta lokasi ${map.venue}`}
@@ -511,9 +497,9 @@ function MapSection({
             <button
               onClick={() => setZoomed(true)}
               aria-label="Perbesar peta"
-              className="absolute right-2 top-2 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_8px_color-mix(in_srgb,var(--color-ink)_25%,transparent)] backdrop-blur transition-transform hover:scale-105"
+              className="absolute right-2 top-2 z-10 grid h-10 w-10 place-items-center rounded-full border border-gold-soft bg-paper/95 text-brand transition-colors hover:bg-chrome"
             >
-              <Maximize2 className="h-4 w-4" />
+              <Maximize2 className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -558,23 +544,23 @@ function MapSection({
       </AnimatePresence>
 
       {/* footer: the address, a hint, and the two things a guest actually does here */}
-      <div className="px-2 pb-1.5 pt-3">
+      <div className="px-2 pb-2 pt-4 text-center">
         {map.address && (
-          <p className="flex items-start gap-1.5 text-[13px] leading-snug opacity-75">
-            <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none" />
+          <p className="flex items-start justify-center gap-1.5 text-sm leading-snug text-muted">
+            <MapPin className="mt-0.5 h-4 w-4 flex-none text-gold-ink" strokeWidth={1.5} />
             <span>{map.address}</span>
           </p>
         )}
         {hasLayer && (
-          <p className="font-script mt-1 text-lg leading-tight opacity-60">
+          <p className="font-script mt-1.5 text-lg leading-tight text-muted">
             {map.meta.pin ? "ketuk pin merah untuk melihat sekitarnya" : "buka keterangan untuk melihat sekitarnya"}
           </p>
         )}
-        <div className={`mt-3 grid gap-2 ${hasLayer && map.maps ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div className={`mt-4 grid gap-2 ${hasLayer && map.maps ? "grid-cols-2" : "grid-cols-1"}`}>
           {hasLayer && (
             <button
               onClick={onToggle}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-brand/40 bg-white px-3 py-2 font-code text-[11px] text-brand transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-line bg-paper px-3 font-code text-[13px] text-ink transition-colors hover:border-gold"
             >
               {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               {revealed ? "Tutup keterangan" : "Keterangan"}
@@ -585,9 +571,9 @@ function MapSection({
               href={map.maps}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand px-3 py-2 font-code text-[11px] text-on-brand shadow-press transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-brand px-3 font-code text-[13px] text-on-brand transition-colors hover:bg-brand-hover"
             >
-              Buka Google Maps <ExternalLink className="h-3 w-3" />
+              Buka Google Maps <ExternalLink className="h-3.5 w-3.5 text-honey" strokeWidth={1.5} />
             </a>
           )}
         </div>
@@ -765,15 +751,10 @@ export function CeremonyPanel({
         />
       )}
 
-      <div
-        className={`mx-1 flex items-center gap-3 rounded-[6px] crayon-box px-3 py-2.5 ${scroll ? "mx-auto max-w-[340px]" : ""}`}
-        style={{
-          backgroundColor: TONES.butter.bg,
-          color: TONES.butter.ink,
-          }}
-      >
-        <Clock className="h-7 w-7 flex-none text-gold-ink" strokeWidth={1.3} />
-        <p className="font-script text-xl leading-snug">
+      {/* a closing note, set like a line of small print: no box */}
+      <div className={`flex flex-col items-center gap-3 px-4 pt-2 text-center ${scroll ? "mx-auto max-w-[340px]" : ""}`}>
+        <Ornament />
+        <p className="font-script text-xl leading-snug text-muted">
           Mohon hadir sedikit lebih awal agar tidak melewatkan momen pentingnya.
         </p>
       </div>

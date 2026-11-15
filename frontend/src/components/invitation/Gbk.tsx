@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import { Instagram, MapPin } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, Instagram, MapPin, Phone, Video } from "lucide-react";
 import { colors } from "./theme";
-import { Bubble, Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
+import { Bubble, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
 import { IMG } from "./assets";
 
 /*
@@ -20,12 +20,25 @@ const SRC = {
   laugh: IMG.gbkLaugh,
 };
 
-/** the DM thread: three screenshots that overlap, so they read as one scroll */
-const SHOTS = [IMG.ig1, IMG.ig2, IMG.ig3];
-const SHOT_NOTES = [
-  "“Halo halo halo”… lalu promo Smartfren?! 😂",
-  "“Saya unreg sj 🙏”",
-  "“Sy juga membutuhkan ya bapak rafi 😂”",
+/**
+ * Their first DMs, as the whole thread. Nothing is cut into screenshots: the guest taps and
+ * the messages arrive one by one, hers after a moment of typing. `from: "me"` is the groom.
+ */
+type Msg = { from: "me" | "her"; text: string; reply?: string };
+const MSGS: Msg[] = [
+  { from: "me", text: "Halo halo halo" },
+  {
+    from: "me",
+    text: "Paket Smartfren GOKIL MAX terbaru sekarang tersedia dalam varian Rp15.000 dengan kuota utama 5 GB (2 GB Kuota Nasional, 3 GB Kuota Lokal), dan 15 GB Extra Kuota (01.00-05.00 WIB) dengan masa aktif 14 hari. Selain tambahan ini, pelanggan juga bisa mendapatkan kuota besar dengan harga teman di berbagai varian GOKIL MAX lain, mulai dari Rp2.000-an per GB.",
+  },
+  { from: "her", text: "WKWKKWKWKW" },
+  { from: "her", text: "Ketik reg (spasi) ok kirim ke 6143" },
+  { from: "me", reply: "Ketik reg (spasi) ok kirim ke 6143", text: "Insyallah kuota anda akan disedot setiap hari" },
+  { from: "her", text: "Saya unreg sj 🙏" },
+  { from: "me", reply: "Saya unreg sj 🙏", text: "Maksudnya untuk di berikan ke yang membutuhkan" },
+  { from: "me", text: "Salah satunya saya hehe" },
+  { from: "her", reply: "Salah satunya saya hehe", text: "Sy juga membutuhkan ya bapak rafi 😂😂😂" },
+  { from: "me", text: "Waduh ya maap 🙏😭" },
 ];
 
 /** the split frame's diagonal on the stage: x at the top edge and at the bottom edge */
@@ -52,18 +65,25 @@ export function useGbk({
   const [stepState, setStep] = useState<Step>(0);
   const [snapped, setSnapped] = useState(false);
   const [followed, setFollowed] = useState(false);
-  const [page, setPage] = useState(0);
+  const [shown, setShown] = useState(0);
+  const [typing, setTyping] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
   const step: Step = done ? 4 : stepState;
 
   // the flash fades, then cut to him at home that night
   useAfter(snapped && stepState === 0, 900, () => setStep(1));
+  // once the last message is in, hold a beat, then they both laugh
+  useAfter(!done && stepState === 3 && shown >= MSGS.length, 1800, () => setStep(4));
   useAfter(!done && stepState === 4, 1500, onDone);
 
   return {
     step,
     snapped: done || snapped,
     followed: done || followed,
-    page: done ? SHOTS.length - 1 : page,
+    shown: done ? MSGS.length : shown,
+    typing,
+    total: MSGS.length,
     groom,
     bride,
     snap: () => {
@@ -74,33 +94,150 @@ export function useGbk({
     follow: () => setFollowed(true),
     message: () => setStep(2),
     open: () => setStep(3),
-    scroll: () => (page + 1 >= SHOTS.length ? setStep(4) : setPage(page + 1)),
+    /** the next message arrives; hers are typed first */
+    next: () => {
+      if (typing || shown >= MSGS.length) return;
+      if (MSGS[shown].from === "her") {
+        setTyping(true);
+        timer.current = setTimeout(() => {
+          setTyping(false);
+          setShown((n) => n + 1);
+        }, 850);
+      } else {
+        setShown(shown + 1);
+      }
+    },
   };
 }
 
 /* ------------------------------------------------------------ main panel */
 
-/** a phone held up over the scene, slowly scrolling the real chat */
-function PhoneThread({ page }: { page: number }) {
+/** a phone held up over the scene, showing the whole chat; a tap anywhere brings the next message */
+function PhoneThread({ game }: { game: GbkGame }) {
+  const { shown, typing, bride } = game;
+  const scroller = useRef<HTMLDivElement>(null);
+  // a new message scrolls the thread to the bottom, but only the thread: never the page
+  useEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [shown, typing]);
+  // the strip behind turns every touch into a swipe, so the thread scrolls by hand: drag to
+  // scroll, a plain tap brings the next message
+  const drag = useRef<{ y: number; top: number; moved: boolean } | null>(null);
+  const moved = useRef(false);
+  const list = MSGS.slice(0, shown);
   return (
     <motion.div
       initial={{ y: "110%" }}
       animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 140, damping: 18 }}
-      className="absolute inset-0 flex items-center justify-center py-[4%]"
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute inset-0 flex items-center justify-center py-[3%]"
     >
-      <div className="relative aspect-[9/10] h-full overflow-hidden rounded-[6px] border-[5px] border-ink-deep bg-black ">
-        <AnimatePresence>
-          <motion.div
-            key={page}
-            className="absolute inset-0 bg-no-repeat"
-            style={{ backgroundImage: `url(${SHOTS[page]})`, backgroundSize: "100% auto" }}
-            initial={{ opacity: 0, backgroundPosition: "50% 0%" }}
-            animate={{ opacity: 1, backgroundPosition: "50% 100%" }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 0.4 }, backgroundPosition: { duration: 7, delay: 0.6, ease: "easeInOut" } }}
-          />
-        </AnimatePresence>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Ketuk untuk pesan berikutnya"
+        onClick={() => {
+          if (!moved.current) game.next();
+        }}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && game.next()}
+        className="relative flex h-full w-[84%] cursor-pointer select-none flex-col overflow-hidden rounded-[10px] border-[4px] border-ink-deep bg-cinema text-paper"
+      >
+        {/* header: who this is */}
+        <div className="flex flex-none items-center gap-2 border-b border-white/10 px-2.5 py-2">
+          <ChevronLeft className="h-4 w-4 flex-none" strokeWidth={1.8} />
+          <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-blush font-serif text-sm font-semibold text-ink">
+            {bride.charAt(0)}
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-[13px] font-semibold">{bride}</span>
+            <span className="block truncate text-[10px] text-paper/60">aralerosa</span>
+          </span>
+          <Phone className="h-4 w-4 flex-none" strokeWidth={1.6} />
+          <Video className="h-4 w-4 flex-none" strokeWidth={1.6} />
+        </div>
+
+        {/* the thread: newest at the bottom; drag or wheel to read back up */}
+        <div
+          ref={scroller}
+          onPointerDown={(e) => {
+            // keep the comic strip from treating this as a swipe
+            e.stopPropagation();
+            moved.current = false;
+            drag.current = { y: e.clientY, top: e.currentTarget.scrollTop, moved: false };
+          }}
+          onPointerMove={(e) => {
+            const d = drag.current;
+            if (!d) return;
+            e.stopPropagation();
+            const dy = e.clientY - d.y;
+            if (Math.abs(dy) > 6) moved.current = d.moved = true;
+            if (d.moved) e.currentTarget.scrollTop = d.top - dy;
+          }}
+          onPointerUp={(e) => {
+            e.stopPropagation();
+            drag.current = null;
+          }}
+          onPointerCancel={() => (drag.current = null)}
+          onWheel={(e) => e.stopPropagation()}
+          className="relative min-h-0 flex-1 touch-none overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <div className="flex min-h-full flex-col justify-end gap-1.5 px-2.5 pb-2">
+            <p className="py-1 text-center text-[10px] uppercase tracking-[0.2em] text-paper/45">6 Mei 2024</p>
+            {list.map((m, i) => {
+              const me = m.from === "me";
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className={`flex max-w-[84%] flex-col gap-0.5 ${me ? "items-end self-end" : "items-start self-start"}`}
+                >
+                  {m.reply && (
+                    <span className="max-w-full rounded-[12px] bg-white/10 px-2.5 py-1 text-[10px] leading-snug text-paper/60">
+                      <span className="block text-[9px] uppercase tracking-[0.15em] text-paper/45">Membalas</span>
+                      {m.reply}
+                    </span>
+                  )}
+                  <span
+                    className={`rounded-[16px] px-3 py-1.5 text-[12px] leading-snug ${
+                      me ? "bg-dusk text-paper" : "bg-white/12 text-paper"
+                    }`}
+                  >
+                    {m.text}
+                  </span>
+                </motion.div>
+              );
+            })}
+            {typing && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1 self-start rounded-[16px] bg-white/12 px-3 py-2.5">
+                {[0, 1, 2].map((d) => (
+                  <motion.span
+                    key={d}
+                    className="h-1.5 w-1.5 rounded-full bg-paper/70"
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: d * 0.15 }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </div>
+          {shown === 0 && (
+            <motion.p
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.8, repeat: Infinity }}
+              className="absolute inset-0 grid place-items-center text-[12px] text-paper/70"
+            >
+              ketuk untuk memulai obrolan
+            </motion.p>
+          )}
+        </div>
+
+        {/* the message bar, just for show */}
+        <div className="m-2 flex flex-none items-center rounded-full border border-white/15 px-3 py-1.5 text-[11px] text-paper/45">
+          Message…
+        </div>
       </div>
     </motion.div>
   );
@@ -143,7 +280,7 @@ export function GbkArt({ game }: { game: GbkGame }) {
       {step === 3 && (
         <>
           <div className="absolute inset-0 bg-ink-deep/30" />
-          <PhoneThread page={game.page} />
+          <PhoneThread game={game} />
         </>
       )}
 
@@ -284,27 +421,29 @@ export function GbkInset({ game }: { game: GbkGame }) {
   }
 
   if (step === 3) {
+    const finished = game.shown >= game.total;
     return (
       <button
         type="button"
-        onClick={game.scroll}
-        aria-label="Ketuk untuk scroll obrolan"
-        className="flex h-full w-full flex-col items-center justify-center gap-1.5 px-3 text-center"
+        onClick={game.next}
+        disabled={finished}
+        aria-label="Ketuk untuk pesan berikutnya"
+        className="flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center"
       >
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={game.page}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            className="font-script text-base leading-tight text-ink sm:text-xl"
-          >
-            {SHOT_NOTES[game.page]}
-          </motion.span>
-        </AnimatePresence>
+        <span className="font-script text-xl leading-tight text-ink sm:text-2xl">
+          {finished ? "Obrolan pertama mereka." : game.typing ? `${bride} sedang mengetik…` : "Ketuk untuk pesan berikutnya"}
+        </span>
         <span className="flex items-center gap-2">
-          <Hint>ketuk untuk scroll</Hint>
-          <Dots count={SHOTS.length} filled={game.page + 1} color={colors.brand} />
+          <Hint>
+            {game.shown} / {game.total} pesan
+          </Hint>
+          <span className="h-[3px] w-20 overflow-hidden rounded-full bg-line">
+            <motion.span
+              className="block h-full origin-left rounded-full bg-brand"
+              animate={{ scaleX: game.shown / game.total }}
+              transition={{ duration: 0.4 }}
+            />
+          </span>
         </span>
       </button>
     );

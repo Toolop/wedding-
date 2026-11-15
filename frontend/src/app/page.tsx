@@ -39,7 +39,7 @@ export default function Home() {
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 1.2, repeat: Infinity }}
         >
-          <Monogram a="R" b="T" size={56} />
+          <Monogram a="R" b="T" size={112} />
         </motion.div>
         <p className="font-script text-2xl text-muted">Memuat undangan…</p>
       </div>

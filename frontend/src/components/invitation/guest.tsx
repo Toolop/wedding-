@@ -59,12 +59,12 @@ export function KnownName({
   return (
     <div>
       <span className={labelClass}>Nama</span>
-      <div className="mt-1 flex items-baseline justify-between gap-3 border-b border-ink/25 px-0.5 pb-1.5 pt-1">
-        <p className="font-heading min-w-0 truncate text-xl">{name}</p>
+      <div className="mt-1 flex items-baseline justify-between gap-3 border-b border-line px-0.5 pb-2 pt-1">
+        <p className="min-w-0 truncate font-serif text-2xl font-medium">{name}</p>
         <button
           type="button"
           onClick={onChange}
-          className="flex-none font-code text-[10px] underline decoration-dashed underline-offset-2 opacity-60 transition-opacity hover:opacity-100"
+          className="flex-none font-code text-xs text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
         >
           bukan saya?
         </button>

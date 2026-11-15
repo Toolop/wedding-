@@ -1,7 +1,7 @@
 "use client";
 
 import { MotionConfig, motion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUp, CalendarHeart, Instagram, Pause, Play } from "lucide-react";
 import { mediaUrl } from "@/lib/api";
 import type { InvitationData, Settings } from "@/lib/types";
@@ -11,7 +11,7 @@ import { type IllustrationKey } from "./assets";
 import { Illustration } from "./WatercolorArt";
 import { BotanicalFrame, DoubleFrame, Eyebrow, Monogram, Ornament, PhotoCorners } from "./classy";
 import { CountdownClassic } from "./Countdown";
-import { formatLongDate } from "./PortalPanels";
+import { formatLongDate, splitTime } from "./PortalPanels";
 import { CeremonyPanel } from "./CeremonyPanel";
 import { GalleryPanel } from "./GalleryPanel";
 import { GiftPanel } from "./GiftPanel";
@@ -105,57 +105,6 @@ function Tear({ from, to }: { from: Band; to: Band; flip?: boolean }) {
       >
         <Ornament onBrand={from === "deep" || to === "deep"} />
       </span>
-    </div>
-  );
-}
-
-/** a straight green band across the seam between two sections. Its lettering runs sideways
- *  as the page scrolls; the track holds the phrase twice and wraps at half its width. */
-function Ribbon({
-  from,
-  to,
-  words,
-}: {
-  from: Band;
-  to: Band;
-  words: string[];
-  tone?: string;
-  tilt?: number;
-}) {
-  const track = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll();
-  const x = useTransform(scrollY, (v) => {
-    const half = (track.current?.scrollWidth ?? 0) / 2;
-    return half ? -((v * 0.45) % half) : 0;
-  });
-  return (
-    <div
-      aria-hidden
-      className="relative z-[2] -my-px overflow-hidden py-3"
-      style={{ background: `linear-gradient(${BAND_BG[from]} 50%, ${BAND_BG[to]} 50%)` }}
-    >
-      <div className="-mx-6 border-y border-honey/40 bg-brand py-2.5 text-on-brand">
-        <motion.div
-          ref={track}
-          style={{ x }}
-          className="flex w-max whitespace-nowrap font-eyebrow text-[11px] uppercase tracking-[0.3em]"
-        >
-          {[0, 1].map((half) => (
-            <span key={half} className="flex">
-              {Array.from({ length: 5 }, (_, i) =>
-                words.map((word) => (
-                  <span key={`${i}-${word}`} className="flex items-center gap-4 pr-4">
-                    {word}
-                    <svg width="7" height="7" viewBox="0 0 8 8" className="fill-honey">
-                      <path d="M4 0l4 4-4 4-4-4z" />
-                    </svg>
-                  </span>
-                )),
-              )}
-            </span>
-          ))}
-        </motion.div>
-      </div>
     </div>
   );
 }
@@ -293,97 +242,174 @@ function Polaroid({
 }
 
 /* --------------------------------------------------------------- sections */
+/** the arch the cover picture sits in, as a path: straight sides, a half-circle on top */
+const ARCH = "M1 249 V100 A99 99 0 0 1 199 100 V249 Z";
+
 function Cover({ settings }: { settings: Settings }) {
   const guest = useInvitedGuest()?.name;
   const groom = settings.groom_name || "Groom";
   const bride = settings.bride_name || "Bride";
-  // as the guest scrolls away the picture lags behind the page, the two names slide apart,
-  // and the whole cover fades, so the next band seems to be laid over it
+  // as the guest scrolls away the picture lags a little behind the page, the names ease
+  // apart, and the whole cover dims, so the next band seems to be laid over it
   const { scrollY } = useScroll();
-  const photoY = useTransform(scrollY, [0, 700], [0, 90]);
-  const groomX = useTransform(scrollY, [0, 600], [0, -50]);
-  const brideX = useTransform(scrollY, [0, 600], [0, 50]);
-  const fade = useTransform(scrollY, [0, 600], [1, 0.2]);
+  const photoY = useTransform(scrollY, [0, 700], [0, 70]);
+  const photoScale = useTransform(scrollY, [0, 700], [1, 1.08]);
+  const groomX = useTransform(scrollY, [0, 600], [0, -28]);
+  const brideX = useTransform(scrollY, [0, 600], [0, 28]);
+  const fade = useTransform(scrollY, [0, 600], [1, 0.15]);
+  /** a slow, even settle: nothing bounces on this page */
+  const settle = (delay: number, duration = 1.1) => ({ delay, duration, ease: EASE });
   return (
     <section
       id="cover"
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-16 text-center"
+      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pb-24 pt-14 text-center"
       style={{ backgroundColor: colors.page, color: colors.ink }}
     >
       <BotanicalFrame />
+      {/* a fine line just inside the page edge, like the border of a printed card */}
+      <motion.span
+        aria-hidden
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={settle(0.1, 1.6)}
+        className="pointer-events-none absolute inset-3 rounded-[3px] border border-gold-soft/70"
+      />
 
       <motion.div style={{ opacity: fade }} className="relative flex w-full flex-col items-center">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
-          <Eyebrow className="tracking-[0.35em]">The wedding of</Eyebrow>
-        </motion.div>
-
-        {/* the cover picture in an arch, with two fine rings */}
-        <motion.div style={{ y: photoY }} className="relative mt-7 w-52 sm:w-56">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.8, ease: EASE }}
-            className="rounded-t-full border border-gold bg-page p-1.5 shadow-paint-md"
+        {/* the heading drifts in from wide letter-spacing, between two rules that grow outward */}
+        <div className="flex w-full max-w-[17rem] items-center gap-3">
+          <motion.span
+            aria-hidden
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={settle(0.5, 1.2)}
+            className="h-px flex-1 origin-right bg-gold"
+          />
+          <motion.p
+            initial={{ opacity: 0, letterSpacing: "0.7em" }}
+            animate={{ opacity: 1, letterSpacing: "0.35em" }}
+            transition={settle(0.2, 1.6)}
+            className="font-eyebrow whitespace-nowrap text-[11px] uppercase text-gold-ink"
           >
-            <div className="aspect-[4/5] w-full overflow-hidden rounded-t-full border border-gold-soft bg-chrome">
-              {settings.hero_image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={mediaUrl(settings.hero_image)} alt={`${groom} & ${bride}`} draggable={false} className="h-full w-full object-cover" />
-              ) : (
-                <Illustration name="hello" className="h-full w-full object-cover" />
-              )}
-            </div>
+            The wedding of
+          </motion.p>
+          <motion.span
+            aria-hidden
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={settle(0.5, 1.2)}
+            className="h-px flex-1 origin-left bg-gold"
+          />
+        </div>
+
+        {/* the picture: its gold arch is drawn first, then the picture rises into it like a
+            curtain lifting, still easing closer for a moment after */}
+        <motion.div style={{ y: photoY }} className="relative mt-8 aspect-[4/5] w-[min(62vw,15.5rem)]">
+          <svg aria-hidden viewBox="0 0 200 250" preserveAspectRatio="none" fill="none" className="absolute -inset-[9px] h-[calc(100%+18px)] w-[calc(100%+18px)] overflow-visible">
+            <motion.path
+              d={ARCH}
+              stroke={colors.gold}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ pathLength: { delay: 0.4, duration: 2, ease: [0.65, 0, 0.35, 1] }, opacity: { delay: 0.4, duration: 0.3 } }}
+            />
+          </svg>
+          <motion.div
+            initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
+            animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+            transition={{ delay: 0.9, duration: 1.7, ease: [0.65, 0, 0.35, 1] }}
+            className="h-full w-full overflow-hidden rounded-t-full bg-chrome shadow-paint-md"
+          >
+            <motion.div
+              initial={{ scale: 1.18 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.9, duration: 3.2, ease: EASE }}
+              className="h-full w-full"
+            >
+              <motion.div style={{ scale: photoScale }} className="h-full w-full">
+                {settings.hero_image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={mediaUrl(settings.hero_image)} alt={`${groom} & ${bride}`} draggable={false} className="h-full w-full object-cover" />
+                ) : (
+                  <Illustration name="hello" className="h-full w-full object-cover" />
+                )}
+              </motion.div>
+            </motion.div>
           </motion.div>
-          <p className="mt-3 font-serif text-lg tracking-[0.25em] text-brand">{dotDate(settings)}</p>
         </motion.div>
 
-        {/* the names sit off-centre on two lines, each rising out of its own line */}
-        <h1 aria-label={`${groom} & ${bride}`} className="mt-7 w-full max-w-[19rem] font-flourish text-[4.2rem] leading-[1]">
+        {/* the names are written in, left to right, one after the other; off-centre on two lines */}
+        <h1 aria-label={`${groom} & ${bride}`} className="mt-9 w-full max-w-[19rem] font-flourish text-[clamp(3.4rem,17vw,4.4rem)] leading-[1]">
           {[groom, bride].map((name, i) => (
-            <motion.span
-              key={i}
-              aria-hidden
-              style={{ x: i ? brideX : groomX }}
-              className={`block overflow-hidden px-1 py-1 ${i ? "-mt-1 text-right" : "text-left"}`}
-            >
+            <motion.span key={i} aria-hidden style={{ x: i ? brideX : groomX }} className={`block px-1 ${i ? "-mt-1 text-right" : "text-left"}`}>
+              {i === 1 && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={settle(2.5, 0.9)}
+                  className="mr-2 inline-block text-[0.7em] text-gold"
+                >
+                  &amp;
+                </motion.span>
+              )}
               <motion.span
-                initial={{ y: "110%" }}
-                animate={{ y: 0 }}
-                transition={{ delay: 0.55 + i * 0.18, duration: 0.9, ease: EASE }}
+                // generous negative insets so the script's swashes are never cut by the wipe
+                initial={{ clipPath: "inset(-30% 110% -30% -15%)" }}
+                animate={{ clipPath: "inset(-30% -15% -30% -15%)" }}
+                transition={{ delay: 1.9 + i * 0.75, duration: 1.3, ease: [0.45, 0, 0.25, 1] }}
                 className="inline-block"
               >
-                {i === 1 && <span className="mr-2 text-[0.7em] text-gold">&amp;</span>}
                 {name}
               </motion.span>
             </motion.span>
           ))}
         </h1>
 
+        {/* the date, between two rules that open from its centre */}
+        <div className="mt-6 flex w-full max-w-[15rem] items-center gap-4">
+          <motion.span aria-hidden initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={settle(3.3, 1)} className="h-px flex-1 origin-right bg-line" />
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={settle(3.3)}
+            className="font-serif text-xl tracking-[0.25em] text-brand"
+          >
+            {dotDate(settings)}
+          </motion.p>
+          <motion.span aria-hidden initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={settle(3.3, 1)} className="h-px flex-1 origin-left bg-line" />
+        </div>
+
         {guest && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.7, ease: EASE }}
-            className="mt-8 w-full max-w-[260px]"
+            transition={settle(3.7)}
+            className="mt-7 w-full max-w-[280px]"
           >
-            <DoubleFrame innerClassName="px-4 py-3 text-center">
-              <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth.</p>
-              <p className="mt-0.5 font-script text-2xl font-medium leading-tight">{guest}</p>
-            </DoubleFrame>
+            <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth.</p>
+            <p className="mt-1 font-script text-[1.7rem] font-medium leading-tight">{guest}</p>
           </motion.div>
         )}
       </motion.div>
 
+      {/* scroll cue: a hairline with a gold bead travelling down it */}
       <motion.a
         href="#salam"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.7 }}
-        transition={{ delay: 1.4 }}
-        className="absolute bottom-8 font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted"
+        animate={{ opacity: 1 }}
+        transition={settle(4.2)}
+        className="absolute bottom-7 flex flex-col items-center gap-2 font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted"
       >
-        <span className="anim-nudge flex flex-col items-center" style={{ "--dur": "1.8s" } as CSSProperties}>
-          scroll
-          <span className="mt-1 h-7 w-px bg-current" />
+        scroll
+        <span className="relative block h-9 w-px overflow-hidden bg-line">
+          <motion.span
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-1/2 bg-gold"
+            animate={{ y: ["-100%", "200%"] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          />
         </span>
       </motion.a>
     </section>
@@ -543,61 +569,108 @@ function Couple({ settings }: { settings: Settings }) {
   );
 }
 
-/** the wedding month on a quiet calendar card; the dates fill in one by one and the day
- *  is ringed in gold */
-function CalendarPage({ date }: { date: Date }) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
+const WEEK_LETTERS = ["S", "S", "R", "K", "J", "S", "M"];
+const rise = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } };
+
+/** the date set like the centre of a printed invitation: month | day | year, the week it
+ *  falls in underneath with the day ringed, and the countdown at the foot of the same card */
+function DateCard({ date, settings }: { date: Date; settings: Settings }) {
   const day = date.getDate();
-  const lead = (new Date(year, month, 1).getDay() + 6) % 7; // weeks start on Monday
-  const total = new Date(year, month + 1, 0).getDate();
-  const cells: (number | null)[] = [...Array<null>(lead).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)];
+  const monday = new Date(date);
+  monday.setDate(day - ((date.getDay() + 6) % 7)); // weeks start on Monday
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+  const time = splitTime(settings.akad_time || settings.resepsi_time || "");
+  const side = "border-y border-gold-soft py-2 font-eyebrow text-[11px] uppercase tracking-[0.3em] text-ink";
   return (
     <motion.div
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ staggerChildren: 0.014 }}
-      className="mx-auto w-full max-w-[300px]"
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ staggerChildren: 0.14, delayChildren: 0.1 }}
+      className="mx-auto w-full max-w-[360px]"
     >
-      <DoubleFrame innerClassName="px-5 pb-5 pt-5 text-ink">
-        <div className="flex items-baseline justify-between">
-          <span className="font-serif text-4xl font-medium leading-none">
+      <DoubleFrame innerClassName="px-4 pb-6 pt-7 text-ink sm:px-6">
+        <motion.p variants={rise} transition={{ duration: 0.8, ease: EASE }} className="font-eyebrow text-[11px] uppercase tracking-[0.35em] text-gold-ink">
+          {new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(date)}
+        </motion.p>
+
+        {/* month | day | year: the number rises out of its line, the sides slide in toward it */}
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+          <motion.span
+            variants={{ hidden: { opacity: 0, x: -14 }, show: { opacity: 1, x: 0 } }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className={side}
+          >
             {new Intl.DateTimeFormat("id-ID", { month: "long" }).format(date)}
+          </motion.span>
+          <span className="block overflow-hidden px-1">
+            <motion.span
+              variants={{ hidden: { y: "105%" }, show: { y: 0 } }}
+              transition={{ duration: 1.1, ease: EASE }}
+              className="block font-serif text-[5.75rem] font-medium leading-[0.95] text-brand"
+            >
+              {String(day).padStart(2, "0")}
+            </motion.span>
           </span>
-          <span className="font-code text-sm tracking-[0.2em] text-muted">{year}</span>
+          <motion.span
+            variants={{ hidden: { opacity: 0, x: 14 }, show: { opacity: 1, x: 0 } }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className={side}
+          >
+            {date.getFullYear()}
+          </motion.span>
         </div>
-        <Ornament className="my-3" />
-        <div className="grid grid-cols-7 gap-y-1 text-center">
-          {["S", "S", "R", "K", "J", "S", "M"].map((d, i) => (
-            <span key={i} className={`font-eyebrow pb-1 text-[10px] ${i === 6 ? "text-gold-ink" : "text-muted"}`}>
-              {d}
-            </span>
-          ))}
-          {cells.map((n, i) =>
-            n === null ? (
-              <span key={i} />
-            ) : (
-              <motion.span
-                key={i}
-                variants={{ hidden: { opacity: 0, y: 4 }, show: { opacity: 1, y: 0 } }}
-                className={`relative mx-auto grid h-8 w-8 place-items-center rounded-full font-code text-[13px] ${
-                  n === day ? "bg-brand font-semibold text-paper" : ""
-                }`}
-              >
-                {n}
-                {n === day && (
-                  <motion.span
-                    aria-hidden
-                    variants={{ hidden: { scale: 0.6, opacity: 0 }, show: { scale: 1, opacity: 1 } }}
-                    transition={{ delay: 0.75, duration: 0.6, ease: EASE }}
-                    className="absolute -inset-1 rounded-full border border-gold"
-                  />
-                )}
-              </motion.span>
-            ),
-          )}
-        </div>
+
+        {time.start && (
+          <motion.p variants={rise} transition={{ duration: 0.8, ease: EASE }} className="mt-2 font-script text-xl text-muted">
+            pukul {time.start} {time.zone}
+          </motion.p>
+        )}
+
+        <motion.div variants={{ hidden: { opacity: 0, scaleX: 0.4 }, show: { opacity: 1, scaleX: 1 } }} transition={{ duration: 0.9, ease: EASE }}>
+          <Ornament className="my-5 [&>span:first-child]:w-12 [&>span:last-child]:w-12" />
+        </motion.div>
+
+        {/* the week of the wedding; a gold ring is drawn around the day */}
+        <motion.div variants={rise} transition={{ duration: 0.8, ease: EASE }} className="grid grid-cols-7 text-center">
+          {week.map((d, i) => {
+            const hit = d.getDate() === day && d.getMonth() === date.getMonth();
+            return (
+              <span key={i} className="flex flex-col items-center gap-1.5">
+                <span className={`font-eyebrow text-[10px] ${hit ? "text-gold-ink" : "text-muted"}`}>{WEEK_LETTERS[i]}</span>
+                <span
+                  className={`relative grid h-9 w-9 place-items-center rounded-full font-serif text-lg leading-none ${
+                    hit ? "bg-brand font-semibold text-paper" : d.getMonth() === date.getMonth() ? "" : "text-stone"
+                  }`}
+                >
+                  {d.getDate()}
+                  {hit && (
+                    <svg aria-hidden viewBox="0 0 48 48" fill="none" className="absolute -inset-[6px] h-[calc(100%+12px)] w-[calc(100%+12px)] -rotate-90">
+                      <motion.circle
+                        cx="24"
+                        cy="24"
+                        r="23"
+                        stroke={colors.gold}
+                        strokeWidth={1}
+                        variants={{ hidden: { pathLength: 0 }, show: { pathLength: 1 } }}
+                        transition={{ delay: 0.9, duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
+                      />
+                    </svg>
+                  )}
+                </span>
+              </span>
+            );
+          })}
+        </motion.div>
+
+        <motion.div variants={rise} transition={{ duration: 0.8, ease: EASE }} className="mt-6 border-t border-line-soft pt-5">
+          <p className="font-eyebrow mb-3 text-[10px] uppercase tracking-[0.3em] text-gold-ink">Menuju hari bahagia</p>
+          <CountdownClassic target={settings.wedding_date} light />
+        </motion.div>
       </DoubleFrame>
     </motion.div>
   );
@@ -609,37 +682,23 @@ function SaveTheDate({ settings }: { settings: Settings }) {
   return (
     <Section id="tanggal" band="mint" className="text-center">
       <Heading no="02" eyebrow="save the date" title="Hari Bahagia" align="right" />
-      {d && (
-        <>
-          <CalendarPage date={d} />
-          <FadeIn delay={0.2}>
-            <p className="font-eyebrow mt-9 text-[11px] uppercase tracking-[0.25em] text-gold-ink">
-              {new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d)}
-            </p>
-          </FadeIn>
-        </>
-      )}
-      <FadeIn from="zoom" delay={0.15} className="mt-5 flex justify-center">
-        <div className="w-full max-w-sm rounded-[6px] bg-brand p-1.5 text-on-brand">
-          <div className="rounded-[3px] border border-honey/70 px-3 py-4">
-            <CountdownClassic target={settings.wedding_date} />
-          </div>
-        </div>
-      </FadeIn>
-      <FadeIn delay={0.25}>
-        <p className="font-script mx-auto mt-6 max-w-xs text-2xl leading-snug text-muted">
+      {d && <DateCard date={d} settings={settings} />}
+      <FadeIn delay={0.2}>
+        <p className="font-script mx-auto mt-8 max-w-xs text-2xl leading-snug text-muted">
           Satu hari yang kami tunggu sejak lama, dan kami ingin Anda ada di dalamnya.
         </p>
       </FadeIn>
       {gcal && (
-        <a
-          href={gcal}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-6 font-code text-[13px] text-on-brand transition-colors hover:bg-brand-hover"
-        >
-          <CalendarHeart className="h-4 w-4 text-honey" strokeWidth={1.5} /> Simpan ke kalender
-        </a>
+        <FadeIn delay={0.3}>
+          <a
+            href={gcal}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-gold bg-paper px-6 font-code text-[13px] text-ink transition-colors hover:bg-chrome"
+          >
+            <CalendarHeart className="h-4 w-4 text-brand" strokeWidth={1.5} /> Simpan ke kalender
+          </a>
+        </FadeIn>
       )}
     </Section>
   );
@@ -676,7 +735,7 @@ function Closing({ settings }: { settings: Settings }) {
   return (
     <Section id="penutup" band="deep" className="pb-28 text-center lg:pb-16">
       <div className="mx-auto flex max-w-sm flex-col items-center">
-        <Monogram a="R" b="T" size={64} className="!border-honey !text-on-brand" />
+        <Monogram a="R" b="T" size={112} className="rounded-full bg-page p-2" />
         <FadeIn delay={0.2}>
           <p className="font-body mt-8 text-sm leading-relaxed opacity-85">
             Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan
@@ -837,7 +896,7 @@ function SidePanel({ settings }: { settings: Settings }) {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-[calc(100%-480px)] flex-col items-center justify-center overflow-hidden bg-page px-10 text-center text-ink lg:flex">
       <BotanicalFrame />
-      <Monogram a="R" b="T" size={44} className="absolute left-14 top-10" />
+      <Monogram a="R" b="T" size={84} className="absolute left-10 top-8" />
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -913,11 +972,7 @@ export default function ScrollInvitation({ data }: { data: InvitationData }) {
         <Verse settings={settings} />
         <Tear from="deep" to="paper" flip />
         <Couple settings={settings} />
-        <Ribbon
-          from="paper"
-          to="mint"
-          words={[`${settings.groom_name || "Groom"} & ${settings.bride_name || "Bride"}`, dotDate(settings), "save the date"]}
-        />
+        <Tear from="paper" to="mint" />
         <SaveTheDate settings={settings} />
         <Tear from="mint" to="paper" flip />
         <PanelSection id="acara" band="paper" no="03" eyebrow="akad & resepsi" title="Acara">
@@ -935,7 +990,7 @@ export default function ScrollInvitation({ data }: { data: InvitationData }) {
           </p>
           <GiftPanel settings={settings} gifts={gifts} />
         </PanelSection>
-        <Ribbon from="paper" to="mint" words={["kirim doa & ucapan", "rsvp", "sampai jumpa di hari bahagia"]} tone={colors.honey} tilt={2} />
+        <Tear from="paper" to="mint" />
         <PanelSection id="rsvp" band="mint" no="06" align="right" eyebrow="rsvp & wishes" title="Ucapan">
           <RsvpPanel />
         </PanelSection>

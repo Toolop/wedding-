@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { IMG } from "./assets";
 
 /*
  * Shared "classic" pieces: double-line frames, gold ornaments, botanical corners.
@@ -92,16 +93,19 @@ export function ArrowLink({
   );
 }
 
-/** "R&T" in a gold ring */
-export function Monogram({ a, b, size = 44, className = "" }: { a: string; b: string; size?: number; className?: string }) {
+/** the couple's emblem (their names in a floral ring); `a`/`b` are their initials, for the alt text */
+export function Monogram({ a, b, size = 56, className = "" }: { a: string; b: string; size?: number; className?: string }) {
   return (
-    <span
-      aria-hidden
-      className={`inline-flex flex-none items-center justify-center rounded-full border border-gold font-serif font-semibold text-brand ${className}`}
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
-    >
-      {a}&amp;{b}
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={IMG.logo}
+      alt={`${a} & ${b}`}
+      width={size}
+      height={size}
+      draggable={false}
+      className={`inline-block flex-none select-none object-contain ${className}`}
+      style={{ width: size, height: size }}
+    />
   );
 }
 

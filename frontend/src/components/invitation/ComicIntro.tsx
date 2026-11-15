@@ -452,7 +452,7 @@ function ScenePanel({
       {(art, inset) => (
         <>
           <div className="relative" style={{ width: "var(--panel)", height: "var(--panel-h, var(--panel))" }}>
-            <div className="h-full w-full rounded-[6px] border border-line bg-paper p-[8px] shadow-paint-lg">
+            <div className="h-full w-full rounded-[6px] border border-line bg-paper p-[8px] shadow-paint-sm">
               <div className="relative h-full w-full overflow-hidden rounded-[3px] border border-gold-soft bg-page">
                 {art}
                 {/* camera flash */}
@@ -839,7 +839,10 @@ export default function ComicIntro({
         className="absolute inset-0 touch-none select-none"
         initial={false}
         animate={
-          eyes === "closed" && !reduce ? { filter: "blur(14px)", scale: 1.08 } : { filter: "blur(0px)", scale: 1 }
+          eyes === "closed" && !reduce
+            ? { filter: "blur(14px)", scale: 1.08 }
+            : // "none" once open: a lingering blur(0px) keeps the whole strip on a filter layer
+              { filter: eyes === "open" ? "none" : "blur(0px)", scale: 1 }
         }
         // clears as the lids finish lifting
         transition={{ delay: 0.6, duration: 2.2, ease: [0.4, 0, 0.2, 1] }}
@@ -849,8 +852,11 @@ export default function ComicIntro({
         onWheel={onWheel}
       >
         {w > 0 && (
-          <motion.div className="absolute inset-y-0 left-0" style={{ x: trackX }}>
-            {scenes.map((scene, i) => (
+          <motion.div className="absolute inset-y-0 left-0 will-change-transform" style={{ x: trackX }}>
+            {scenes.map((scene, i) =>
+              // only the panel on screen and its neighbours exist: the rest of the strip is
+              // off-camera, and nine live panels at once is what made phones stutter
+              Math.abs(i - index) > 1 ? null : (
               <div
                 key={scene.key}
                 className="absolute inset-y-0 flex flex-col items-center justify-center"
@@ -858,12 +864,13 @@ export default function ComicIntro({
                   {
                     left: i * seg,
                     width: w,
+                    ...(scene.key === "gbk" ? { "--panel-h": "calc(var(--panel) * 1.12)" } : {}),
                     ...(scene.key === "findus"
                       ? {
                           "--panel": `${bigPanel}px`,
-                          "--panel-h": `${Math.round(bigPanel * 0.72)}px`,
-                          "--cap-pad": "184px",
-                          "--below": "calc(184px + 7.5rem)",
+                          "--panel-h": `${Math.round(bigPanel * 0.8)}px`,
+                          "--cap-pad": "176px",
+                          "--below": "calc(176px + 7.5rem)",
                         }
                       : {}),
                   } as CSSProperties
@@ -883,8 +890,11 @@ export default function ComicIntro({
                   onFinish={onFinish}
                 />
               </div>
-            ))}
-            {interludes.map((data, i) => (
+              ),
+            )}
+            {interludes.map((data, i) =>
+              // the calendar between panel i and i+1 is only ever seen from those two
+              i !== index && i !== index - 1 ? null : (
               <div
                 key={i}
                 className="pointer-events-none absolute inset-y-0 flex flex-col items-center justify-center"
@@ -896,7 +906,8 @@ export default function ComicIntro({
                 </div>
                 <div style={{ height: "var(--below)" }} />
               </div>
-            ))}
+              ),
+            )}
           </motion.div>
         )}
       </motion.div>

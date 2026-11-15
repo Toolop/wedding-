@@ -173,7 +173,7 @@ export function CountdownStrip({ target }: { target: string }) {
  * The classic countdown: four serif numbers with italic labels, hairline dividers.
  * Colours inherit, so it works on the green card (on-brand) and on paper.
  */
-export function CountdownClassic({ target }: { target: string }) {
+export function CountdownClassic({ target, light = false }: { target: string; light?: boolean }) {
   const left = useCountdown(target);
   if (left?.done) {
     return <p className="font-script text-2xl">Hari bahagianya sudah tiba!</p>;
@@ -187,11 +187,11 @@ export function CountdownClassic({ target }: { target: string }) {
   return (
     <span className="grid w-full grid-cols-4" role="timer" aria-live="off">
       {units.map((u, i) => (
-        <span key={u.label} className={`flex flex-col items-center gap-1 ${i ? "border-l border-honey/45" : ""}`}>
+        <span key={u.label} className={`flex flex-col items-center gap-1 ${i ? (light ? "border-l border-line" : "border-l border-honey/45") : ""}`}>
           <span className="relative block h-[1.05em] min-w-[2ch] font-serif text-[clamp(2rem,3.2vw,2.9rem)] font-medium leading-none tabular-nums [clip-path:inset(0)]">
             <RollingValue value={u.value} inClass="digit-roll-in" outClass="digit-roll-out" className="block text-center" />
           </span>
-          <span className="font-script text-[15px] leading-none text-on-brand-muted">{u.label}</span>
+          <span className={`font-script text-[15px] leading-none ${light ? "text-muted" : "text-on-brand-muted"}`}>{u.label}</span>
         </span>
       ))}
     </span>
