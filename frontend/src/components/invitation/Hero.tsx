@@ -613,14 +613,14 @@ export default function Hero({ data }: { data: InvitationData }) {
       </div>
 
       {/* ---- footer: monogram, place / time / contact ---- */}
-      <footer className="relative z-10 flex flex-none flex-wrap items-center gap-x-7 gap-y-2 border-t border-line bg-chrome px-5 py-3 sm:px-8 lg:h-[76px] lg:flex-nowrap lg:px-14 lg:py-0">
+      <footer className="relative z-10 flex flex-none flex-wrap items-center gap-x-7 gap-y-3 border-t border-line bg-chrome px-5 py-4 max-sm:justify-center sm:px-8 lg:h-[76px] lg:flex-nowrap lg:px-14 lg:py-0">
         <button onClick={() => setOpenKey("couple")} aria-label="Tentang mempelai" className="flex flex-none items-center gap-3">
           <Monogram a={groom.charAt(0)} b={bride.charAt(0)} size={60} />
           <span className="font-flourish text-[1.75rem] leading-none text-brand">
             {groom} &amp; {bride}
           </span>
         </button>
-        <div className="flex min-w-0 flex-1 items-stretch justify-end gap-5 sm:gap-9 sm:pr-16 lg:pr-20">
+        <div className="grid w-full grid-cols-2 items-stretch border-t border-line-soft pt-3 sm:flex sm:min-w-0 sm:flex-1 sm:justify-end sm:gap-9 sm:border-t-0 sm:pt-0 sm:pr-16 lg:pr-20">
           {[
             { key: "place", label: "Lokasi", value: venue || "Lihat peta", target: "ceremony" },
             { key: "time", label: "Waktu", value: wedding ? `${weekday}, ${wedding.getDate()} ${monthShort} ${wedding.getFullYear()}` : "Tanggal", target: "date" },
@@ -629,10 +629,10 @@ export default function Hero({ data }: { data: InvitationData }) {
             <button
               key={item.key}
               onClick={() => setOpenKey(item.target)}
-              className={`flex min-w-0 flex-col gap-0.5 text-left ${i ? "border-l border-line pl-5 sm:pl-9" : ""} ${i === 0 ? "max-sm:hidden" : ""}`}
+              className={`flex min-w-0 flex-col gap-0.5 text-left ${i ? "border-l border-line pl-5 sm:pl-9" : ""} ${i === 0 ? "max-sm:hidden" : ""} max-sm:items-center max-sm:text-center ${i === 1 ? "max-sm:border-l-0" : ""}`}
             >
               <span className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">{item.label}</span>
-              <span className="truncate font-serif text-base font-semibold sm:text-lg">{item.value}</span>
+              <span className="font-serif text-base font-semibold leading-tight sm:truncate sm:text-lg">{item.value}</span>
             </button>
           ))}
         </div>
