@@ -70,6 +70,7 @@ export default function InvitationClient({
         : data.settings,
     [data.settings, guest?.skip_akad]
   );
+  const shown = useMemo(() => ({ ...data, settings }), [data, settings]);
   // without a valid personal link the envelope stays shut, whatever stage we start at
   const stage: Stage = allowed || current === "comic" ? current : "envelope";
 
@@ -145,7 +146,7 @@ export default function InvitationClient({
             and anything rendered behind them would flash through during those fades */}
         {stage === "opened" && (
           <>
-            {mode === "scroll" ? <ScrollInvitation data={data} /> : <Hero data={data} />}
+            {mode === "scroll" ? <ScrollInvitation data={shown} /> : <Hero data={shown} />}
           </>
         )}
       </ThemeProvider>
