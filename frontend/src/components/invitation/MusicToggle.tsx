@@ -80,14 +80,14 @@ export default function MusicToggle({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1 }}
-          className={`wc fixed left-3 top-3 z-[60] flex h-10 w-10 sm:bottom-4 sm:left-auto sm:right-4 sm:top-auto sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 border-dashed border-[#2F3D35] text-[#2F3D35] shadow-[3px_4px_0_0_#C3D0AE] transition-colors ${
-            playing ? "bg-[#F3DDD8]" : "bg-[#E4EEDF] text-[#2F3D35]/60"
+          className={`fixed left-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-gold text-brand shadow-paint-sm transition-colors sm:bottom-4 sm:left-auto sm:right-4 sm:top-auto ${
+            playing ? "bg-paper" : "bg-chrome text-muted"
           }`}
           aria-label={playing ? "Matikan musik" : "Nyalakan musik"}
           aria-pressed={playing}
         >
           {/* a spinning note while it plays; a crossed-out speaker once muted */}
-          {playing ? <Music2 className="h-5 w-5 animate-spin-slow" /> : <VolumeX className="h-5 w-5" />}
+          {playing ? <Music2 className="h-5 w-5" strokeWidth={1.6} /> : <VolumeX className="h-5 w-5" strokeWidth={1.6} />}
         </motion.button>
       )}
     </>

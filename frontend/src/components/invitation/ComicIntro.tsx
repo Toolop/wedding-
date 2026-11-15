@@ -23,29 +23,21 @@ import {
   type ReactNode,
   type WheelEvent as ReactWheelEvent,
 } from "react";
-import { ChevronLeft, ChevronRight, Hand, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Mail, Play } from "lucide-react";
 import { parseDate } from "@/lib/dates";
 import type { Settings } from "@/lib/types";
-import { Float } from "./CrayonDoodles";
 import { AnswerArt, AnswerInset, useAnswer } from "./Answer";
 import { Frame, Stage } from "./chapterKit";
 import { ComifuroArt, ComifuroInset, useComifuro } from "./Comifuro";
 import { ConfessArt, ConfessInset, useConfess } from "./Confess";
 import { FindUsArt, FindUsInset, useFindUs } from "./FindUs";
-import { Flower } from "./Flowers";
+import { BotanicalCorner, BotanicalFrame, DoubleFrame, Eyebrow, Ornament } from "./classy";
 import { GbkArt, GbkInset, useGbk } from "./Gbk";
 import { LunchArt, LunchInset, useLunch } from "./Lunch";
 import { MovieArt, MovieInset, useMovie } from "./Movie";
 import WakeUp from "./WakeUp";
-import { BLUSH, NAVY, RED } from "./watercolor";
-import {
-  CoffeeCup,
-  Envelope,
-  Heart,
-  HeartBurst,
-  Squiggle,
-  WashBackdrop,
-} from "./WatercolorArt";
+import { colors } from "./theme";
+import { IMG } from "./assets";
 
 /*
  * A "Florence"-style interactive comic: one framed panel at a time, a small
@@ -98,56 +90,56 @@ function buildStory(settings: Settings): { scenes: Scene[]; interludes: Interlud
   const scenes: Scene[] = [
     {
       key: "cover",
-      tag: { title: "Sebuah Kisah", chapter: "// chapter 01" },
+      tag: { title: "Sebuah Kisah", chapter: "Chapter 01" },
       caption: "Dari rekan kerja, menjadi teman cerita, hingga akhirnya bersama selamanya.",
     },
     {
       key: "findus",
-      tag: { title: "Awal Pertemuan", chapter: "// chapter 02" },
+      tag: { title: "Awal Pertemuan", chapter: "Chapter 02" },
       date: "2024-04-01",
       caption: `Semua berawal di Sucofindo. ${bride} bergabung lebih dahulu, hingga sebulan kemudian ${groom} menyusul. Saat itu, mereka hanyalah dua orang rekan kerja yang belum saling mengenal. Belum ada yang menyangka bahwa pertemuan sederhana ini akan menjadi awal dari sebuah cerita panjang.`,
     },
     {
       key: "lunch",
-      tag: { title: "Makan Siang Pertama", chapter: "// chapter 03" },
+      tag: { title: "Makan Siang Pertama", chapter: "Chapter 03" },
       // the couple said "31 April"; April ends on the 30th
       date: "2024-04-30",
       caption: `Kala itu, ${groom} masih malu-malu dan hampir tidak pernah makan siang bersama teman-teman kantor. Melihat hal itu, ${bride} akhirnya mengajak ${groom} makan siang bersama, karena kasihan melihatnya hanya duduk saat istirahat. Dari ajakan sederhana tersebut, mereka pun mulai mengobrol dan mengenal satu sama lain.`,
     },
     {
       key: "gbk",
-      tag: { title: "Semakin Dekat", chapter: "// chapter 04" },
+      tag: { title: "Semakin Dekat", chapter: "Chapter 04" },
       caption: `${bride} kemudian mengajak ${groom} berolahraga bersama teman-teman kantor di GBK. Dari kegiatan bersama itu, kedekatan mereka mulai tumbuh. Di momen inilah ${groom} mulai mengikuti Instagram ${bride}, menjadi salah satu langkah kecil dalam perjalanan mereka untuk saling mengenal lebih jauh.`,
       date: "2024-05-10",
     },
     {
       key: "comifuro",
-      tag: { title: "Hobi yang Sama", chapter: "// chapter 05" },
+      tag: { title: "Hobi yang Sama", chapter: "Chapter 05" },
       caption: `Ternyata, mereka memiliki hobi yang sama, yaitu menyukai dunia anime. ${bride} pun mengajak ${groom} dan teman-teman lainnya untuk datang ke festival anime, Comifuro. Hari itu menjadi momen yang berkesan karena untuk pertama kalinya mereka banyak mengobrol dan pulang bersama naik kereta. Sebuah perjalanan pulang yang sederhana, tetapi menjadi bagian manis dari kisah mereka.`,
       date: "2024-05-11",
     },
     {
       key: "movie",
-      tag: { title: "Nonton Berdua", chapter: "// chapter 06" },
+      tag: { title: "Nonton Berdua", chapter: "Chapter 06" },
       caption: `Setelah semakin sering mengobrol, bertukar pesan, dan menghabiskan waktu bersama, ${groom} akhirnya memberanikan diri mengajak ${bride} pergi berdua. Film Look Back menjadi pilihan mereka untuk menghabiskan waktu bersama. Dari sana, hubungan yang awalnya hanya sebatas rekan kerja perlahan berkembang menjadi sesuatu yang lebih istimewa.`,
       date: "2024-08-10",
     },
     {
       key: "confess",
-      tag: { title: "Sebuah Pengakuan", chapter: "// chapter 07" },
+      tag: { title: "Sebuah Pengakuan", chapter: "Chapter 07" },
       caption: `Di dalam TransJakarta, ${groom} akhirnya mengumpulkan keberanian untuk mengungkapkan perasaannya kepada ${bride}. Berbekal cokelat SilverQueen dan keberanian yang sudah dikumpulkan, ${groom} menyatakan isi hatinya—lalu langsung kabur karena gugup! Momen yang sederhana sekaligus menggemaskan ini menjadi salah satu kenangan yang tak terlupakan.`,
       date: "2024-08-10",
     },
     {
       key: "answer",
-      tag: { title: "Sebuah Jawaban", chapter: "// chapter 08" },
+      tag: { title: "Sebuah Jawaban", chapter: "Chapter 08" },
       caption: `Setelah percakapan panjang, ${bride} akhirnya menerima perasaan ${groom}. Tanggal 31 Agustus 2024, di Pesta Buku Taman Ismail Marzuki, menjadi awal resmi perjalanan mereka sebagai pasangan. Sejak hari itu, mereka mulai menulis cerita bersama, melewati suka dan duka, serta belajar untuk terus tumbuh berdampingan.`,
       date: "2024-08-31",
       accent: true,
     },
     {
       key: "wedding",
-      tag: { title: "Forever Begins", chapter: "// chapter 09" },
+      tag: { title: "Forever Begins", chapter: "Chapter 09" },
       caption:
         "Dua tahun telah berlalu sejak kisah mereka resmi dimulai. Dari pertemuan di kantor, makan siang pertama, perjalanan pulang naik kereta, hingga pengakuan cinta yang penuh keberanian, setiap momen telah membawa mereka ke titik ini. Dan akhirnya, tibalah saatnya untuk membuka babak baru. Bukan lagi sekadar menjadi dua orang yang saling menemukan, tetapi dua hati yang memilih untuk berjalan bersama, membangun rumah, dan menghabiskan sisa hidup berdampingan.",
       captionFirst: true,
@@ -192,12 +184,12 @@ function StoryCaption({ text }: { text: string }) {
       animate="show"
       transition={{ staggerChildren: text.length > 360 ? 0.015 : text.length > 160 ? 0.025 : 0.04, delayChildren: 0.25 }}
       // a long chapter text gets a smaller hand so it still fits under the panel
-      className={`px-6 text-center font-script leading-snug text-[#2F3D35]/90 ${
+      className={`px-6 text-center font-script leading-snug text-ink/90 ${
         text.length > 360
-          ? "max-w-xl text-sm leading-tight sm:text-lg"
+          ? "max-w-xl text-base leading-tight sm:text-xl"
           : text.length > 160
-            ? "max-w-md text-base leading-tight sm:text-xl"
-            : "max-w-sm text-xl sm:text-2xl"
+            ? "max-w-md text-lg leading-tight sm:text-2xl"
+            : "max-w-sm text-2xl sm:text-3xl"
       }`}
     >
       {text.split(" ").map((w, i) => (
@@ -223,24 +215,21 @@ type InsetProps = {
   onFinish: () => void;
 };
 
-/** the small pop-over panel; `progress` draws Florence's pill bar above it */
+/** the small pop-over panel; `progress` draws a thin gold-ruled meter above it */
 function InsetCard({ children, progress }: { children: ReactNode; progress?: number }) {
   return (
     <div className="relative h-full w-full">
       {progress !== undefined && (
-        <div className="crayon-pill absolute -top-6 left-[8%] right-[8%] h-3.5 overflow-hidden rounded-full bg-[#FCFDF9]">
+        <div className="absolute -top-5 left-[8%] right-[8%] h-[3px] overflow-hidden rounded-full bg-line">
           <motion.div
-            className="h-full rounded-full"
-            style={{ background: RED, originX: 0 }}
+            className="h-full rounded-full bg-brand"
+            style={{ originX: 0 }}
             animate={{ scaleX: progress }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ type: "tween", duration: 0.25 }}
           />
         </div>
       )}
-      <div
-        className="wc crayon-box relative h-full w-full overflow-hidden rounded-[12px] bg-[#FCFDF9]"
-        style={{ boxShadow: "4px 5px 0 0 #BFD2B5" }}
-      >
+      <div className="relative h-full w-full overflow-hidden rounded-[4px] border border-gold-soft bg-paper shadow-paint-md">
         {children}
       </div>
     </div>
@@ -249,34 +238,35 @@ function InsetCard({ children, progress }: { children: ReactNode; progress?: num
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <span className="font-eyebrow pointer-events-none text-[9px] text-[#2F3D35]/60 sm:text-[10px]">{children}</span>
+    <span className="font-eyebrow pointer-events-none whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">{children}</span>
   );
 }
 
-/** cover: a play button that starts the story */
+/** cover: a round play button riding the card's bottom edge, its label underneath */
 function HeartInset({ done, onDone }: InsetProps) {
   return (
-    <InsetCard>
-      <button
-        type="button"
-        onClick={() => !done && onDone()}
-        aria-label="Mulai cerita"
-        className="flex h-full w-full items-center justify-center gap-4"
-      >
+    <button
+      type="button"
+      onClick={() => !done && onDone()}
+      aria-label="Mulai cerita"
+      className="flex w-[280px] flex-col items-center gap-3"
+    >
+      <span className="grid h-[88px] w-[88px] place-items-center rounded-full border border-gold bg-page p-[5px] shadow-paint-md">
         <motion.span
-          animate={done ? { scale: [1, 1.25, 1] } : { scale: [1, 1.08, 1] }}
-          transition={done ? { duration: 0.5 } : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          className="grid aspect-square h-[62%] place-items-center rounded-full border-2 border-[#2F3D35] text-[#2F3D35]"
-          style={{ background: done ? BLUSH : "#FCFDF9", boxShadow: "3px 3px 0 0 #BFD2B5" }}
+          animate={done ? { scale: [1, 1.1, 1] } : { scale: [1, 1.04, 1] }}
+          transition={done ? { duration: 0.5 } : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="grid h-full w-full place-items-center rounded-full border border-honey bg-brand"
         >
-          <Play className="ml-0.5 h-1/2 w-1/2 fill-[#2F3D35]" />
+          <Play className="ml-0.5 h-[22px] w-[22px] fill-on-brand text-on-brand" strokeWidth={0} />
         </motion.span>
-        <div className="flex flex-col items-start gap-1">
-          <span className="font-poster text-base text-[#2F3D35] sm:text-lg">Mulai Cerita</span>
-          <Hint>{done ? "dimulai…" : "klik untuk memulai"}</Hint>
-        </div>
-      </button>
-    </InsetCard>
+      </span>
+      <span className="flex items-center gap-3">
+        <span aria-hidden className="h-px w-7 bg-gold" />
+        <span className="whitespace-nowrap font-serif text-[1.6rem] font-medium italic leading-none text-ink">Mulai Cerita</span>
+        <span aria-hidden className="h-px w-7 bg-gold" />
+      </span>
+      <Hint>{done ? "dimulai…" : "klik untuk memulai"}</Hint>
+    </button>
   );
 }
 
@@ -295,18 +285,17 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
         aria-label="Buka amplop undangan"
         className="relative flex h-full w-full items-center justify-center gap-4"
       >
-        <motion.div
-          animate={done ? { y: -8, scale: 1.12, rotate: [0, -6, 6, 0] } : { y: [0, -3, 0] }}
-          transition={done ? { duration: 0.6 } : { duration: 1.6, repeat: Infinity }}
-          className="h-[70%]"
+        <motion.span
+          animate={done ? { y: -6, scale: 1.1 } : { y: [0, -2, 0] }}
+          transition={done ? { duration: 0.6 } : { duration: 2.2, repeat: Infinity }}
+          className="grid aspect-square h-[62%] place-items-center rounded-full border border-gold-soft bg-page text-gold-ink"
         >
-          <Envelope animate={false} className="h-full w-auto text-[#2F3D35]" />
-        </motion.div>
+          <Mail className="h-1/2 w-1/2" strokeWidth={1.3} />
+        </motion.span>
         <div className="flex flex-col items-start gap-1">
-          <span className="font-poster text-base text-[#2F3D35] sm:text-lg">Buka Amplop</span>
+          <span className="font-script text-xl leading-none text-ink sm:text-2xl">Buka Undangan</span>
           <Hint>{done ? "membuka…" : "klik untuk membuka"}</Hint>
         </div>
-        {done && <HeartBurst className="absolute -top-10 left-1/2 h-14 w-auto -translate-x-1/2 text-[#2F3D35]" />}
       </button>
     </InsetCard>
   );
@@ -316,35 +305,26 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
 
 function CoverArt({ groom, bride }: { groom: string; bride: string }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center px-6 pb-[16%] text-center">
-      <WashBackdrop />
-      <Float className="absolute left-[12%] top-[14%]" dur={5}>
-        <Heart color={BLUSH} className="h-7 w-auto text-[#2F3D35]" />
-      </Float>
-      <Float className="absolute right-[12%] top-[18%]" dur={4.4} delay={0.6}>
-        <CoffeeCup className="h-8 w-auto text-[#2F3D35]/70" />
-      </Float>
-      <p className="font-eyebrow relative text-[10px] text-[#2F3D35]/60 sm:text-xs">{"// sebuah kisah"}</p>
-      <h1 className="relative mt-2 font-script text-4xl font-bold leading-tight text-[#2F3D35] sm:text-5xl">
-        Our Love Story
-      </h1>
-      <div className="relative mt-1 text-[#C2676A]">
-        <Squiggle className="w-28 sm:w-36" delay={0.4} />
-      </div>
-      <p className="relative mt-2 font-poster text-lg text-[#3F6B57] sm:text-xl">
-        {groom} &amp; {bride}
+    <div className="relative flex h-full w-full flex-col items-center justify-center bg-page px-6 pb-[16%] text-center">
+      <Eyebrow className="absolute left-4 top-4 !text-[10px] !text-muted">Chapter I</Eyebrow>
+      <Eyebrow className="absolute right-4 top-4 !text-[10px] !text-muted">Sebuah kisah</Eyebrow>
+      <span className="font-serif text-2xl italic leading-none tracking-[0.1em] text-muted sm:text-3xl">Our</span>
+      <h1 className="font-flourish text-[clamp(3.2rem,12vw,5.5rem)] leading-[1.05] text-brand">Love Story</h1>
+      <Ornament className="mt-1" />
+      <p className="mt-3 whitespace-nowrap font-serif text-xl font-semibold text-ink sm:text-2xl">
+        {groom} <span className="font-flourish font-normal text-gold">&amp;</span> {bride}
       </p>
     </div>
   );
 }
 
-/** the last panel: the wedding drawing, with baby's breath tucked into the corners */
+/** the last panel: the wedding drawing, framed by two line-drawn sprigs */
 function WeddingArt() {
   return (
     <Stage>
-      <Frame src="/images/illustrations/wedding.jpg" position="50% 40%" />
-      <Flower kind="sprig" className="absolute -left-4 -top-6 w-24 rotate-[160deg] sm:w-32" />
-      <Flower kind="sprig" className="absolute -bottom-6 -right-4 w-24 -rotate-[20deg] sm:w-32" />
+      <Frame src={IMG.wedding} position="50% 40%" />
+      <BotanicalCorner className="-left-6 -top-6 h-24 w-28 sm:h-32 sm:w-36" />
+      <BotanicalCorner tone="rose" className="-bottom-6 -right-6 h-24 w-28 rotate-180 sm:h-32 sm:w-36" />
     </Stage>
   );
 }
@@ -456,6 +436,8 @@ function ScenePanel({
   }, [nudge, scope, shake]);
 
   const Chapter = CHAPTERS[scene.key];
+  const isCover = scene.key === "cover";
+  const isFind = scene.key === "findus";
 
   return (
     <Chapter
@@ -469,41 +451,43 @@ function ScenePanel({
     >
       {(art, inset) => (
         <>
-          <div className="relative" style={{ width: "var(--panel)", height: "var(--panel)" }}>
-            <div
-              className="wc crayon-box relative h-full w-full overflow-hidden rounded-[14px] bg-[#FCFDF9]"
-              style={{ boxShadow: "6px 7px 0 0 #C3D0AE" }}
-            >
-              {art}
-              {/* camera flash */}
-              <motion.div
-                key={flash}
-                className="pointer-events-none absolute inset-0 bg-white"
-                initial={{ opacity: flash ? 0.95 : 0 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: 0.55, ease: "easeOut" }}
-              />
+          <div className="relative" style={{ width: "var(--panel)", height: "var(--panel-h, var(--panel))" }}>
+            <div className="h-full w-full rounded-[6px] border border-line bg-paper p-[8px] shadow-paint-lg">
+              <div className="relative h-full w-full overflow-hidden rounded-[3px] border border-gold-soft bg-page">
+                {art}
+                {/* camera flash */}
+                <motion.div
+                  key={flash}
+                  className="pointer-events-none absolute inset-0 bg-white"
+                  initial={{ opacity: flash ? 0.95 : 0 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 0.55, ease: "easeOut" }}
+                />
+              </div>
             </div>
 
-            {scene.accent && (
-              <Float className="absolute -right-4 -top-6 z-10" dur={4} dist={8}>
-                <Heart color={BLUSH} className="h-9 w-auto text-[#2F3D35]" />
-              </Float>
+            {/* the prologue note beside the cover card (wide screens) */}
+            {isCover && (
+              <div className="absolute right-full top-[46%] mr-24 hidden w-[220px] flex-col gap-3.5 text-left xl:flex">
+                <Eyebrow>Prolog</Eyebrow>
+                <span aria-hidden className="h-px w-10 bg-gold" />
+                <p className="font-script text-2xl leading-[1.35] text-muted">Setiap kisah punya awal. Inilah awal kisah kami.</p>
+              </div>
             )}
 
-            {/* Florence-style name tag over the panel */}
-            <motion.div
+            {/* chapter name tag over the panel's corner */}
+            {!isCover && <motion.div
               initial={false}
-              animate={present ? { opacity: 1, x: 0, rotate: -2 } : { opacity: 0, x: -14, rotate: -6 }}
-              transition={{ delay: present ? 0.15 : 0, type: "spring", stiffness: 240, damping: 20 }}
-              className="wc crayon-box absolute -left-3 top-[7%] z-10 rounded-[8px] bg-[#FCFDF9] px-3 py-1.5 text-center"
+              animate={present ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+              transition={{ delay: present ? 0.15 : 0, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute -left-3 top-[7%] z-10 rounded-[3px] border border-gold-soft bg-paper px-4 py-2 text-center shadow-paint-sm"
             >
-              <p className="font-poster text-sm leading-tight text-[#2F3D35] sm:text-base">{scene.tag.title}</p>
-              <p className="font-eyebrow text-[9px] text-[#2F3D35]/55 sm:text-[10px]">{scene.tag.chapter}</p>
-            </motion.div>
+              <p className="font-serif text-base font-semibold leading-tight text-ink sm:text-lg">{scene.tag.title}</p>
+              <p className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">{scene.tag.chapter}</p>
+            </motion.div>}
 
             {/* the interactive inset hangs off the bottom edge */}
-            <div ref={scope} className="absolute inset-x-0 top-[80%] z-20 flex justify-center">
+            <div ref={scope} className={`absolute inset-x-0 z-20 flex justify-center ${isCover ? "top-full -mt-11" : isFind ? "top-full mt-3" : "top-[80%]"}`}>
               <AnimatePresence>
                 {present && (
                   <motion.div
@@ -512,19 +496,15 @@ function ScenePanel({
                     exit={{ opacity: 0, y: 18, scale: 0.9, transition: { duration: 0.2 } }}
                     transition={{ delay: 0.35, type: "spring", stiffness: 260, damping: 20 }}
                     className="relative"
-                    style={{ width: "calc(var(--panel) * 0.74)", height: "calc(var(--panel) * 0.34)" }}
+                    style={
+                      isCover
+                        ? undefined
+                        : isFind
+                          ? { width: "calc(var(--panel) * 0.96)" }
+                          : { width: "calc(var(--panel) * 0.74)", height: "calc(var(--panel) * 0.34)" }
+                    }
                   >
                     {inset}
-                    {!done && (
-                      <motion.span
-                        aria-hidden
-                        className="pointer-events-none absolute -bottom-3 -right-3 text-[#2F3D35]"
-                        animate={{ scale: [1, 0.82, 1], rotate: [-8, -14, -8] }}
-                        transition={{ duration: 1.1, repeat: Infinity, delay: 1.2 }}
-                      >
-                        <Hand className="h-6 w-6 fill-[#FCFDF9]" />
-                      </motion.span>
-                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -533,7 +513,7 @@ function ScenePanel({
 
           <div
             className="flex items-start justify-center"
-            style={{ height: "var(--below)", paddingTop: "calc(var(--panel) * 0.17 + 14px)" }}
+            style={{ height: "var(--below)", paddingTop: "var(--cap-pad, calc(var(--panel) * 0.17 + 14px))" }}
           >
             {(done || scene.captionFirst) && present && <StoryCaption text={scene.caption} />}
           </div>
@@ -545,7 +525,7 @@ function ScenePanel({
 
 /* --------------------------------------------------------- calendar roll */
 
-/** one split-flap tile: each new value flips down over the old one */
+/** one flipping figure of the date: serif numerals that drop in over the old one */
 function FlapTile({ value, wide = false }: { value: string; wide?: boolean }) {
   // a fresh key per flip: reusing the value as key gets stuck blank when a
   // digit flips away and straight back while its old copy is still exiting
@@ -554,24 +534,22 @@ function FlapTile({ value, wide = false }: { value: string; wide?: boolean }) {
 
   return (
     <span
-      className={`relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-[#3F6B57] font-poster text-[#F6FAF2] [perspective:220px] sm:h-14 ${
-        wide ? "w-[4.1rem] text-2xl sm:w-[5rem] sm:text-3xl" : "w-8 text-3xl sm:w-10 sm:text-4xl"
+      className={`relative inline-flex h-14 items-center justify-center overflow-hidden font-serif font-medium text-brand [perspective:220px] sm:h-[4.25rem] ${
+        wide ? "min-w-[4.5rem] px-1 text-[1.7rem] tracking-[0.18em] sm:min-w-[5.5rem] sm:text-[2rem]" : "w-[1.7rem] text-[2.9rem] sm:w-9 sm:text-[3.5rem]"
       }`}
     >
       <AnimatePresence initial={false} mode="popLayout">
         <motion.span
           key={flip.n}
-          initial={{ rotateX: -85, y: "-28%", opacity: 0.45 }}
+          initial={{ rotateX: -85, y: "-28%", opacity: 0.4 }}
           animate={{ rotateX: 0, y: 0, opacity: 1 }}
           exit={{ rotateX: 85, y: "28%", opacity: 0, transition: { duration: 0.12 } }}
-          transition={{ type: "spring", stiffness: 480, damping: 20 }}
-          className="block"
+          transition={{ type: "tween", duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          className="block leading-none"
         >
           {value}
         </motion.span>
       </AnimatePresence>
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-white/[0.06]" />
-      <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-[#2A4A3C]" />
     </span>
   );
 }
@@ -638,86 +616,62 @@ function CalendarRoll({
   });
 
   const year = String(date.year);
+  const rule = <span aria-hidden className="h-12 w-px bg-gold-soft sm:h-14" />;
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-5">
+      <Eyebrow className="tracking-[0.35em]">Kemudian…</Eyebrow>
+
       <div className="relative">
-        {/* torn-off month pages */}
+        {/* torn-off month cards */}
         {sheets.map((sh) => (
           <motion.div
             key={sh.id}
-            initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-            animate={{ x: sh.dx, y: sh.dy, rotate: sh.rot, opacity: 0, scale: 0.8 }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            animate={{ x: sh.dx, y: sh.dy, opacity: 0, scale: 0.85 }}
             transition={{ duration: 0.95, ease: [0.2, 0.7, 0.4, 1] }}
-            className="wc crayon-box pointer-events-none absolute left-1/2 top-1 z-0 -ml-9 grid h-12 w-[4.5rem] place-items-center rounded-[6px] bg-[#FCFDF9] font-poster text-lg text-[#2F3D35]/70"
+            className="pointer-events-none absolute left-1/2 top-1 z-0 -ml-9 grid h-12 w-[4.5rem] place-items-center rounded-[3px] border border-line bg-paper font-serif text-lg tracking-[0.18em] text-muted"
           >
             {sh.label}
           </motion.div>
         ))}
 
-        {/* binding rings */}
-        <div className="absolute -top-3 left-0 right-0 z-20 flex justify-between px-10">
-          {[0, 1].map((r) => (
-            <span key={r} className="h-6 w-3 rounded-full border-2 border-[#2F3D35] bg-[#F2F6EF]" />
-          ))}
-        </div>
-
         <motion.div
-          animate={landed ? { scale: [1, 1.07, 1], rotate: [0, -1.5, 0] } : { scale: 1, rotate: 0 }}
+          animate={landed ? { scale: [1, 1.04, 1] } : { scale: 1 }}
           transition={{ duration: 0.55, ease: "easeOut" }}
-          className="wc crayon-box relative z-10 flex items-center gap-2.5 rounded-[12px] bg-[#FCFDF9] px-3.5 pb-3 pt-4 sm:gap-3"
-          style={{ boxShadow: "5px 6px 0 0 #AACAB4" }}
+          className="relative z-10"
         >
-          <span className="flex gap-1">
-            {pad(date.day).split("").map((ch, i) => (
-              <FlapTile key={i} value={ch} />
-            ))}
-          </span>
-          <FlapTile value={MONTHS[date.month]} wide />
-          <span className="flex gap-1">
-            {year.split("").map((ch, i) => (
-              <FlapTile key={i} value={ch} />
-            ))}
-          </span>
+          <DoubleFrame className="shadow-paint-md" innerClassName="flex items-center gap-3 px-5 py-3 sm:gap-5 sm:px-7">
+            <span className="flex">
+              {pad(date.day).split("").map((ch, i) => (
+                <FlapTile key={i} value={ch} />
+              ))}
+            </span>
+            {rule}
+            <FlapTile value={MONTHS[date.month]} wide />
+            {rule}
+            <span className="flex">
+              {year.split("").map((ch, i) => (
+                <FlapTile key={i} value={ch} />
+              ))}
+            </span>
+          </DoubleFrame>
         </motion.div>
-
-        {/* red crayon circle + heart once the date lands */}
-        <div className="pointer-events-none absolute -bottom-5 -left-6 -right-6 -top-6 z-20">
-          <svg viewBox="0 0 320 120" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
-            <motion.path
-              d="M150 8 C230 6 312 22 310 60 C308 100 220 114 152 112 C80 110 10 98 10 60 C10 24 84 8 170 14"
-              fill="none"
-              stroke={RED}
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              filter="url(#wc-crayon)"
-              initial={false}
-              animate={{ pathLength: landed ? 1 : 0, opacity: landed ? 1 : 0 }}
-              transition={{ duration: landed ? 0.75 : 0.2, delay: landed ? 0.15 : 0, ease: "easeInOut" }}
-            />
-          </svg>
-        </div>
-        <AnimatePresence>
-          {landed && (
-            <motion.div
-              key="heart"
-              className="absolute -right-8 -top-9 z-30"
-              initial={{ scale: 0, rotate: -40 }}
-              animate={{ scale: 1, rotate: 12 }}
-              exit={{ scale: 0, transition: { duration: 0.15 } }}
-              transition={{ type: "spring", stiffness: 380, damping: 11, delay: 0.7 }}
-            >
-              <Heart color={BLUSH} animate={false} className="h-10 w-auto text-[#2F3D35]" />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
+      {/* once the date lands, a gold ornament draws out under it and the line below it appears */}
+      <motion.div
+        animate={landed ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }}
+        transition={{ duration: 0.7, delay: landed ? 0.2 : 0, ease: [0.22, 1, 0.36, 1] }}
+        className="w-48"
+      >
+        <Ornament className="[&>span:first-child]:flex-1 [&>span:last-child]:flex-1" />
+      </motion.div>
+
       <motion.p
-        animate={landed ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.45, y: 6, scale: 0.96 }}
-        transition={{ duration: 0.45, delay: landed ? 0.5 : 0 }}
-        className="mt-1 font-script text-2xl text-[#2F3D35] sm:text-3xl"
+        animate={landed ? { opacity: 1, y: 0 } : { opacity: 0.4, y: 6 }}
+        transition={{ duration: 0.45, delay: landed ? 0.4 : 0 }}
+        className="-mt-2 font-script text-3xl text-ink sm:text-4xl"
       >
         {data.label}
       </motion.p>
@@ -742,7 +696,11 @@ export default function ComicIntro({
   const reduce = useReducedMotion();
 
   const { w, h } = useViewport();
-  const panel = Math.round(Math.min(w * 0.78, h * 0.5, 460));
+  const narrow = w < 640;
+  // on a phone the panel takes nearly the full width, so the little games are big enough to play
+  const panel = Math.round(Math.min(w * (narrow ? 0.92 : 0.78), h * (narrow ? 0.56 : 0.5), 460));
+  // the search game gets an even larger stage: its picture is wide and full of faces
+  const bigPanel = Math.round(Math.min(w * (narrow ? 0.97 : 0.78), h * (narrow ? 0.6 : 0.56), 540));
   // distance between panels: room for the flip counter and a glimpse of each panel
   const seg = w * 0.5 + panel + 260;
 
@@ -866,7 +824,7 @@ export default function ComicIntro({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed inset-0 z-50 overflow-clip bg-[#F2F6EF]"
+      className="fixed inset-0 z-50 overflow-clip bg-page"
       style={
         {
           "--panel": `${panel}px`,
@@ -874,7 +832,7 @@ export default function ComicIntro({
         } as CSSProperties
       }
     >
-      <WashBackdrop />
+      <BotanicalFrame />
 
       {/* the comic strip — the camera slides along it; blurry until the eyes have opened */}
       <motion.div
@@ -896,7 +854,20 @@ export default function ComicIntro({
               <div
                 key={scene.key}
                 className="absolute inset-y-0 flex flex-col items-center justify-center"
-                style={{ left: i * seg, width: w }}
+                style={
+                  {
+                    left: i * seg,
+                    width: w,
+                    ...(scene.key === "findus"
+                      ? {
+                          "--panel": `${bigPanel}px`,
+                          "--panel-h": `${Math.round(bigPanel * 0.72)}px`,
+                          "--cap-pad": "184px",
+                          "--below": "calc(184px + 7.5rem)",
+                        }
+                      : {}),
+                  } as CSSProperties
+                }
                 inert={i !== index}
               >
                 <ScenePanel
@@ -930,15 +901,15 @@ export default function ComicIntro({
         )}
       </motion.div>
 
-      {/* chapter dots */}
-      <div className="pointer-events-none absolute left-1/2 top-6 z-30 flex -translate-x-1/2 gap-2">
+      {/* chapter progress: thin segments, the reached ones in green */}
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[68px] z-30 flex -translate-x-1/2 gap-1 sm:top-7 sm:gap-1.5">
         {scenes.map((s, i) => (
           <motion.span
             key={s.key}
-            className="h-2 rounded-full"
+            className="h-0.5"
             animate={{
-              width: i === index ? 22 : 8,
-              backgroundColor: i <= index ? NAVY : "rgba(47,61,53,0.18)",
+              width: i === index ? (narrow ? 28 : 40) : narrow ? 16 : 24,
+              backgroundColor: i <= index ? colors.brand : colors.line,
             }}
           />
         ))}
@@ -946,9 +917,12 @@ export default function ComicIntro({
 
       <button
         onClick={onFinish}
-        className="wc crayon-pill absolute right-5 top-4 z-30 rounded-full bg-[#FCFDF9] px-4 py-1.5 font-code text-xs text-[#2F3D35]/80 transition-transform hover:-translate-y-0.5"
+        className="absolute right-3 top-3 z-30 inline-flex min-h-11 items-center gap-2 rounded-full border border-gold bg-paper px-4 font-code text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-chrome sm:right-5 sm:px-5 sm:text-[13px] sm:tracking-[0.12em]"
       >
         Ke Undangan
+        <svg aria-hidden width="16" height="10" viewBox="0 0 18 10" fill="none" strokeWidth="1.5" strokeLinecap="round" className="stroke-brand max-sm:hidden">
+          <path d="M1 5h15M12 1l4 4-4 4" />
+        </svg>
       </button>
 
       <AnimatePresence>
@@ -960,7 +934,7 @@ export default function ComicIntro({
             exit={{ opacity: 0 }}
             onClick={tryBack}
             aria-label="Panel sebelumnya"
-            className="wc crayon-pill absolute bottom-6 left-5 z-30 grid h-10 w-10 place-items-center rounded-full bg-[#FCFDF9] text-[#2F3D35]/70"
+            className="absolute bottom-6 left-5 z-30 grid h-11 w-11 place-items-center rounded-full border border-line bg-paper text-ink/70 transition-colors hover:border-gold"
           >
             <ChevronLeft className="h-4 w-4" />
           </motion.button>
@@ -974,13 +948,13 @@ export default function ComicIntro({
             transition={{ delay: 0.9 }}
             onClick={() => go(index + 1)}
             aria-label="Panel selanjutnya"
-            className="absolute bottom-6 right-5 z-30 grid h-11 w-11 sm:right-24 place-items-center text-[#2F3D35]"
+            className="absolute bottom-6 right-5 z-30 grid h-[52px] w-[52px] place-items-center rounded-full border border-honey bg-brand text-on-brand shadow-paint-md sm:right-24"
           >
             <motion.span
-              animate={{ x: [-3, 5, -3] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ x: [-2, 3, -2] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
             >
-              <ChevronRight className="h-9 w-9" strokeWidth={2.5} />
+              <ChevronRight className="h-6 w-6" strokeWidth={1.6} />
             </motion.span>
           </motion.button>
         )}

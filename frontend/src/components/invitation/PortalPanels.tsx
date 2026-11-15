@@ -5,32 +5,33 @@ import { ExternalLink, Instagram } from "lucide-react";
 import { mediaUrl } from "@/lib/api";
 import { parseDate } from "@/lib/dates";
 import type { Settings } from "@/lib/types";
-import { FlipCountdown } from "./Countdown";
-import { BLUSH, INK, PAPER, RED, TONES } from "./watercolor";
-import { Heart, Illustration, IllustrationBadge, Rings } from "./WatercolorArt";
+import { CountdownClassic } from "./Countdown";
+import { colors } from "./theme";
+import { DoubleFrame, Eyebrow, Ornament } from "./classy";
+import { Illustration } from "./WatercolorArt";
 
 /* ------------------------------------------------------------ primitives */
 
-/** dashed label + value line, the standard row inside every pop-up */
+/** label + value line, the standard row inside every pop-up */
 export function InfoRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
-    <div className="flex flex-col gap-0.5 border-b border-dashed border-current/25 py-1.5 last:border-0">
-      <span className="font-eyebrow text-[9px] uppercase opacity-60">{label}</span>
-      <span className="font-heading text-lg leading-snug">{value}</span>
+    <div className="flex flex-col gap-0.5 border-b border-line-soft py-2 last:border-0">
+      <span className="font-eyebrow text-[10px] uppercase tracking-[0.25em] text-gold-ink">{label}</span>
+      <span className="font-serif text-xl font-semibold leading-snug">{value}</span>
     </div>
   );
 }
 
-/** outline link button in the crayon language */
+/** outline link button */
 function LinkPill({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
-      style={{ color: INK }}
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-paper px-4 font-code text-xs transition-colors hover:border-gold"
+      style={{ color: colors.ink }}
     >
       {children}
     </a>
@@ -52,10 +53,7 @@ export function formatLongDate(value: string) {
 
 const WEEKDAYS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
-/** a hand-drawn crayon loop, drawn on when the calendar appears */
-const CIRCLE = "M9 21 C5 10 22 3 34 7 C45 11 46 27 35 34 C24 40 7 36 5 25 C4 18 9 12 15 10";
-
-/** the wedding month as a wall calendar, with the day circled in red crayon */
+/** the wedding month as a quiet calendar card, with the day ringed in gold */
 function MonthCalendar({ date }: { date: Date }) {
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -69,71 +67,44 @@ function MonthCalendar({ date }: { date: Date }) {
   const title = new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(date);
 
   return (
-    <div
-      className="relative overflow-hidden rounded-[14px] crayon-box wc"
-      style={{ backgroundColor: PAPER, boxShadow: `4px 5px 0 0 ${TONES.mauve.edge}` }}
-    >
-      <div className="relative flex items-center justify-center px-4 pb-2 pt-4" style={{ backgroundColor: RED }}>
-        {/* binder rings */}
-        <span aria-hidden className="absolute inset-x-10 -top-1 flex justify-between">
-          {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="h-3.5 w-1.5 rounded-full border-2 border-[#2F3D35] bg-[#FCFDF9]" />
-          ))}
-        </span>
-        <span className="font-poster text-lg uppercase tracking-[0.18em] text-[#F6FAF2]">{title}</span>
+    <DoubleFrame innerClassName="overflow-hidden">
+      <div className="bg-brand px-4 py-3 text-center">
+        <span className="font-serif text-xl font-medium uppercase tracking-[0.18em] text-on-brand">{title}</span>
       </div>
-
       <div className="grid grid-cols-7 gap-y-0.5 px-2.5 pb-3 pt-2 text-center sm:px-4">
         {WEEKDAYS.map((w, i) => (
           <span
             key={w}
-            className="font-eyebrow pb-1 text-[9px] uppercase"
-            style={{ color: i === 6 ? RED : INK, opacity: i === 6 ? 0.9 : 0.55 }}
+            className={`font-eyebrow pb-1 text-[10px] uppercase ${i === 6 ? "text-gold-ink" : "text-muted"}`}
           >
             {w}
           </span>
         ))}
         {cells.map((day, i) => {
-          const sunday = i % 7 === 6;
           const theDay = day === date.getDate();
           return (
             <span
               key={i}
-              className={`relative grid h-8 place-items-center font-heading text-lg tabular-nums ${
-                theDay ? "font-bold" : ""
+              className={`relative mx-auto grid h-8 w-8 place-items-center rounded-full font-code text-sm tabular-nums ${
+                theDay ? "bg-brand font-semibold text-paper" : i % 7 === 6 ? "text-gold-ink" : ""
               }`}
-              style={{ color: sunday || theDay ? RED : INK, opacity: day ? 1 : 0 }}
+              style={{ opacity: day ? 1 : 0 }}
             >
               {day}
               {theDay && (
-                <>
-                  <svg aria-hidden viewBox="0 0 50 42" className="absolute -inset-x-1 -inset-y-1.5 h-[calc(100%+12px)] w-[calc(100%+8px)] overflow-visible">
-                    <motion.path
-                      d={CIRCLE}
-                      fill="none"
-                      stroke={RED}
-                      strokeWidth={2.6}
-                      strokeLinecap="round"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.45, duration: 0.9, ease: "easeInOut" }}
-                    />
-                  </svg>
-                  <motion.span
-                    initial={{ scale: 0, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 12 }}
-                    transition={{ delay: 1.2, type: "spring", stiffness: 260, damping: 12 }}
-                    className="absolute -right-1 -top-2"
-                  >
-                    <Heart color={BLUSH} className="h-4 w-auto" animate={false} />
-                  </motion.span>
-                </>
+                <motion.span
+                  aria-hidden
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.45, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute -inset-1 rounded-full border border-gold"
+                />
               )}
             </span>
           );
         })}
       </div>
-    </div>
+    </DoubleFrame>
   );
 }
 
@@ -149,24 +120,27 @@ export function DatePanel({ settings }: { settings: Settings }) {
   const zone = splitTime(settings.resepsi_time || settings.akad_time).zone;
 
   return (
-    <div className="space-y-5" style={{ color: INK }}>
+    <div className="space-y-5" style={{ color: colors.ink }}>
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          {weekday && <p className="font-eyebrow text-[10px] uppercase opacity-60">{weekday}</p>}
-          <p className="font-heading text-[30px] leading-tight">{dayMonth ?? settings.wedding_date}</p>
+          {weekday && <Eyebrow>{weekday}</Eyebrow>}
+          <p className="font-serif text-[2rem] font-medium leading-tight">{dayMonth ?? settings.wedding_date}</p>
           {times.length > 0 && (
-            <p className="mt-0.5 font-code text-[11px] opacity-70">
+            <p className="mt-0.5 font-code text-xs text-muted">
               {times.join(" · ")} {zone}
             </p>
           )}
         </div>
-        <IllustrationBadge name="champions" className="h-20 w-20 sm:h-24 sm:w-24" tilt={-6} focus="50% 18%" />
       </div>
 
       <div>
-        <p className="font-eyebrow mb-2 text-[9px] uppercase opacity-60">Menghitung hari</p>
-        <FlipCountdown target={settings.wedding_date} size="lg" />
-        <p className="font-script mt-3 text-xl leading-snug opacity-80">
+        <p className="font-eyebrow mb-2 text-center text-[10px] uppercase tracking-[0.3em] text-gold-ink">Menghitung hari</p>
+        <div className="rounded-[6px] bg-brand p-1.5 text-on-brand">
+          <div className="rounded-[3px] border border-honey/70 px-3 py-4">
+            <CountdownClassic target={settings.wedding_date} />
+          </div>
+        </div>
+        <p className="font-script mt-3 text-center text-2xl leading-snug text-muted">
           Satu hari yang kami tunggu sejak lama, dan kami ingin Anda ada di dalamnya.
         </p>
       </div>
@@ -174,24 +148,13 @@ export function DatePanel({ settings }: { settings: Settings }) {
       {date && <MonthCalendar date={date} />}
 
       {settings.quote && (
-        <figure className="relative mx-1 rotate-[-0.8deg] bg-white/90 px-5 pb-5 pt-6 shadow-[3px_5px_0_rgba(63,107,87,0.16)]"
-          style={{
-            // torn bottom edge
-            clipPath:
-              "polygon(0 0, 100% 0, 100% 94%, 94% 97%, 88% 94%, 81% 98%, 74% 95%, 66% 99%, 58% 95%, 50% 98%, 42% 94%, 34% 98%, 26% 95%, 18% 99%, 10% 95%, 4% 98%, 0 95%)",
-          }}
-        >
-          <span
-            aria-hidden
-            className="absolute left-1/2 top-0 h-4 w-16 -translate-x-1/2 rotate-[-3deg] opacity-80"
-            style={{ backgroundColor: TONES.butter.bg }}
-          />
-          <span aria-hidden className="font-poster absolute left-3 top-1 text-5xl leading-none opacity-15">
+        <figure className="relative border-y border-line px-5 py-6 text-center">
+          <span aria-hidden className="absolute left-1/2 top-1 -translate-x-1/2 font-serif text-5xl leading-none text-gold">
             “
           </span>
-          <blockquote className="font-script relative text-[22px] leading-snug">{settings.quote}</blockquote>
+          <blockquote className="font-script relative pt-5 text-2xl leading-snug">{settings.quote}</blockquote>
           {settings.quote_author && (
-            <figcaption className="font-eyebrow mt-3 text-right text-[9px] uppercase opacity-60">
+            <figcaption className="font-eyebrow mt-3 text-[11px] uppercase tracking-[0.25em] text-gold-ink">
               — {settings.quote_author}
             </figcaption>
           )}
@@ -221,7 +184,6 @@ function Person({
   parents,
   instagram,
   image,
-  tone,
 }: {
   role: string;
   name: string;
@@ -229,48 +191,50 @@ function Person({
   parents: string;
   instagram: string;
   image: string;
-  tone: keyof typeof TONES;
 }) {
-  const t = TONES[tone];
   return (
-    <div
-      className="flex-1 rounded-[12px] crayon-box wc p-3 text-center"
-      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
-    >
-      {image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={mediaUrl(image)}
-          alt={name}
-          className="mx-auto aspect-square w-24 rounded-full border-2 border-dashed border-[#2F3D35]/60 object-cover"
-          style={{}}
-        />
-      ) : (
-        <div className="mx-auto grid aspect-square w-24 place-items-center rounded-full border-2 border-dashed border-[#2F3D35]/60" style={{}}>
-          <Heart className="h-10 w-auto" />
-        </div>
-      )}
-      <p className="font-eyebrow mt-2 text-[9px] uppercase opacity-70">{role}</p>
-      <h4 className="font-heading text-2xl leading-tight">{full || name}</h4>
-      {parents && <p className="mt-1 font-body text-xs leading-relaxed opacity-80">{parents}</p>}
+    <DoubleFrame className="flex-1" innerClassName="p-4 text-center">
+      <span className="mx-auto block aspect-square w-24 rounded-full border border-gold p-[3px]">
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={mediaUrl(image)} alt={name} className="h-full w-full rounded-full object-cover" />
+        ) : (
+          <span className="grid h-full w-full place-items-center rounded-full bg-chrome font-serif text-3xl text-brand">
+            {(name || "?").charAt(0)}
+          </span>
+        )}
+      </span>
+      <Eyebrow className="mt-3 justify-center text-[10px]">{role}</Eyebrow>
+      <h4 className="mt-0.5 font-serif text-2xl font-semibold leading-tight">{full || name}</h4>
+      {parents && <p className="mt-1 text-xs leading-relaxed text-muted">{parents}</p>}
       {instagram && (
         <a
           href={`https://instagram.com/${instagram.replace("@", "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-flex items-center gap-1 rounded-full crayon-pill px-3 py-1 font-code text-[10px]"
+          className="mt-2 inline-flex min-h-11 items-center gap-1 rounded-full border border-line px-4 font-code text-xs transition-colors hover:border-gold"
         >
-          <Instagram className="h-3 w-3" />@{instagram.replace("@", "")}
+          <Instagram className="h-3.5 w-3.5 text-brand" strokeWidth={1.5} />@{instagram.replace("@", "")}
         </a>
       )}
-    </div>
+    </DoubleFrame>
   );
 }
 
 export function CouplePanel({ settings }: { settings: Settings }) {
   return (
     <div className="space-y-3">
-      <Illustration name="hello" className="mx-auto h-48 w-auto" />
+      {settings.hero_image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={mediaUrl(settings.hero_image)}
+          alt={`${settings.groom_name} & ${settings.bride_name}`}
+          draggable={false}
+          className="mx-auto h-48 w-auto max-w-full rounded-[3px] border border-gold-soft object-cover"
+        />
+      ) : (
+        <Illustration name="hello" className="mx-auto h-48 w-auto" />
+      )}
       <div className="flex flex-col gap-3 sm:flex-row">
         <Person
           role="Mempelai Pria"
@@ -279,7 +243,6 @@ export function CouplePanel({ settings }: { settings: Settings }) {
           parents={settings.groom_parents}
           instagram={settings.groom_instagram}
           image={settings.groom_photo}
-          tone="sky"
         />
         <Person
           role="Mempelai Wanita"
@@ -288,12 +251,11 @@ export function CouplePanel({ settings }: { settings: Settings }) {
           parents={settings.bride_parents}
           instagram={settings.bride_instagram}
           image={settings.bride_photo}
-          tone="mauve"
         />
       </div>
-      <div className="flex items-center justify-center gap-2 opacity-70" style={{ color: INK }}>
-        <Rings className="h-8 w-auto" />
-        <span className="font-script text-2xl">bersama, mulai hari itu</span>
+      <div className="flex flex-col items-center gap-2 pt-1" style={{ color: colors.ink }}>
+        <Ornament />
+        <span className="font-script text-2xl text-muted">bersama, mulai hari itu</span>
       </div>
     </div>
   );
@@ -305,14 +267,11 @@ export function ContactPanel({ settings }: { settings: Settings }) {
   const wa = (name: string) =>
     name ? `https://wa.me/?text=${encodeURIComponent(`Halo ${name}, selamat ya!`)}` : "";
   return (
-    <div className="space-y-3" style={{ color: INK }}>
-      <p className="font-script text-2xl leading-snug">
+    <div className="space-y-3" style={{ color: colors.ink }}>
+      <p className="font-script text-2xl leading-snug text-muted">
         Ada yang ingin ditanyakan soal acara? Sapa kami lewat kanal ini.
       </p>
-      <div
-        className="rounded-[12px] crayon-box wc px-4 py-3"
-        style={{ backgroundColor: TONES.teal.bg, color: TONES.teal.ink }}
-      >
+      <div className="rounded-[6px] border border-line bg-mist-soft px-4 py-3">
         <InfoRow label="Mempelai" value={`${settings.groom_name} & ${settings.bride_name}`} />
         <InfoRow label="Lokasi utama" value={settings.resepsi_location || settings.akad_location} />
         <div className="mt-2 flex flex-wrap gap-2">

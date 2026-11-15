@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:hardcoded": "bash scripts/check-hardcoded.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

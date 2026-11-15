@@ -21,22 +21,57 @@ import (
 	"gorm.io/gorm"
 )
 
+// FonnteTokens are the gateway devices: one shared, and optionally one on the
+// groom's and one on the bride's own number.
+type FonnteTokens struct {
+	Default, Groom, Bride string
+}
+
+// forSender picks the device for "groom", "bride" or "" (no sender set);
+// a sender without their own device uses the shared one.
+func (t FonnteTokens) forSender(sender string) string {
+	switch {
+	case sender == "groom" && t.Groom != "":
+		return t.Groom
+	case sender == "bride" && t.Bride != "":
+		return t.Bride
+	}
+	return t.Default
+}
+
+func (t FonnteTokens) any() bool {
+	return t.Default != "" || t.Groom != "" || t.Bride != ""
+}
+
 type GuestHandler struct {
-	db          *gorm.DB
-	fonnteToken string
-	client      *http.Client
-	misses      *middleware.Limiter
+	db     *gorm.DB
+	tokens FonnteTokens
+	client *http.Client
+	misses *middleware.Limiter
 }
 
 // misses counts wrong guest codes per client IP, shared with the RSVP endpoint
 // so neither can be used to guess codes.
-func NewGuestHandler(db *gorm.DB, fonnteToken string, misses *middleware.Limiter) *GuestHandler {
+func NewGuestHandler(db *gorm.DB, tokens FonnteTokens, misses *middleware.Limiter) *GuestHandler {
 	return &GuestHandler{
-		db:          db,
-		fonnteToken: fonnteToken,
-		client:      &http.Client{Timeout: 15 * time.Second},
-		misses:      misses,
+		db:     db,
+		tokens: tokens,
+		client: &http.Client{Timeout: 15 * time.Second},
+		misses: misses,
 	}
+}
+
+// senderFor reads the admin's category → sender setting for this guest.
+func (h *GuestHandler) senderFor(g models.Guest) string {
+	var s models.Settings
+	if g.Category == "" || h.db.Select("wa_senders").First(&s).Error != nil || s.WaSenders == "" {
+		return ""
+	}
+	var senders map[string]string
+	if json.Unmarshal([]byte(s.WaSenders), &senders) != nil {
+		return ""
+	}
+	return senders[g.Category]
 }
 
 // no 0/o/1/l/i so a code read aloud or retyped from a screenshot still works
@@ -206,7 +241,12 @@ func (h *GuestHandler) List(c *gin.Context) {
 	for i, g := range guests {
 		items[i] = guestWithRsvp{Guest: g, Rsvp: latest[g.ID]}
 	}
-	utils.Success(c, 200, gin.H{"items": items, "whatsapp_gateway": h.fonnteToken != ""})
+	utils.Success(c, 200, gin.H{
+		"items":            items,
+		"whatsapp_gateway": h.tokens.any(),
+		// which side has its own device; the other sends from the shared one
+		"whatsapp_senders": gin.H{"groom": h.tokens.Groom != "", "bride": h.tokens.Bride != ""},
+	})
 }
 
 func (h *GuestHandler) Create(c *gin.Context) {
@@ -426,7 +466,7 @@ func (h *GuestHandler) deleteGuests(ids []uint) error {
 // fills the message template and paces a broadcast one guest at a time, so each
 // request stays well inside a serverless time limit.
 func (h *GuestHandler) Send(c *gin.Context) {
-	if h.fonnteToken == "" {
+	if !h.tokens.any() {
 		utils.Error(c, 400, "WhatsApp gateway belum diatur (FONNTE_TOKEN)")
 		return
 	}
@@ -452,7 +492,14 @@ func (h *GuestHandler) Send(c *gin.Context) {
 		return
 	}
 
-	if err := h.sendFonnte(c, g.Phone, req.Message); err != nil {
+	sender := h.senderFor(g)
+	token := h.tokens.forSender(sender)
+	if token == "" {
+		env := map[string]string{"groom": "FONNTE_TOKEN_GROOM", "bride": "FONNTE_TOKEN_BRIDE"}[sender]
+		utils.Error(c, 400, "gateway untuk pengirim tamu ini belum diatur ("+env+" atau FONNTE_TOKEN)")
+		return
+	}
+	if err := h.sendFonnte(c, token, g.Phone, req.Message); err != nil {
 		log.Printf("whatsapp send to guest %d failed: %v", g.ID, err)
 		utils.Error(c, 502, "gagal mengirim: "+err.Error())
 		return
@@ -463,13 +510,13 @@ func (h *GuestHandler) Send(c *gin.Context) {
 	utils.Success(c, 200, g)
 }
 
-func (h *GuestHandler) sendFonnte(c *gin.Context, phone, message string) error {
+func (h *GuestHandler) sendFonnte(c *gin.Context, token, phone, message string) error {
 	form := url.Values{"target": {phone}, "message": {message}, "countryCode": {"62"}}
 	req, err := http.NewRequestWithContext(c.Request.Context(), http.MethodPost, "https://api.fonnte.com/send", strings.NewReader(form.Encode()))
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", h.fonnteToken)
+	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	res, err := h.client.Do(req)
 	if err != nil {

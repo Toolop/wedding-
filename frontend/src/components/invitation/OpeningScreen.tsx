@@ -1,12 +1,12 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Lock, MailOpen, RotateCw } from "lucide-react";
+import { Lock, Mail, RotateCw } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Settings } from "@/lib/types";
-import { FlowerFrame } from "./Flowers";
+import { BotanicalFrame, DoubleFrame, Eyebrow, Ornament } from "./classy";
 import { useInvitedGuest } from "./guest";
-import { Emphasis, Heart, Illustration, WashBackdrop } from "./WatercolorArt";
+import { mediaUrl } from "@/lib/api";
 
 const BLOCKED_TEXT = {
   missing: {
@@ -48,7 +48,9 @@ export default function OpeningScreen({
     if (reduce) return onOpen();
     const r = buttonRef.current?.getBoundingClientRect();
     setOpening(
-      r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+      r
+        ? { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+        : { x: window.innerWidth / 2, y: window.innerHeight / 2 },
     );
     // the card lifts away (0.15-0.8s) while the circle sweeps the screen from the button (0.3-1.05s)
     setTimeout(onOpen, 1050);
@@ -56,149 +58,173 @@ export default function OpeningScreen({
   const date = new Date(settings.wedding_date);
   const dateLine = Number.isNaN(date.getTime())
     ? ""
-    : [date.getDate(), date.getMonth() + 1, date.getFullYear() % 100].map((n) => String(n).padStart(2, "0")).join(" · ");
+    : [date.getDate(), date.getMonth() + 1, date.getFullYear() % 100]
+        .map((n) => String(n).padStart(2, "0"))
+        .join(" · ");
   const bride = settings.bride_name || "Bride";
   const groom = settings.groom_name || "Groom";
+  /** the cover photo uploaded in admin (Foto sampul) */
+  const cover = mediaUrl(settings.hero_image);
+
+  const weekday = Number.isNaN(date.getTime())
+    ? ""
+    : new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(date).toUpperCase();
+  const dotted = Number.isNaN(date.getTime())
+    ? ""
+    : [date.getDate(), date.getMonth() + 1, date.getFullYear()]
+        .map((n) => String(n).padStart(2, "0"))
+        .join(".");
+  const time = (settings.akad_time || settings.resepsi_time || "").split(/\s*[-–]\s*/)[0].trim();
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
+      exit={{ opacity: 0, scale: 1.03 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto overflow-x-hidden bg-[#F2F6EF] px-5 py-6 text-center text-[#2F3D35] [justify-content:safe_center]"
+      style={{ "--m": "clamp(5.5rem, 16dvh, 11rem)" } as React.CSSProperties}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-page px-4 py-3 text-center text-ink [@media(max-height:520px)]:[--m:0px]"
     >
-      <WashBackdrop />
-      <FlowerFrame />
+      <BotanicalFrame />
 
-      {/* Everything sits on one white invitation card, so no line of text lies straight on the
-          busy wash: the couple's medallion rides its top edge, the guest's name sits below
-          the couple's, and the open button fills its foot. */}
-      <div className="relative z-10 flex w-full max-w-[340px] flex-col items-center">
-        {/* medallion: the couple waving hello, with a heart and sparkle marks like the art */}
+      {/* desktop: quiet side accents and the monogram, like the printed card's margins */}
+      <div aria-hidden className="absolute left-[150px] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3.5 lg:flex">
+        <span className="h-[60px] w-px bg-gold-soft" />
+        <span className="font-serif text-lg font-medium tracking-[0.35em] text-muted [writing-mode:vertical-rl]">{dateLine.replaceAll(" · ", " · ")}</span>
+        <span className="h-[60px] w-px bg-gold-soft" />
+      </div>
+      <div aria-hidden className="absolute right-[150px] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3.5 lg:flex">
+        <span className="h-[60px] w-px bg-gold-soft" />
+        <span className="font-eyebrow text-[11px] uppercase tracking-[0.4em] text-gold-ink [writing-mode:vertical-rl]">The wedding day</span>
+        <span className="h-[60px] w-px bg-gold-soft" />
+      </div>
+
+      <div className="relative z-10 flex max-h-full w-full max-w-[340px] flex-col items-center sm:max-w-[420px]">
+        {/* medallion: two thin rings around the cover picture, riding the card's top edge */}
         <motion.div
-          initial={{ opacity: 0, y: 16, scale: 0.9 }}
-          animate={opening ? { opacity: 0, y: -40, scale: 1.3 } : { opacity: 1, y: 0, scale: 1 }}
-          transition={opening ? { delay: 0.15, duration: 0.6, ease: "easeIn" } : { delay: 0.15, duration: 0.8, ease: "backOut" }}
-          className="relative z-10"
+          initial={{ opacity: 0, y: 12 }}
+          animate={opening ? { opacity: 0, y: -24 } : { opacity: 1, y: 0 }}
+          transition={opening ? { delay: 0.15, duration: 0.6, ease: "easeIn" } : { delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10 [@media(max-height:520px)]:hidden"
         >
-          <span className="block rounded-full bg-white p-1.5 shadow-[0_10px_24px_-10px_rgba(47,74,62,0.55)] ring-2 ring-[#2F3D35]/70">
-            <span className="block h-[20vh] max-h-44 w-[20vh] max-w-44 overflow-hidden rounded-full border border-dashed border-[#2F3D35]/25 [@media(max-height:700px)]:h-[15vh] [@media(max-height:700px)]:w-[15vh]">
-              <Illustration name="hello" className="h-full w-full scale-110 object-cover object-[50%_40%]" />
+          <span className="block rounded-full border border-gold bg-page p-1.5 shadow-paint-md">
+            <span className="block rounded-full border border-gold-soft bg-paper p-[3px]">
+              <span className="block h-[var(--m)] w-[var(--m)] overflow-hidden rounded-full">
+                {cover && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cover}
+                    alt={`${bride} & ${groom}`}
+                    draggable={false}
+                    className="h-full w-full select-none object-cover object-[50%_40%]"
+                  />
+                )}
+              </span>
             </span>
           </span>
-          <Heart color="#E9A9A1" className="absolute -right-3 top-0 h-8 w-auto drop-shadow-[1px_2px_0_rgba(47,61,53,0.2)]" delay={0.9} />
-          <Emphasis className="absolute -left-7 top-1/3 h-9 w-auto" />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={opening ? { opacity: 0, y: 70, scale: 0.9 } : { opacity: 1, y: 0, scale: 1 }}
-          transition={opening ? { delay: 0.2, duration: 0.6, ease: "easeIn" } : { delay: 0.3, type: "spring", stiffness: 120, damping: 18 }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={opening ? { opacity: 0, y: 40 } : { opacity: 1, y: 0 }}
+          transition={opening ? { delay: 0.2, duration: 0.6, ease: "easeIn" } : { delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           // pulled up under the medallion by half its height
-          className="relative -mt-[min(10vh,5.5rem)] w-full rounded-[28px] bg-white shadow-[0_22px_44px_-22px_rgba(47,74,62,0.55)] ring-1 ring-[#3F6B57]/15 [@media(max-height:700px)]:-mt-[7.5vh]"
+          className="relative -mt-[calc(var(--m)/2)] w-full min-h-0"
         >
-          <span aria-hidden className="pointer-events-none absolute inset-2 rounded-[22px] border border-dashed border-[#3F6B57]/25" />
+          <DoubleFrame className="shadow-paint-lg" innerClassName="flex flex-col items-center px-5 pb-[clamp(0.6rem,2dvh,1rem)] pt-[calc(var(--m)/2+clamp(0.5rem,1.6dvh,0.9rem))] sm:px-6">
+            <Eyebrow>The Wedding Of</Eyebrow>
 
-          {/* top: who is getting married, and whose children they are */}
-          <div className="relative px-6 pb-4 pt-[calc(min(10vh,5.5rem)+14px)] [@media(max-height:700px)]:pt-[calc(7.5vh+12px)]">
-            <p className="font-eyebrow flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[#3F6B57]">
-              <span aria-hidden className="h-px w-6 bg-current opacity-40" />
-              The Wedding Of
-              <span aria-hidden className="h-px w-6 bg-current opacity-40" />
-            </p>
-
-            {(settings.bride_parents || settings.groom_parents) && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.7 }}
-                className="mt-3 flex flex-col items-center gap-1 px-3 py-1 text-center font-body text-[13px] leading-snug text-[#2F3D35]/80"
-              >
-                <p>
-                  <span className="font-script mb-0.5 block text-[2.4rem] font-bold leading-[1.05] text-[#3F6B57]">{bride}</span>
-                  {settings.bride_parents}
-                </p>
-                <span aria-hidden className="font-script text-2xl leading-none text-[#3F6B57]">
-                  &amp;
-                </span>
-                <p>
-                  <span className="font-script mb-0.5 block text-[2.4rem] font-bold leading-[1.05] text-[#3F6B57]">{groom}</span>
-                  {settings.groom_parents}
-                </p>
-              </motion.div>
-            )}
-            {dateLine && <p className="font-code mt-3 text-xs tracking-[0.3em] text-[#2F3D35]/70">{dateLine}</p>}
-          </div>
-
-
-          {/* stub: who this copy is for (or why it can't open), with room for the button's overlap */}
-          <div className="relative px-6 pb-4 pt-2">
-            {blocked ? (
-              <div role="alert" className="rounded-[14px] bg-[#FBEFC9] px-4 py-3">
-                <p className="flex items-center justify-center gap-1.5 font-heading text-lg leading-tight">
-                  <Lock className="h-4 w-4 flex-none" strokeWidth={2.4} />
-                  {BLOCKED_TEXT[blocked].title}
-                </p>
-                <p className="mt-1 font-script text-lg leading-snug text-[#2F3D35]/80">{BLOCKED_TEXT[blocked].body}</p>
-                {blocked === "error" && (
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/80 px-4 py-1.5 font-code text-[11px] transition-transform hover:-translate-y-0.5"
-                  >
-                    <RotateCw className="h-3.5 w-3.5" />
-                    Coba lagi
-                  </button>
-                )}
-              </div>
-            ) : (
-              <>
-                <p className="font-eyebrow text-[10px] uppercase text-[#3F6B57]">Kepada Yth.</p>
-                <p className="font-body text-xs text-[#2F3D35]/65">Bapak/Ibu/Saudara/i</p>
-                <p className="font-script mt-0.5 break-words text-[2.1rem] leading-[1.05] text-[#2F3D35] [@media(min-height:760px)]:text-[2.4rem]">
-                  {guestName || "Tamu Undangan"}
-                </p>
-              </>
-            )}
-          </div>
-
-          {/* the open button, in the card's foot: a calm, solid pill with a hairline inside its
-              edge and a soft sheen that crosses it on hover */}
-          <div className="relative px-4 pb-4">
-            <motion.button
-              ref={buttonRef}
-              onClick={open}
-              disabled={!!blocked}
-              whileTap={blocked ? undefined : { scale: 0.97 }}
-              className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-[#3F6B57] py-3.5 text-[#F6FAF2] shadow-[0_12px_22px_-12px_rgba(42,74,60,0.9)] transition-colors hover:bg-[#365E4C] disabled:cursor-not-allowed disabled:bg-[#A3B4A9] disabled:shadow-none"
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.7 }}
+              className="mt-[clamp(0.2rem,1dvh,0.5rem)] flex flex-col items-center"
             >
-              <span aria-hidden className="pointer-events-none absolute inset-[3px] rounded-full border border-white/25" />
-              {!blocked && (
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[420%]"
-                />
-              )}
-              {blocked ? <Lock className="relative h-4 w-4" strokeWidth={2.2} /> : <MailOpen className="relative h-4 w-4" strokeWidth={2.2} />}
-              <span className="font-eyebrow relative text-[12px] uppercase tracking-[0.24em]">
-                {blocked ? "Perlu link pribadi" : "Buka Undangan"}
+              <p className="font-flourish text-[clamp(2.4rem,8dvh,4.25rem)] leading-[1.05] text-ink">{bride}</p>
+              {settings.bride_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-muted [@media(max-height:640px)]:hidden">{settings.bride_parents}</p>}
+              <span className="my-[clamp(0.1rem,0.8dvh,0.5rem)] flex items-center gap-3.5" aria-hidden>
+                <span className="h-px w-11 bg-gold" />
+                <span className="font-serif text-3xl italic leading-none text-gold">&amp;</span>
+                <span className="h-px w-11 bg-gold" />
               </span>
-            </motion.button>
-          </div>
+              <p className="font-flourish text-[clamp(2.4rem,8dvh,4.25rem)] leading-[1.05] text-ink">{groom}</p>
+              {settings.groom_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-muted [@media(max-height:640px)]:hidden">{settings.groom_parents}</p>}
+            </motion.div>
+
+            {dotted && (
+              <div className="mt-[clamp(0.5rem,2dvh,1.25rem)] flex flex-col items-center gap-1">
+                <span className="font-serif text-[clamp(1.3rem,3.6dvh,1.7rem)] font-medium leading-none tracking-[0.1em] text-brand">{dotted}</span>
+                <span className="font-eyebrow text-[10px] uppercase tracking-[0.22em] text-muted">
+                  {weekday}
+                  {time ? ` · ${time} WIB` : ""}
+                </span>
+              </div>
+            )}
+
+            <Ornament className="mt-[clamp(0.5rem,2dvh,1.25rem)] w-full [&>span:first-child]:flex-1 [&>span:last-child]:flex-1 [@media(max-height:560px)]:hidden" />
+
+            {/* who this copy is for, or why it can't open */}
+            <div className="mt-[clamp(0.4rem,1.6dvh,1rem)] w-full">
+              {blocked ? (
+                <div role="alert" className="rounded-[4px] border border-line bg-chrome px-4 py-3">
+                  <p className="flex items-center justify-center gap-1.5 font-serif text-lg font-semibold leading-tight">
+                    <Lock className="h-4 w-4 flex-none" strokeWidth={1.6} />
+                    {BLOCKED_TEXT[blocked].title}
+                  </p>
+                  <p className="mt-1 font-script text-lg leading-snug text-muted">{BLOCKED_TEXT[blocked].body}</p>
+                  {blocked === "error" && (
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-paper px-4 font-code text-xs transition-transform hover:-translate-y-0.5"
+                    >
+                      <RotateCw className="h-3.5 w-3.5" />
+                      Coba lagi
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth.</p>
+                  <p className="text-xs text-muted">Bapak/Ibu/Saudara/i</p>
+                  <p className="font-script mt-0.5 break-words text-[clamp(1.5rem,4.4dvh,2rem)] font-medium leading-[1.1] text-ink">
+                    {guestName || "Tamu Undangan"}
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* the open button: a framed green bar, calm and solid */}
+            <div className="mt-[clamp(0.6rem,2.2dvh,1.25rem)] w-full rounded-[5px] border border-line bg-paper p-[5px]">
+              <motion.button
+                ref={buttonRef}
+                onClick={open}
+                disabled={!!blocked}
+                whileTap={blocked ? undefined : { scale: 0.99 }}
+                className="flex min-h-[48px] w-full items-center justify-center gap-3.5 rounded-[3px] border border-gold-soft bg-brand text-on-brand transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-stone"
+              >
+                {blocked ? (
+                  <Lock className="h-5 w-5 text-honey" strokeWidth={1.4} />
+                ) : (
+                  <Mail className="h-5 w-5 text-honey" strokeWidth={1.4} />
+                )}
+                <span className="font-serif text-2xl font-medium italic leading-none">
+                  {blocked ? "Perlu link pribadi" : "Buka Undangan"}
+                </span>
+              </motion.button>
+            </div>
+          </DoubleFrame>
         </motion.div>
       </div>
 
       {opening && (
-        <>
-          {/* paper sweeping over the screen from the button; the invitation appears behind it */}
-          <motion.div
-            aria-hidden
-            className="pointer-events-none fixed inset-0 z-[65] bg-[#F4F8F1]"
-            initial={{ clipPath: `circle(0px at ${opening.x}px ${opening.y}px)` }}
-            animate={{ clipPath: `circle(150vmax at ${opening.x}px ${opening.y}px)` }}
-            transition={{ delay: 0.3, duration: 0.75, ease: [0.65, 0, 0.35, 1] }}
-          />
-        </>
+        // paper sweeping over the screen from the button; the invitation appears behind it
+        <motion.div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-[65] bg-page"
+          initial={{ clipPath: `circle(0px at ${opening.x}px ${opening.y}px)` }}
+          animate={{ clipPath: `circle(150vmax at ${opening.x}px ${opening.y}px)` }}
+          transition={{ delay: 0.3, duration: 0.75, ease: [0.65, 0, 0.35, 1] }}
+        />
       )}
     </motion.div>
   );

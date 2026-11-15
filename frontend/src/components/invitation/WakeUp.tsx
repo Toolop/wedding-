@@ -4,14 +4,14 @@ import { AnimatePresence, motion, type Transition } from "framer-motion";
 
 /*
  * The comic's opening: the guest starts with their eyes shut. A warm glow
- * breathes through the eyelids and a little crayon closed eye flutters, as
+ * breathes through the eyelids and a pair of fine closed-eye lines flutters, as
  * if about to wake. Tap, and two soft-edged eyelids crack open, blink, and
  * lift off the screen while light floods in (ComicIntro brings the blurry
  * world into focus behind them).
  */
 
-const LID = "#1E2A23";
-const CREAM = "#F6FAF2";
+const LID = "var(--color-ink-deep)";
+const CREAM = "var(--color-on-brand)";
 
 /**
  * The lid edge, in the lid's own 0–100 box: low at the corners, arching up in
@@ -37,7 +37,7 @@ function Lid({ lower = false }: { lower?: boolean }) {
   );
 }
 
-/** two little crayon closed eyes in the middle of the dark screen, fast asleep */
+/** two fine closed-eye lines in the middle of the dark screen, fast asleep */
 function ClosedEyes() {
   return (
     <motion.svg
@@ -54,16 +54,13 @@ function ClosedEyes() {
           d={d}
           fill="none"
           stroke={CREAM}
-          strokeWidth={4.5}
+          strokeWidth={2}
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
           transition={{ duration: 0.7, delay: i * 0.25, ease: "easeInOut" }}
         />
       ))}
-      {/* sleepy blush */}
-      <ellipse cx="22" cy="40" rx="9" ry="4" fill="#E9A9A1" opacity={0.35} />
-      <ellipse cx="138" cy="40" rx="9" ry="4" fill="#E9A9A1" opacity={0.35} />
     </motion.svg>
   );
 }
@@ -90,7 +87,7 @@ export default function WakeUp({
       {opening && !reduce && (
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,#FFFBEF_0%,rgba(255,251,239,0.6)_45%,transparent_80%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,var(--color-candle)_0%,color-mix(in_srgb,var(--color-candle)_60%,transparent)_45%,transparent_80%)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 0.9, 0.35, 0.8, 0] }}
           transition={{ duration: 2.4, times: [0, 0.3, 0.5, 0.75, 1], ease: "easeInOut" }}
@@ -116,12 +113,12 @@ export default function WakeUp({
             type="button"
             onClick={onWake}
             exit={{ opacity: 0, scale: 1.08, transition: { duration: 0.25 } }}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-5 text-[#F6FAF2]"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-5 text-on-brand"
           >
             {/* light glowing through closed eyelids, breathing slowly */}
             <motion.span
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(233,169,161,0.22),rgba(127,169,143,0.08)_38%,transparent_65%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,color-mix(in_srgb,var(--color-blush)_22%,transparent),color-mix(in_srgb,var(--color-sage)_8%,transparent)_38%,transparent_65%)]"
               animate={{ opacity: [0.55, 1, 0.55], scale: [0.96, 1.04, 0.96] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
             />
@@ -132,29 +129,16 @@ export default function WakeUp({
                 <motion.span
                   key={i}
                   aria-hidden
-                  className="absolute h-24 w-24 rounded-full border border-[#F6FAF2]/40 sm:h-28 sm:w-28"
+                  className="absolute h-24 w-24 rounded-full border border-on-brand/40 sm:h-28 sm:w-28"
                   animate={{ scale: [0.6, 1.6], opacity: [0.7, 0] }}
                   transition={{ duration: 2.4, repeat: Infinity, delay: 1 + i * 1.2, ease: "easeOut" }}
                 />
               ))}
               <ClosedEyes />
-              {/* still asleep */}
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  aria-hidden
-                  className="font-poster absolute text-[#F6FAF2]/60"
-                  style={{ left: "92%", top: "-20%", fontSize: 11 + i * 4 }}
-                  animate={{ x: [0, 10 + i * 6], y: [0, -26 - i * 10], opacity: [0, 1, 0] }}
-                  transition={{ duration: 2.6, repeat: Infinity, delay: 1.2 + i * 0.7, ease: "easeOut" }}
-                >
-                  z
-                </motion.span>
-              ))}
             </span>
 
             <span className="relative flex flex-col items-center gap-1.5">
-              <span className="font-script text-2xl sm:text-3xl">ketuk untuk membuka mata</span>
+              <span className="font-eyebrow text-[11px] uppercase tracking-[0.35em] text-honey">Ketuk untuk membuka mata</span>
             </span>
           </motion.button>
         )}

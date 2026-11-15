@@ -3,8 +3,9 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { useInvitedGuest } from "./guest";
-import { BLUSH, HONEY } from "./watercolor";
+import { colors } from "./theme";
 import { Emphasis, Heart } from "./WatercolorArt";
+import { IMG } from "./assets";
 
 /*
  * The couple peeking around the portal window, like the art where they hold up
@@ -17,19 +18,19 @@ const ART = {
   // `edge` = where the straight cut sits, as a fraction of the image width;
   // `hand` = the same drawing with only the hand left, laid over the window border
   tiara: {
-    src: "/images/illustrations/tiara.png",
+    src: IMG.tiara,
     w: 242,
     h: 595,
     edge: 0.89,
-    hand: "/images/illustrations/tiara-hand.png",
+    hand: IMG.tiaraHand,
     alt: "Tiara mengintip dari balik undangan",
   },
   rafi: {
-    src: "/images/illustrations/rafi.png",
+    src: IMG.rafi,
     w: 264,
     h: 618,
     edge: 0.13,
-    hand: "/images/illustrations/rafi-hand.png",
+    hand: IMG.rafiHand,
     alt: "Rafi mengintip dari balik undangan",
   },
 } as const;
@@ -50,8 +51,8 @@ function Twinkle({ className = "" }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden>
       <path
         d="M12 1.5 C13 8 16 11 22.5 12 C16 13 13 16 12 22.5 C11 16 8 13 1.5 12 C8 11 11 8 12 1.5 Z"
-        fill={HONEY}
-        stroke="#2F3D35"
+        fill={colors.honey}
+        stroke="var(--color-ink)"
         strokeWidth={1.4}
         strokeLinejoin="round"
       />
@@ -69,7 +70,7 @@ function Bubble({ text, side }: { text: string | null; side: "left" | "right" })
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -6 }}
           transition={{ type: "spring", stiffness: 380, damping: 18 }}
-          className={`crayon-box font-heading pointer-events-none absolute bottom-full z-10 mb-1 w-max max-w-[150px] rounded-[12px] bg-[#FCFDF9] px-2.5 py-1 text-[13px] leading-tight text-[#2F3D35] shadow-[2px_3px_0_0_#C3D0AE] ${
+          className={`crayon-box font-heading pointer-events-none absolute bottom-full z-10 mb-1 w-max max-w-[150px] rounded-[12px] bg-paper px-2.5 py-1 text-[13px] leading-tight text-ink shadow-[2px_3px_0_0_var(--color-tone-sage-edge)] ${
             side === "left" ? "left-0 origin-bottom-left" : "right-0 origin-bottom-right"
           }`}
         >
@@ -225,7 +226,7 @@ function Peeker({
             src={front ? art.hand : art.src}
             alt={front ? "" : art.alt}
             draggable={false}
-            className="h-full w-full select-none drop-shadow-[2px_3px_0_rgba(47,61,53,0.12)]"
+            className="h-full w-full select-none drop-shadow-paint-sm"
           />
         </motion.span>
       </span>
@@ -263,7 +264,7 @@ function Peeker({
               transition={{ type: "spring", stiffness: 300, damping: 12 }}
             >
               <span className="anim-float block" style={{ "--dur": "3s" } as CSSProperties}>
-                <Heart color={BLUSH} animate={false} className="h-6 w-auto text-[#2F3D35]" />
+                <Heart color={colors.blush} animate={false} className="h-6 w-auto text-ink" />
               </span>
             </motion.span>
             <span
@@ -291,7 +292,7 @@ function Peeker({
               animate={{ opacity: 0, y: -46, scale: 1.2 }}
               transition={{ duration: 0.9, ease: "easeOut" }}
             >
-              <Heart color={BLUSH} animate={false} className="h-7 w-auto text-[#2F3D35]" />
+              <Heart color={colors.blush} animate={false} className="h-7 w-auto text-ink" />
             </motion.span>
           )}
         </AnimatePresence>

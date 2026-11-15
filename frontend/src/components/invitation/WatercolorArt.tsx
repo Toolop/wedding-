@@ -1,18 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { CSSProperties, ReactNode } from "react";
-import {
-  BLUSH,
-  DENIM,
-  HONEY,
-  ILLUSTRATIONS,
-  INK,
-  NAVY,
-  PAPER,
-  RED,
-  type IllustrationKey,
-} from "./watercolor";
+import { useId, type CSSProperties, type ReactNode } from "react";
+import { colors } from "./theme";
+import { ILLUSTRATIONS, type IllustrationKey } from "./assets";
 
 /**
  * Watercolour-comic doodle kit matching the couple illustrations:
@@ -159,8 +150,8 @@ export function IllustrationBadge({
     >
       {/* a slow bob so it reads as a sticker stuck on, not a printed picture */}
       <span className="anim-bob block h-full w-full" style={{ "--dur": "3.2s" } as CSSProperties}>
-        <span className="block h-full w-full rounded-full bg-white p-[5%] shadow-[3px_4px_0_rgba(63,107,87,0.25)] ring-2 ring-[#2F3D35]/75">
-          <span className="block h-full w-full overflow-hidden rounded-full border border-dashed border-[#2F3D35]/30">
+        <span className="block h-full w-full rounded-full bg-white p-[5%] shadow-wash-md ring-2 ring-ink/75">
+          <span className="block h-full w-full overflow-hidden rounded-full border border-dashed border-ink/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={art.src}
@@ -171,8 +162,8 @@ export function IllustrationBadge({
             />
           </span>
         </span>
-        <span className="absolute -right-1 -top-1 drop-shadow-[1px_1px_0_rgba(47,61,53,0.25)]">
-          <Heart color={BLUSH} animate={false} className="h-[28%] min-h-4 w-auto" />
+        <span className="absolute -right-1 -top-1 drop-shadow-paint-xs">
+          <Heart color={colors.blush} animate={false} className="h-[28%] min-h-4 w-auto" />
         </span>
       </span>
     </motion.span>
@@ -218,7 +209,7 @@ export function HeartBurst({ className = "", animate = true, delay = 0 }: ArtPro
       className={className}
       animate={animate}
       delay={delay}
-      paint={<Paint d="M48 58 C33 48 26 39 27.5 29 C29 21 39 18.5 48 27 C57 18.5 67 21 68.5 29 C70 39 63 48 48 58 Z" color={BLUSH} />}
+      paint={<Paint d="M48 58 C33 48 26 39 27.5 29 C29 21 39 18.5 48 27 C57 18.5 67 21 68.5 29 C70 39 63 48 48 58 Z" color={colors.blush} />}
     >
       <Outline d="M48 58 C33 48 26 39 27.5 29 C29 21 39 18.5 48 27 C57 18.5 67 21 68.5 29 C70 39 63 48 48 58 Z" width={2.6} />
       <Outline d="M8 20 L18 26 M5 34 L17 34 M8 48 L18 42 M88 20 L78 26 M91 34 L79 34 M88 48 L78 42" width={2.6} dashed={false} />
@@ -255,8 +246,8 @@ export function CalendarPage({ day, month, className = "", animate = true, delay
       delay={delay}
       paint={
         <>
-          <Paint d="M12 24 H108 V100 H12 Z" color={PAPER} />
-          <Paint d="M12 24 H108 V44 H12 Z" color={RED} opacity={0.8} />
+          <Paint d="M12 24 H108 V100 H12 Z" color={colors.paper} />
+          <Paint d="M12 24 H108 V44 H12 Z" color={colors.heart} opacity={0.8} />
         </>
       }
     >
@@ -282,10 +273,10 @@ export function GiftBox({ className = "", animate = true, delay = 0 }: ArtProps)
       delay={delay}
       paint={
         <>
-          <Paint d="M14 32 H66 V72 H14 Z" color={BLUSH} />
+          <Paint d="M14 32 H66 V72 H14 Z" color={colors.blush} />
           <Paint d="M10 22 H70 V32 H10 Z" color="#F4B9AE" />
-          <Paint d="M36 22 H44 V72 H36 Z" color={NAVY} opacity={0.85} />
-          <Paint d={bow} color={NAVY} />
+          <Paint d="M36 22 H44 V72 H36 Z" color={colors.brand} opacity={0.85} />
+          <Paint d={bow} color={colors.brand} />
         </>
       }
     >
@@ -306,9 +297,9 @@ export function Camera({ className = "", animate = true, delay = 0 }: ArtProps) 
       delay={delay}
       paint={
         <>
-          <Paint d={body} color={NAVY} />
-          <Paint d={lens} color="#D5E7DA" />
-          <Paint d="M68 30 H76 V35 H68 Z" color={HONEY} />
+          <Paint d={body} color={colors.brand} />
+          <Paint d={lens} color="var(--color-mist-soft)" />
+          <Paint d="M68 30 H76 V35 H68 Z" color={colors.honey} />
         </>
       }
     >
@@ -329,8 +320,8 @@ export function OpenBook({ className = "", animate = true, delay = 0 }: ArtProps
       delay={delay}
       paint={
         <>
-          <Paint d={pages} color={PAPER} />
-          <Paint d="M62 8 H70 V28 L66 23 L62 28 Z" color={RED} />
+          <Paint d={pages} color={colors.paper} />
+          <Paint d="M62 8 H70 V28 L66 23 L62 28 Z" color={colors.heart} />
         </>
       }
     >
@@ -356,7 +347,7 @@ export function Envelope({ className = "", animate = true, delay = 0 }: ArtProps
       paint={
         <>
           <Paint d="M8 20 H112 V84 H8 Z" color="#F1F6EA" />
-          <Paint d={seal} color={RED} />
+          <Paint d={seal} color={colors.heart} />
         </>
       }
     >
@@ -367,24 +358,68 @@ export function Envelope({ className = "", animate = true, delay = 0 }: ArtProps
   );
 }
 
+/**
+ * Two interlocked wedding bands: a larger one carrying a cut stone, a smaller one linked
+ * through it, and a sparkle. Each band is an ink ring with a gold ring laid over it, so the
+ * outline stays crisp at icon sizes; the front band is masked where the back one passes over.
+ */
 export function Rings({ className = "", animate = true, delay = 0 }: ArtProps) {
-  const circles = "M12 46 A20 20 0 1 0 52 46 A20 20 0 1 0 12 46 Z M38 46 A20 20 0 1 0 78 46 A20 20 0 1 0 38 46 Z";
+  const id = useId();
+  const gold = colors.honey;
+  const stone = "M26 13 L30 7.5 H38 L42 13 L34 23.5 Z";
+  const band = (cx: number, cy: number, r: number) => (
+    <>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="currentColor" strokeWidth={9.6} filter="url(#wc-crayon)" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={gold} strokeWidth={6} />
+      {/* a lick of light along the upper left of the metal */}
+      <path
+        d={`M${cx - r * 0.94} ${cy - r * 0.34} A${r} ${r} 0 0 1 ${cx - r * 0.34} ${cy - r * 0.94}`}
+        fill="none"
+        stroke="#fff"
+        strokeOpacity={0.7}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+      />
+    </>
+  );
   return (
-    <Art
-      viewBox="0 0 90 70"
+    <motion.svg
+      viewBox="0 0 92 78"
       className={className}
-      animate={animate}
-      delay={delay}
-      paint={
-        <>
-          <path d={circles} fill="none" stroke={HONEY} strokeWidth={6} transform="translate(1.2 1.4)" />
-          <Paint d="M26 21 L32 12 L38 21 L32 27 Z" color="#D5E7DA" />
-        </>
-      }
+      aria-hidden
+      initial={animate ? { opacity: 0, scale: 0.85, rotate: -4 } : false}
+      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+      transition={{ delay, type: "spring", stiffness: 180, damping: 14 }}
     >
-      <Outline d={circles} />
-      <Outline d="M26 21 L32 12 L38 21 L32 27 Z" width={2} dashed={false} />
-    </Art>
+      <defs>
+        {/* hides the front band where the back band crosses over it, so the two link */}
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="92" height="78">
+          <rect width="92" height="78" fill="#fff" />
+          <path d="M45.5 45.9 A17 17 0 0 1 60.2 33.1" fill="none" stroke="#000" strokeWidth={10.5} />
+        </mask>
+      </defs>
+      {band(62, 50, 17)}
+      <g mask={`url(#${id})`}>{band(34, 48, 20)}</g>
+      {/* the stone, set on top of the larger band */}
+      <path d={stone} fill="var(--color-mist-soft)" />
+      <path d="M30 7.5 L32 13 H26 Z" fill="#fff" fillOpacity={0.7} />
+      <g filter="url(#wc-crayon)">
+        <Outline d={stone} width={2.2} dashed={false} />
+        <Outline d="M26 13 H42 M30 7.5 L32 13 L34 23.5 L36 13 L38 7.5" width={1.2} dashed={false} />
+      </g>
+      {/* sparkle */}
+      <motion.path
+        d="M76 6 L77.6 12.4 L84 14 L77.6 15.6 L76 22 L74.4 15.6 L68 14 L74.4 12.4 Z"
+        fill={gold}
+        stroke="currentColor"
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+        style={{ transformOrigin: "76px 14px" }}
+        animate={animate ? { scale: [1, 0.6, 1], opacity: [1, 0.5, 1] } : undefined}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: delay + 0.6 }}
+      />
+      <path d="M15 20 L16 23 L19 24 L16 25 L15 28 L14 25 L11 24 L14 23 Z" fill={gold} stroke="currentColor" strokeWidth={0.9} strokeLinejoin="round" />
+    </motion.svg>
   );
 }
 
@@ -392,7 +427,7 @@ export function MapPin({ className = "", animate = true, delay = 0 }: ArtProps) 
   const pin = "M30 76 C30 76 8 48 8 30 C8 16 18 6 30 6 C42 6 52 16 52 30 C52 48 30 76 30 76 Z";
   const dot = "M22 30 A8 8 0 1 0 38 30 A8 8 0 1 0 22 30 Z";
   return (
-    <Art viewBox="0 0 60 80" className={className} animate={animate} delay={delay} paint={<><Paint d={pin} color={RED} /><Paint d={dot} color={PAPER} /></>}>
+    <Art viewBox="0 0 60 80" className={className} animate={animate} delay={delay} paint={<><Paint d={pin} color={colors.heart} /><Paint d={dot} color={colors.paper} /></>}>
       <Outline d={pin} width={3} />
       <Outline d={dot} width={2.4} dashed={false} />
     </Art>
@@ -402,7 +437,7 @@ export function MapPin({ className = "", animate = true, delay = 0 }: ArtProps) 
 export function ClockFace({ className = "", animate = true, delay = 0 }: ArtProps) {
   const face = "M7 35 A28 28 0 1 0 63 35 A28 28 0 1 0 7 35 Z";
   return (
-    <Art viewBox="0 0 70 70" className={className} animate={animate} delay={delay} paint={<Paint d={face} color={HONEY} opacity={0.75} />}>
+    <Art viewBox="0 0 70 70" className={className} animate={animate} delay={delay} paint={<Paint d={face} color={colors.honey} opacity={0.75} />}>
       <Outline d={face} width={3} />
       <Outline d="M35 18 V35 L46 42" width={3} dashed={false} />
     </Art>
@@ -417,7 +452,7 @@ export function Phone({ className = "", animate = true, delay = 0 }: ArtProps) {
       className={className}
       animate={animate}
       delay={delay}
-      paint={<><Paint d={body} color={NAVY} /><Paint d="M17 14 H45 V64 H17 Z" color="#C6DCCB" /></>}
+      paint={<><Paint d={body} color={colors.brand} /><Paint d="M17 14 H45 V64 H17 Z" color="#C6DCCB" /></>}
     >
       <Outline d={body} width={3} />
       <Outline d="M26 70 H36" width={3} dashed={false} />
@@ -435,8 +470,8 @@ export function CoffeeCup({ className = "", animate = true, delay = 0 }: ArtProp
       delay={delay}
       paint={
         <>
-          <Paint d="M6 58 C6 50 80 50 80 58 C80 66 6 66 6 58 Z" color={PAPER} />
-          <Paint d="M22 20 C22 50 30 56 43 56 C56 56 64 50 64 20 Z" color={PAPER} />
+          <Paint d="M6 58 C6 50 80 50 80 58 C80 66 6 66 6 58 Z" color={colors.paper} />
+          <Paint d="M22 20 C22 50 30 56 43 56 C56 56 64 50 64 20 Z" color={colors.paper} />
           <Paint d="M24 20 C24 14 62 14 62 20 C62 26 24 26 24 20 Z" color="#C9A37A" />
         </>
       }
@@ -457,9 +492,9 @@ export function Trophy({ className = "", animate = true, delay = 0 }: ArtProps) 
       delay={delay}
       paint={
         <>
-          <Paint d="M14 8 H46 L40 48 H20 Z" color={RED} />
-          <Paint d="M24 48 H36 V64 H24 Z M14 64 H46 V78 H14 Z" color={INK} opacity={0.85} />
-          <Paint d="M21 24 A9 9 0 1 0 39 24 A9 9 0 1 0 21 24 Z" color={PAPER} />
+          <Paint d="M14 8 H46 L40 48 H20 Z" color={colors.heart} />
+          <Paint d="M24 48 H36 V64 H24 Z M14 64 H46 V78 H14 Z" color={colors.ink} opacity={0.85} />
+          <Paint d="M21 24 A9 9 0 1 0 39 24 A9 9 0 1 0 21 24 Z" color={colors.paper} />
         </>
       }
     >
@@ -477,8 +512,8 @@ export function Trophy({ className = "", animate = true, delay = 0 }: ArtProps) 
 type Wash = { color: string; opacity: number; pos: string; d: string };
 
 const WASHES: Wash[] = [
-  { color: BLUSH, opacity: 0.45, pos: "-right-28 -top-28 h-[440px] w-[540px]", d: "M80 120 C140 20 360 0 440 90 C510 170 470 320 340 340 C220 360 40 300 60 200 Z" },
-  { color: DENIM, opacity: 0.38, pos: "-bottom-32 -left-28 h-[400px] w-[540px]", d: "M60 200 C40 110 180 40 300 70 C430 100 500 220 420 300 C340 370 110 330 60 200 Z" },
+  { color: colors.blush, opacity: 0.45, pos: "-right-28 -top-28 h-[440px] w-[540px]", d: "M80 120 C140 20 360 0 440 90 C510 170 470 320 340 340 C220 360 40 300 60 200 Z" },
+  { color: colors.mint, opacity: 0.38, pos: "-bottom-32 -left-28 h-[400px] w-[540px]", d: "M60 200 C40 110 180 40 300 70 C430 100 500 220 420 300 C340 370 110 330 60 200 Z" },
   { color: "#B9D8C2", opacity: 0.45, pos: "-left-16 -top-20 h-[260px] w-[320px]", d: "M40 120 C30 50 140 20 220 50 C290 80 290 170 220 200 C150 230 50 200 40 120 Z" },
   { color: "#F2D4BE", opacity: 0.4, pos: "-bottom-24 -right-20 h-[300px] w-[380px]", d: "M60 150 C60 70 200 40 290 80 C360 110 350 220 270 250 C180 280 60 230 60 150 Z" },
 ];
@@ -511,11 +546,11 @@ const SPOTS: Spot[] = [
 /** hearts, sparkle marks and café props drifting behind a panel */
 export function DoodleField({ kind = "love" }: { kind?: "love" | "cafe" | "win" }) {
   const render = (i: number) => {
-    if (i % 3 === 1) return <Emphasis className="h-8 w-auto text-[#2F3D35]/45" flip={i % 2 === 0} />;
-    if (i % 3 === 2) return <Heart className="h-6 w-auto text-[#2F3D35]/55" animate={false} />;
-    if (kind === "cafe") return <CoffeeCup className="h-10 w-auto text-[#2F3D35]/60" animate={false} />;
-    if (kind === "win") return <Trophy className="h-12 w-auto text-[#2F3D35]/60" animate={false} />;
-    return <Heart color={BLUSH} className="h-8 w-auto text-[#2F3D35]/60" animate={false} />;
+    if (i % 3 === 1) return <Emphasis className="h-8 w-auto text-ink/45" flip={i % 2 === 0} />;
+    if (i % 3 === 2) return <Heart className="h-6 w-auto text-ink/55" animate={false} />;
+    if (kind === "cafe") return <CoffeeCup className="h-10 w-auto text-ink/60" animate={false} />;
+    if (kind === "win") return <Trophy className="h-12 w-auto text-ink/60" animate={false} />;
+    return <Heart color={colors.blush} className="h-8 w-auto text-ink/60" animate={false} />;
   };
 
   return (

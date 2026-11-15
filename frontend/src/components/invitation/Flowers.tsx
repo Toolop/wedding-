@@ -1,8 +1,9 @@
+import { IMG } from "./assets";
 /** baby's-breath and greenery cut-outs (transparent SVGs in /public/images/flowers) */
 const SRC = {
-  spray: "/images/flowers/gypsophila-spray.svg",
-  sprig: "/images/flowers/gypsophila-sprig.svg",
-  leaves: "/images/flowers/leaf-spray.svg",
+  spray: IMG.gypsophilaSpray,
+  sprig: IMG.gypsophilaSprig,
+  leaves: IMG.leafSpray,
 } as const;
 
 export type FlowerKind = keyof typeof SRC;

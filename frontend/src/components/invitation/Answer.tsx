@@ -3,9 +3,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { BookOpen } from "lucide-react";
-import { NAVY, RED } from "./watercolor";
+import { colors } from "./theme";
 import { HeartBurst } from "./WatercolorArt";
 import { Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
+import { IMG } from "./assets";
 
 /*
  * "Sebuah Jawaban": Pesta Buku at Taman Ismail Marzuki. The guest turns the
@@ -13,7 +14,7 @@ import { Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapte
  * stamped onto the drawing.
  */
 
-const SRC = "/images/illustrations/pesta-buku.jpg";
+const SRC = IMG.pestaBuku;
 
 export type AnswerGame = ReturnType<typeof useAnswer>;
 
@@ -61,9 +62,9 @@ export function AnswerArt({ game }: { game: AnswerGame }) {
           <motion.span
             key="stamp"
             className="font-poster pointer-events-none absolute bottom-[3%] right-[3%] z-10 rounded-md border-[3px] px-1.5 py-0.5 text-xs leading-tight sm:text-base"
-            style={{ color: RED, borderColor: RED, backgroundColor: "rgba(252,253,249,0.85)" }}
-            initial={{ opacity: 0, scale: 2.2, rotate: -20 }}
-            animate={{ opacity: 1, scale: 1, rotate: -8 }}
+            style={{ color: colors.heart, borderColor: colors.heart, backgroundColor: "color-mix(in srgb, var(--color-paper) 85%, transparent)" }}
+            initial={{ opacity: 0, scale: 2.2}}
+            animate={{ opacity: 1, scale: 1}}
             transition={{ type: "spring", stiffness: 300, damping: 16 }}
           >
             31 · 08 · 2024
@@ -98,7 +99,7 @@ export function AnswerInset({ game }: { game: AnswerGame }) {
           exit={{ rotateY: -80, opacity: 0 }}
           transition={{ duration: 0.3 }}
           style={{ originX: 0 }}
-          className={`font-script text-center leading-tight text-[#2F3D35] ${
+          className={`font-script text-center leading-tight text-ink ${
             answered ? "text-2xl font-bold sm:text-3xl" : "text-lg sm:text-2xl"
           }`}
         >
@@ -107,9 +108,9 @@ export function AnswerInset({ game }: { game: AnswerGame }) {
       </AnimatePresence>
       <span className="flex items-center gap-2">
         <Hint>{answered ? "31 Agustus 2024" : "ketuk untuk membalik halaman"}</Hint>
-        <Dots count={pages.length} filled={page + 1} color={NAVY} />
+        <Dots count={pages.length} filled={page + 1} color={colors.brand} />
       </span>
-      {answered && <HeartBurst className="absolute -top-10 left-1/2 h-14 w-auto -translate-x-1/2 text-[#2F3D35]" />}
+      {answered && <HeartBurst className="absolute -top-10 left-1/2 h-14 w-auto -translate-x-1/2 text-ink" />}
     </button>
   );
 }

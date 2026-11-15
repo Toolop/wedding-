@@ -278,7 +278,12 @@ export type GuestInput = {
 
 export async function adminListGuests(
   token: string
-): Promise<{ items: Guest[]; whatsapp_gateway: boolean }> {
+): Promise<{
+  items: Guest[];
+  whatsapp_gateway: boolean;
+  /** which side has its own gateway device (FONNTE_TOKEN_GROOM / _BRIDE) */
+  whatsapp_senders?: { groom: boolean; bride: boolean };
+}> {
   const res = await api.get("/admin/guests", authHeader(token));
   return res.data.data;
 }

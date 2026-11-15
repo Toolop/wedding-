@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, CircleAlert, LoaderCircle, Pause, Play, SkipForward } from "lucide-react";
+import { CheckCircle2, CircleAlert, LoaderCircle, Pause, Play, SkipForward, Smartphone } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +42,7 @@ export function BroadcastDialog({
   open,
   onOpenChange,
   guests,
+  senderLabel,
   settings,
   template,
   gateway,
@@ -51,6 +52,8 @@ export function BroadcastDialog({
   onOpenChange: (open: boolean) => void;
   /** who to send to, in order; snapshotted when the dialog opens */
   guests: Guest[];
+  /** whose WhatsApp these go out from, e.g. "Tiara" */
+  senderLabel?: string;
   settings: Settings;
   template: string;
   /** the server can send by itself (FONNTE_TOKEN is set) */
@@ -121,13 +124,25 @@ export function BroadcastDialog({
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => running && e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Kirim undangan ke {queue.length} tamu</DialogTitle>
+          <DialogTitle>
+            Kirim undangan ke {queue.length} tamu{senderLabel && ` dari WA ${senderLabel}`}
+          </DialogTitle>
           <DialogDescription>
             {gateway
               ? "Pesan dikirim otomatis satu per satu dengan jeda 5–10 detik. Biarkan halaman ini terbuka sampai selesai."
               : "Setiap tamu mendapat pesan dengan nama dan link pribadinya. Klik kirim, WhatsApp terbuka dengan pesan siap kirim, lalu kembali ke sini untuk tamu berikutnya."}
           </DialogDescription>
         </DialogHeader>
+
+        {senderLabel && !gateway && index === 0 && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+            <Smartphone className="mt-px size-4 shrink-0 text-amber-700 dark:text-amber-400" />
+            <p>
+              WhatsApp terbuka di akun yang sedang login di perangkat ini. Pastikan ini HP atau WhatsApp Web milik{" "}
+              <b>{senderLabel}</b>, supaya tamu menerima undangan dari nomor {senderLabel}.
+            </p>
+          </div>
+        )}
 
         <Progress done={index} total={queue.length} />
 

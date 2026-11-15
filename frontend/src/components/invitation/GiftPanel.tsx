@@ -2,13 +2,12 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Check, Copy, Landmark, Wallet } from "lucide-react";
+import { Check, Copy, Gift, Landmark, Wallet } from "lucide-react";
 import toast from "react-hot-toast";
 import type { GiftAccount, Settings } from "@/lib/types";
-import { INK, TONES, type ToneKey } from "./watercolor";
-import { GiftBox } from "./WatercolorArt";
+import { colors, TONES, type ToneKey } from "./theme";
 
-const CARD_TONES: ToneKey[] = ["sky", "mauve", "teal", "butter", "coral"];
+const CARD_TONES: ToneKey[] = ["mist", "sage", "seafoam", "butter", "moss"];
 /** older backends only have the single bank account on settings */
 function accountsFrom(settings: Settings, gifts?: GiftAccount[]): GiftAccount[] {
   if (gifts?.length) return gifts;
@@ -44,17 +43,17 @@ function AccountCard({ account, index }: { account: GiftAccount; index: number }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12, rotate: index % 2 ? 1.5 : -1.5 }}
-      animate={{ opacity: 1, y: 0, rotate: index % 2 ? 0.6 : -0.6 }}
+      initial={{ opacity: 0, y: 12}}
+      animate={{ opacity: 1, y: 0}}
       transition={{ delay: 0.06 + index * 0.08, type: "spring", stiffness: 200, damping: 20 }}
-      className="relative overflow-hidden rounded-[16px] crayon-box wc px-4 pb-3.5 pt-3"
-      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 5px 0 0 ${t.edge}` }}
+      className="relative overflow-hidden rounded-[6px] crayon-box px-4 pb-3.5 pt-3"
+      style={{ backgroundColor: t.bg, color: t.ink, }}
     >
       {/* soft paint swirl, like the shine on a card */}
       <span
         aria-hidden
         className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full opacity-40 blur-xl"
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: "white" }}
       />
       <div className="relative flex items-center justify-between gap-2">
         <span className="font-poster truncate text-xl leading-tight">{account.provider || "Rekening"}</span>
@@ -67,10 +66,10 @@ function AccountCard({ account, index }: { account: GiftAccount; index: number }
       {/* the little chip, drawn in crayon */}
       <span
         aria-hidden
-        className="relative mt-2 block h-5 w-7 rounded-[4px] border-2 border-[#2F3D35]/60"
+        className="relative mt-2 block h-5 w-7 rounded-[4px] border-2 border-ink/60"
         style={{
-          backgroundColor: "#E6CF8A",
-          backgroundImage: "linear-gradient(90deg, transparent 45%, rgba(47,61,53,0.4) 45% 55%, transparent 55%)",
+          backgroundColor: "var(--color-honey)",
+          backgroundImage: "linear-gradient(90deg, transparent 45%, color-mix(in srgb, var(--color-ink) 40%, transparent) 45% 55%, transparent 55%)",
         }}
       />
 
@@ -100,14 +99,14 @@ export function GiftPanel({ settings, gifts }: { settings: Settings; gifts?: Gif
   const accounts = accountsFrom(settings, gifts);
 
   return (
-    <div className="space-y-4" style={{ color: INK }}>
+    <div className="space-y-4" style={{ color: colors.ink }}>
       <p className="font-script text-2xl leading-snug">
         Kehadiran dan doa restu Anda sudah lebih dari cukup. Namun bila ingin memberi tanda kasih:
       </p>
 
       {accounts.length === 0 ? (
-        <div className="flex items-center gap-3 rounded-[14px] crayon-box wc px-4 py-3" style={{ backgroundColor: TONES.sky.bg }}>
-          <GiftBox className="h-12 w-auto flex-none" />
+        <div className="flex items-center gap-3 rounded-[6px] crayon-box px-4 py-3" style={{ backgroundColor: TONES.mist.bg }}>
+          <Gift className="h-9 w-9 flex-none text-gold-ink" strokeWidth={1.2} />
           <p className="font-heading text-lg leading-snug">Info rekening menyusul ya.</p>
         </div>
       ) : (

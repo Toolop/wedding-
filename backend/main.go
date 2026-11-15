@@ -64,7 +64,9 @@ func main() {
 
 	wishHandler := handlers.NewWishHandler(db, store, guestCodeMisses)
 	giftHandler := handlers.NewGiftHandler(db, store)
-	guestHandler := handlers.NewGuestHandler(db, cfg.FonnteToken, guestCodeMisses)
+	guestHandler := handlers.NewGuestHandler(db, handlers.FonnteTokens{
+		Default: cfg.FonnteToken, Groom: cfg.FonnteTokenGroom, Bride: cfg.FonnteTokenBride,
+	}, guestCodeMisses)
 
 	loginLimit := middleware.RateLimit(middleware.NewLimiter(10, 15*time.Minute))
 	wishLimit := middleware.RateLimit(middleware.NewLimiter(30, time.Minute))

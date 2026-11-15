@@ -12,8 +12,7 @@ import toast from "react-hot-toast";
 import { getWishes, mediaUrl, submitWish } from "@/lib/api";
 import { resizeImage } from "@/lib/resize-image";
 import type { Attendance, Wish, WishesResponse } from "@/lib/types";
-import { INK, TONES } from "./watercolor";
-import { Illustration, IllustrationBadge } from "./WatercolorArt";
+import { colors, readColor, TONES } from "./theme";
 import { KnownName, useInvitedGuest } from "./guest";
 
 const schema = z.object({
@@ -33,7 +32,7 @@ const ATTENDANCE: Record<
   Attendance,
   { label: string; hint: string; icon: typeof Check; tone: keyof typeof TONES }
 > = {
-  hadir: { label: "Hadir", hint: "Sampai jumpa!", icon: Check, tone: "teal" },
+  hadir: { label: "Hadir", hint: "Sampai jumpa!", icon: Check, tone: "seafoam" },
   masih_ragu: { label: "Masih ragu", hint: "Kabari lagi ya", icon: HelpCircle, tone: "butter" },
   tidak_hadir: { label: "Berhalangan", hint: "Doanya saja", icon: X, tone: "rose" },
 };
@@ -54,22 +53,21 @@ function timeAgo(iso: string) {
   return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short" }).format(then);
 }
 
-const label = "font-eyebrow text-[9px] uppercase opacity-60";
+const label = "font-eyebrow eyebrow-xs";
 
 /** stationery-style input: a dashed crayon underline instead of a box */
 const lineInput =
-  "mt-1 w-full border-b-2 border-dashed border-[#2F3D35]/55 bg-transparent px-0.5 pb-1.5 pt-1 font-heading text-xl outline-none transition-colors placeholder:text-[#2F3D35]/35 focus:border-[#2F3D35]";
+  "mt-1 w-full border-b border-ink/55 bg-transparent px-0.5 pb-1.5 pt-1 font-heading text-xl outline-none transition-colors placeholder:text-ink/35 focus:border-ink";
 
 function ThankYou({ name, attendance, onAgain }: { name: string; attendance: Attendance; onAgain: () => void }) {
   const meta = ATTENDANCE[attendance];
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.94, rotate: -1 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      className="rounded-[14px] crayon-box wc px-5 py-5 text-center"
-      style={{ backgroundColor: TONES[meta.tone].bg, boxShadow: `4px 5px 0 0 ${TONES[meta.tone].edge}` }}
+      initial={{ opacity: 0, scale: 0.94}}
+      animate={{ opacity: 1, scale: 1}}
+      className="rounded-[6px] crayon-box px-5 py-5 text-center"
+      style={{ backgroundColor: TONES[meta.tone].bg, }}
     >
-      <Illustration name="hello" className="mx-auto h-32 w-auto" />
       <p className="font-heading mt-2 text-2xl leading-tight">Terima kasih, {name}!</p>
       <p className="font-script mt-1 text-xl leading-snug opacity-80">
         {attendance === "hadir"
@@ -121,9 +119,8 @@ function WishNote({ wish, index }: { wish: Wish; index: number }) {
         </div>
         {wish.message && (
           <p
-            className="relative mt-1 rounded-[12px] rounded-tl-[3px] bg-white/80 px-3 py-2 font-body text-[13px] leading-relaxed"
-            style={{ boxShadow: `2px 2px 0 0 ${t.edge}` }}
-          >
+            className="relative mt-1 rounded-[6px] rounded-tl-[3px] bg-white/80 px-3 py-2 font-body text-[13px] leading-relaxed"
+                      >
             {wish.message}
           </p>
         )}
@@ -150,7 +147,7 @@ function WishPhoto({ src, name }: { src: string; name: string }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Lihat foto dari ${name}`}
-        className="mt-2 block rotate-[-2deg] rounded-[4px] bg-white p-1.5 pb-4 shadow-[2px_3px_0_0_rgba(47,61,53,0.18)] transition-transform hover:rotate-0"
+        className="mt-2 block rounded-[4px] bg-white p-1.5 pb-4 shadow-paint-sm transition-transform "
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt={`Foto dari ${name}`} loading="lazy" className="h-28 w-auto max-w-[11rem] rounded-[2px] object-cover" />
@@ -164,17 +161,17 @@ function WishPhoto({ src, name }: { src: string; name: string }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setOpen(false)}
-                className="fixed inset-0 z-[100] grid place-items-center bg-[#2F3D35]/80 p-4"
+                className="fixed inset-0 z-[100] grid place-items-center bg-ink/80 p-4"
               >
                 <motion.figure
-                  initial={{ scale: 0.9, rotate: -2 }}
-                  animate={{ scale: 1, rotate: 0 }}
+                  initial={{ scale: 0.9}}
+                  animate={{ scale: 1}}
                   exit={{ scale: 0.9 }}
                   className="rounded-[6px] bg-white p-2 pb-3"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt={`Foto dari ${name}`} className="max-h-[78vh] max-w-[88vw] rounded-[3px] object-contain" />
-                  <figcaption className="font-script mt-1 text-center text-xl" style={{ color: INK }}>
+                  <figcaption className="font-script mt-1 text-center text-xl" style={{ color: colors.ink }}>
                     dari {name}
                   </figcaption>
                 </motion.figure>
@@ -271,7 +268,7 @@ export function RsvpPanel() {
         particleCount: 120,
         spread: 80,
         origin: { y: 0.6 },
-        colors: [TONES.magenta.bg, TONES.butter.bg, TONES.teal.bg, TONES.mauve.bg],
+        colors: [TONES.brand.bg, TONES.butter.bg, TONES.seafoam.bg, TONES.sage.bg].map(readColor), // canvas needs literal colours
       });
       setSent({ name: values.name.trim().split(" ")[0], attendance: values.attendance });
       reset({ name: nameLocked ? guest?.name : "", attendance: "hadir", guest_count: 1, message: "" });
@@ -283,7 +280,7 @@ export function RsvpPanel() {
   };
 
   return (
-    <div className="space-y-5" style={{ color: INK }}>
+    <div className="space-y-5" style={{ color: colors.ink }}>
       <AnimatePresence mode="wait" initial={false}>
         {sent ? (
           <ThankYou key="thanks" {...sent} onAgain={() => setSent(null)} />
@@ -294,14 +291,13 @@ export function RsvpPanel() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             onSubmit={handleSubmit(onSubmit)}
-            className="relative space-y-4 rounded-[14px] crayon-box wc px-4 pb-4 pt-3 sm:px-5"
-            style={{ backgroundColor: TONES.cream.bg, boxShadow: `4px 5px 0 0 ${TONES.cream.edge}` }}
+            className="relative space-y-4 rounded-[6px] crayon-box px-4 pb-4 pt-3 sm:px-5"
+            style={{ backgroundColor: TONES.fern.bg, }}
           >
             <p className="font-script pr-20 text-2xl leading-snug">
               Bisa datang? Kabari kami, ya.
             </p>
             <span className="pointer-events-none absolute -right-2 -top-6">
-              <IllustrationBadge name="cafe" className="h-20 w-20" tilt={8} />
             </span>
 
             {nameLocked && guest ? (
@@ -319,7 +315,7 @@ export function RsvpPanel() {
                   Nama
                 </label>
                 <input id="rsvp-name" {...register("name")} placeholder="Nama lengkap Anda" className={lineInput} />
-                {errors.name && <p className="mt-1 font-code text-[10px] text-[#C0392B]">{errors.name.message}</p>}
+                {errors.name && <p className="font-code field-error">{errors.name.message}</p>}
               </div>
             )}
 
@@ -337,8 +333,8 @@ export function RsvpPanel() {
                       aria-pressed={on}
                       onClick={() => setValue("attendance", key)}
                       whileTap={{ scale: 0.95 }}
-                      animate={{ y: on ? -3 : 0, rotate: on ? -1.5 : 0, opacity: on ? 1 : 0.6 }}
-                      className="flex flex-col items-center gap-0.5 rounded-[12px] crayon-box wc px-1 py-2"
+                      animate={{ y: on ? -3 : 0, opacity: on ? 1 : 0.6 }}
+                      className="flex flex-col items-center gap-0.5 rounded-[6px] crayon-box px-1 py-2"
                       style={{
                         backgroundColor: on ? TONES[m.tone].bg : "rgba(255,255,255,0.6)",
                         boxShadow: on ? `3px 4px 0 0 ${TONES[m.tone].edge}` : "none",
@@ -346,7 +342,7 @@ export function RsvpPanel() {
                     >
                       <span
                         className="grid h-7 w-7 place-items-center rounded-full border-2 border-current"
-                        style={{ backgroundColor: on ? "#fff" : "transparent" }}
+                        style={{ backgroundColor: on ? "white" : "transparent" }}
                       >
                         <Icon className="h-4 w-4" strokeWidth={2.6} />
                       </span>
@@ -373,7 +369,7 @@ export function RsvpPanel() {
                       aria-label="Kurangi tamu"
                       disabled={guests <= 1}
                       onClick={() => setValue("guest_count", Math.max(1, guests - 1))}
-                      className="rounded-full crayon-pill bg-white/80 p-1.5 disabled:opacity-35"
+                      className="crayon-pill btn-icon bg-white/80"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -383,7 +379,7 @@ export function RsvpPanel() {
                       aria-label="Tambah tamu"
                       disabled={guests >= MAX_GUESTS}
                       onClick={() => setValue("guest_count", Math.min(MAX_GUESTS, guests + 1))}
-                      className="rounded-full crayon-pill bg-white/80 p-1.5 disabled:opacity-35"
+                      className="crayon-pill btn-icon bg-white/80"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -412,17 +408,17 @@ export function RsvpPanel() {
                 rows={3}
                 maxLength={500}
                 placeholder="Tuliskan ucapan untuk kedua mempelai..."
-                className="mt-1 w-full resize-none rounded-[10px] crayon-box bg-white/85 px-3 font-script text-xl outline-none placeholder:text-[#2F3D35]/35"
+                className="mt-1 w-full resize-none rounded-[6px] crayon-box bg-white/85 px-3 font-script text-xl outline-none placeholder:text-ink/35"
                 style={{
                   // ruled notebook paper: one line per 30px row
                   lineHeight: "30px",
                   paddingTop: 2,
-                  backgroundImage: `repeating-linear-gradient(to bottom, transparent 0 29px, ${TONES.sky.edge} 29px 30px)`,
+                  backgroundImage: `repeating-linear-gradient(to bottom, transparent 0 29px, ${TONES.mist.edge} 29px 30px)`,
                   backgroundAttachment: "local",
                 }}
               />
               {errors.message && (
-                <p className="mt-1 font-code text-[10px] text-[#C0392B]">{errors.message.message}</p>
+                <p className="font-code field-error">{errors.message.message}</p>
               )}
             </div>
 
@@ -449,7 +445,7 @@ export function RsvpPanel() {
                     e.preventDefault();
                     pickPhoto(e.dataTransfer.files?.[0]);
                   }}
-                  className="flex w-full items-center gap-3 rounded-[12px] border-2 border-dashed border-[#2F3D35]/40 bg-white/60 p-2.5 pr-10 text-left transition-colors hover:bg-white"
+                  className="flex w-full items-center gap-3 rounded-[6px] border border-ink/40 bg-white/60 p-2.5 pr-10 text-left transition-colors hover:bg-white"
                 >
                   {photoPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -488,10 +484,9 @@ export function RsvpPanel() {
               whileTap={{ scale: 0.97 }}
               className="flex w-full items-center justify-center gap-2 rounded-full crayon-pill py-2.5 font-poster text-sm tracking-wide disabled:opacity-60"
               style={{
-                backgroundColor: TONES.magenta.bg,
-                color: TONES.magenta.ink,
-                boxShadow: `3px 4px 0 0 ${TONES.magenta.edge}`,
-              }}
+                backgroundColor: TONES.brand.bg,
+                color: TONES.brand.ink,
+                }}
             >
               <Send className="h-4 w-4" />
               {isSubmitting ? "Mengirim..." : "Kirim konfirmasi"}
@@ -505,13 +500,13 @@ export function RsvpPanel() {
           <h4 className="font-heading text-2xl leading-none">Dinding ucapan</h4>
           {meta && meta.total > 0 && (
             <div className="flex gap-1.5 font-code text-[10px]">
-              <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: TONES.teal.bg }}>
+              <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: TONES.seafoam.bg }}>
                 {meta.summary.hadir} hadir
               </span>
               <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: TONES.butter.bg }}>
                 {meta.summary.guests} tamu
               </span>
-              <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: TONES.mauve.bg }}>
+              <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: TONES.sage.bg }}>
                 {meta.total} ucapan
               </span>
             </div>

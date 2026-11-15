@@ -9,7 +9,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-import { BLUSH } from "./watercolor";
+import { colors } from "./theme";
 import { Heart } from "./WatercolorArt";
 
 /*
@@ -21,7 +21,7 @@ import { Heart } from "./WatercolorArt";
 /** the picture area of a story panel, leaving the bottom free for the inset */
 export function Stage({ children }: { children: ReactNode }) {
   return (
-    <div className="absolute inset-x-[4%] bottom-[21%] top-[4%] overflow-hidden rounded-[10px] bg-[#E4EEDF]">
+    <div className="absolute inset-x-[4%] bottom-[21%] top-[4%] overflow-hidden rounded-[6px] bg-chrome">
       {children}
     </div>
   );
@@ -74,7 +74,7 @@ export function TimeTag({ icon, text }: { icon: ReactNode; text: string }) {
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 6 }}
-        className="font-eyebrow absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-[#FCFDF9]/90 px-2 py-0.5 text-[9px] text-[#2F3D35]/75 sm:text-[10px]"
+        className="font-eyebrow absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-paper/90 px-2 py-0.5 text-[9px] text-ink/75 sm:text-[10px]"
       >
         {icon} {text}
       </motion.span>
@@ -95,7 +95,7 @@ export function HeartRise({ left = 38, top = 30, count = 3 }: { left?: number; t
           animate={{ opacity: [0, 1, 1, 0], y: -40 - i * 8, scale: 1 }}
           transition={{ delay: 0.3 + i * 0.18, duration: 1.8 }}
         >
-          <Heart color={BLUSH} animate={false} className="h-6 w-auto text-[#2F3D35]" />
+          <Heart color={colors.blush} animate={false} className="h-6 w-auto text-ink" />
         </motion.span>
       ))}
     </>
@@ -108,8 +108,8 @@ export function Bubble({ me, who, text }: { me: boolean; who: string; text: stri
       layout
       initial={{ opacity: 0, y: 8, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      className={`max-w-[88%] rounded-2xl px-2.5 py-1 text-[10px] font-semibold leading-tight text-[#2F3D35] sm:text-xs ${
-        me ? "self-end rounded-br-sm bg-[#D5E7DA]" : "self-start rounded-bl-sm bg-[#F3DDD8]"
+      className={`max-w-[88%] rounded-2xl px-2.5 py-1 text-[10px] font-semibold leading-tight text-ink sm:text-xs ${
+        me ? "self-end rounded-br-sm bg-mist-soft" : "self-start rounded-bl-sm bg-blush-soft"
       }`}
     >
       <span className="font-eyebrow block text-[7px] opacity-60 sm:text-[8px]">{who}</span>
@@ -119,7 +119,7 @@ export function Bubble({ me, who, text }: { me: boolean; who: string; text: stri
 }
 
 export function Hint({ children }: { children: ReactNode }) {
-  return <span className="font-eyebrow pointer-events-none text-[9px] text-[#2F3D35]/60 sm:text-[10px]">{children}</span>;
+  return <span className="font-eyebrow pointer-events-none text-[10px] text-muted sm:text-[11px]">{children}</span>;
 }
 
 /** step dots under a tap-through inset */
@@ -130,7 +130,7 @@ export function Dots({ count, filled, color }: { count: number; filled: number; 
         <span
           key={i}
           className="h-1.5 w-1.5 rounded-full"
-          style={{ backgroundColor: i < filled ? color : "rgba(47,61,53,0.18)" }}
+          style={{ backgroundColor: i < filled ? color : "color-mix(in srgb, var(--color-ink) 18%, transparent)" }}
         />
       ))}
     </span>

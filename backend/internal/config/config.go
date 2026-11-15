@@ -35,6 +35,10 @@ type Config struct {
 	// Fonnte device token; when set, the admin can send invitations from the
 	// server instead of opening WhatsApp for each guest.
 	FonnteToken string
+	// Optional per-sender devices, so the groom's and the bride's guests get the
+	// invitation from their own number. A sender without one falls back to FonnteToken.
+	FonnteTokenGroom string
+	FonnteTokenBride string
 
 	// Client IPs are read from these proxies' X-Forwarded-For (e.g. an nginx
 	// in front of docker-compose). On Vercel the platform's own header is used.
@@ -44,25 +48,27 @@ type Config struct {
 
 func Load() *Config {
 	cfg := &Config{
-		Port:           getEnv("PORT", "8080"),
-		DatabaseURL:    getEnv("DATABASE_URL", ""),
-		DBHost:         getEnv("DB_HOST", "localhost"),
-		DBPort:         getEnv("DB_PORT", "5432"),
-		DBUser:         getEnv("DB_USER", "postgres"),
-		DBPassword:     getEnv("DB_PASSWORD", "postgres"),
-		DBName:         getEnv("DB_NAME", "wedding"),
-		DBSSLMode:      getEnv("DB_SSLMODE", "disable"),
-		JWTSecret:      getEnv("JWT_SECRET", ""),
-		AdminUsername:  getEnv("ADMIN_USERNAME", "admin"),
-		AdminPassword:  getEnv("ADMIN_PASSWORD", ""),
-		UploadDir:      getEnv("UPLOAD_DIR", "./uploads"),
-		SupabaseURL:    strings.TrimRight(getEnv("SUPABASE_URL", ""), "/"),
-		SupabaseKey:    getEnv("SUPABASE_SECRET_KEY", ""),
-		SupabaseBucket: getEnv("SUPABASE_BUCKET", "uploads"),
-		PublicBaseURL:  getEnv("PUBLIC_BASE_URL", "http://localhost:8080"),
-		AllowedOrigins: splitList(getEnv("ALLOWED_ORIGIN", "http://localhost:3000")),
-		FonnteToken:    getEnv("FONNTE_TOKEN", ""),
-		TrustedProxies: splitList(getEnv("TRUSTED_PROXIES", "")),
+		Port:             getEnv("PORT", "8080"),
+		DatabaseURL:      getEnv("DATABASE_URL", ""),
+		DBHost:           getEnv("DB_HOST", "localhost"),
+		DBPort:           getEnv("DB_PORT", "5432"),
+		DBUser:           getEnv("DB_USER", "postgres"),
+		DBPassword:       getEnv("DB_PASSWORD", "postgres"),
+		DBName:           getEnv("DB_NAME", "wedding"),
+		DBSSLMode:        getEnv("DB_SSLMODE", "disable"),
+		JWTSecret:        getEnv("JWT_SECRET", ""),
+		AdminUsername:    getEnv("ADMIN_USERNAME", "admin"),
+		AdminPassword:    getEnv("ADMIN_PASSWORD", ""),
+		UploadDir:        getEnv("UPLOAD_DIR", "./uploads"),
+		SupabaseURL:      strings.TrimRight(getEnv("SUPABASE_URL", ""), "/"),
+		SupabaseKey:      getEnv("SUPABASE_SECRET_KEY", ""),
+		SupabaseBucket:   getEnv("SUPABASE_BUCKET", "uploads"),
+		PublicBaseURL:    getEnv("PUBLIC_BASE_URL", "http://localhost:8080"),
+		AllowedOrigins:   splitList(getEnv("ALLOWED_ORIGIN", "http://localhost:3000")),
+		FonnteToken:      getEnv("FONNTE_TOKEN", ""),
+		FonnteTokenGroom: getEnv("FONNTE_TOKEN_GROOM", ""),
+		FonnteTokenBride: getEnv("FONNTE_TOKEN_BRIDE", ""),
+		TrustedProxies:   splitList(getEnv("TRUSTED_PROXIES", "")),
 		// set by Vercel at runtime
 		OnVercel: os.Getenv("VERCEL") != "",
 	}

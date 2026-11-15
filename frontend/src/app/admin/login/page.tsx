@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { adminLogin } from "@/lib/api";
 import { setToken } from "@/lib/auth";
+import { IMG } from "@/components/invitation/assets";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function AdminLoginPage() {
           <div className="relative hidden bg-muted md:block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/illustrations/cafe.jpeg"
+              src={IMG.cafe}
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />

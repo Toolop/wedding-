@@ -5,10 +5,11 @@ import { useState } from "react";
 import { Check, Hourglass } from "lucide-react";
 import { parseDate, parseLooseDate } from "@/lib/dates";
 import type { Settings, StoryEvent } from "@/lib/types";
-import { BLUSH, INK, PAPER, TONES, type IllustrationKey, type ToneKey } from "./watercolor";
+import { colors, alpha, TONES, type ToneKey } from "./theme";
+import { type IllustrationKey } from "./assets";
 import { Heart, Illustration } from "./WatercolorArt";
 
-const STORY_TONES: ToneKey[] = ["coral", "butter", "teal", "mauve", "sky"];
+const STORY_TONES: ToneKey[] = ["moss", "butter", "seafoam", "sage", "mist"];
 const VIGNETTES: IllustrationKey[] = ["cafe", "hello", "dinner", "champions"];
 const MONTH = new Intl.DateTimeFormat("id-ID", { month: "short" });
 const DAY = 86_400_000;
@@ -44,16 +45,16 @@ function ProgressMeter({ chapters, wedding, now }: { chapters: Chapter[]; weddin
 
   return (
     <div
-      className="rounded-[14px] crayon-box wc px-4 pb-4 pt-3"
-      style={{ backgroundColor: TONES.cream.bg, boxShadow: `4px 5px 0 0 ${TONES.cream.edge}` }}
+      className="rounded-[6px] crayon-box px-4 pb-4 pt-3"
+      style={{ backgroundColor: TONES.fern.bg, }}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-eyebrow text-[9px] uppercase opacity-60">Sudah bersama</p>
+          <p className="font-eyebrow eyebrow-xs">Sudah bersama</p>
           <p className="font-heading text-2xl leading-tight">{span(start, now < end ? now : end)}</p>
         </div>
         <div className="text-right">
-          <p className="font-eyebrow text-[9px] uppercase opacity-60">Menuju hari H</p>
+          <p className="font-eyebrow eyebrow-xs">Menuju hari H</p>
           <p className="font-heading text-2xl leading-tight">
             {daysLeft > 0 ? `${daysLeft} hari lagi` : daysLeft === 0 ? "Hari ini!" : "Sudah resmi"}
           </p>
@@ -64,7 +65,7 @@ function ProgressMeter({ chapters, wedding, now }: { chapters: Chapter[]; weddin
         {/* the whole road, dashed */}
         <span
           className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2"
-          style={{ backgroundImage: `repeating-linear-gradient(90deg, ${INK}66 0 8px, transparent 8px 14px)` }}
+          style={{ backgroundImage: `repeating-linear-gradient(90deg, ${alpha(colors.ink, 40)} 0 8px, transparent 8px 14px)` }}
         />
         {/* the stretch already travelled, painted */}
         <motion.span
@@ -72,17 +73,17 @@ function ProgressMeter({ chapters, wedding, now }: { chapters: Chapter[]; weddin
           animate={{ width: `${today}%` }}
           transition={{ duration: 1.4, ease: "easeOut", delay: 0.2 }}
           className="absolute left-0 top-1/2 h-2.5 -translate-y-1/2 rounded-full"
-          style={{ backgroundColor: BLUSH, boxShadow: `inset 0 -2px 0 ${TONES.mauve.edge}` }}
+          style={{ backgroundColor: colors.blush, boxShadow: `inset 0 -2px 0 ${TONES.sage.edge}` }}
         />
         {dated.map((c) => (
           <span
             key={c.id}
             title={c.title}
             className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-            style={{ left: `${at(c.date)}%`, borderColor: INK, backgroundColor: c.past ? INK : PAPER }}
+            style={{ left: `${at(c.date)}%`, borderColor: colors.ink, backgroundColor: c.past ? colors.ink : colors.paper }}
           />
         ))}
-        <Heart className="absolute -right-3 top-1/2 h-7 w-auto -translate-y-1/2" color={BLUSH} />
+        <Heart className="absolute -right-3 top-1/2 h-7 w-auto -translate-y-1/2" color={colors.blush} />
         {/* "we're here" flag, kept inside the card at both ends */}
         {today < 100 && (
           <motion.span
@@ -92,7 +93,7 @@ function ProgressMeter({ chapters, wedding, now }: { chapters: Chapter[]; weddin
             className="absolute bottom-full mb-1.5 -translate-x-1/2 whitespace-nowrap"
             style={{ left: `${clamp(today, 10, 90)}%` }}
           >
-            <span className="font-script rounded-full bg-white px-2 py-0.5 text-base shadow-[2px_2px_0_rgba(47,61,53,0.2)]">
+            <span className="font-script rounded-full bg-white px-2 py-0.5 text-base shadow-paint-sm">
               kita di sini
             </span>
           </motion.span>
@@ -115,7 +116,6 @@ function ChapterRow({ chapter, index, last }: { chapter: Chapter; index: number;
   const t = TONES[STORY_TONES[index % STORY_TONES.length]];
   const vignette = VIGNETTES[index];
   const d = chapter.date;
-  const tilt = index % 2 ? 0.8 : -0.8;
 
   return (
     <motion.li
@@ -130,16 +130,16 @@ function ChapterRow({ chapter, index, last }: { chapter: Chapter; index: number;
         <span
           aria-hidden
           className="absolute bottom-[-1.25rem] left-[25px] top-14 w-[2px]"
-          style={{ backgroundImage: `repeating-linear-gradient(to bottom, ${INK}88 0 6px, transparent 6px 12px)` }}
+          style={{ backgroundImage: `repeating-linear-gradient(to bottom, ${alpha(colors.ink, 53)} 0 6px, transparent 6px 12px)` }}
         />
       )}
 
       {/* date stamp */}
       <div
         className={`relative z-[1] flex h-[52px] w-[52px] flex-col items-center justify-center rounded-full text-center ${
-          chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2F3D35]/50"
+          chapter.past ? "crayon-box " : "border border-ink/50"
         }`}
-        style={{ backgroundColor: chapter.past ? t.bg : PAPER, rotate: `${-tilt * 3}deg` }}
+        style={{ backgroundColor: chapter.past ? t.bg : colors.paper }}
       >
         {d ? (
           <>
@@ -152,16 +152,14 @@ function ChapterRow({ chapter, index, last }: { chapter: Chapter; index: number;
       </div>
 
       <div
-        className={`relative rounded-[14px] px-4 py-3 ${chapter.past ? "crayon-box wc" : "border-2 border-dashed border-[#2F3D35]/45"}`}
+        className={`relative rounded-[6px] px-4 py-3 ${chapter.past ? "crayon-box " : "border border-ink/45"}`}
         style={{
           backgroundColor: chapter.past ? t.bg : "rgba(255,255,255,0.55)",
-          boxShadow: chapter.past ? `4px 5px 0 0 ${t.edge}` : "none",
-          rotate: `${tilt}deg`,
         }}
       >
         <div className={vignette ? "pr-20 sm:pr-24" : undefined}>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-eyebrow text-[9px] uppercase opacity-60">
+            <span className="font-eyebrow eyebrow-xs">
               Bab {index + 1}
               {chapter.event_date && ` · ${chapter.event_date}`}
             </span>
@@ -195,7 +193,7 @@ export function StoryPanel({ story, settings }: { story: StoryEvent[]; settings:
 
   if (story.length === 0) {
     return (
-      <div className="text-center" style={{ color: INK }}>
+      <div className="text-center" style={{ color: colors.ink }}>
         <Illustration name="dinner" className="mx-auto h-36 w-auto" />
         <p className="font-script text-2xl leading-snug opacity-80">Kisah kami masih ditulis, babnya menyusul.</p>
       </div>
@@ -208,7 +206,7 @@ export function StoryPanel({ story, settings }: { story: StoryEvent[]; settings:
   });
 
   return (
-    <div className="space-y-6" style={{ color: INK }}>
+    <div className="space-y-6" style={{ color: colors.ink }}>
       <ProgressMeter chapters={chapters} wedding={parseDate(settings.wedding_date)} now={now} />
 
       <ol className="space-y-5">
@@ -218,7 +216,7 @@ export function StoryPanel({ story, settings }: { story: StoryEvent[]; settings:
       </ol>
 
       <div className="flex items-center justify-center gap-2 pb-1 opacity-75">
-        <Heart className="h-6 w-auto" color={BLUSH} />
+        <Heart className="h-6 w-auto" color={colors.blush} />
         <span className="font-script text-2xl">dan babak berikutnya, bersama.</span>
       </div>
     </div>

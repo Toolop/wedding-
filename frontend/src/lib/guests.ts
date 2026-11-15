@@ -22,6 +22,41 @@ export const TEMPLATE_TAGS = [
   { tag: "{mempelai}", hint: "nama kedua mempelai" },
 ] as const;
 
+/** quick picks for the message editor; WhatsApp shows these the same on every phone */
+export const WA_EMOJIS = [
+  "💍", "💐", "🌸", "🌷", "🌹", "🌿", "🍃", "🤍",
+  "💌", "💕", "💖", "❤️", "✨", "🌙", "☀️", "🎉",
+  "🙏", "🤲", "😊", "🥰", "😍", "👰", "🤵", "👫",
+  "🕌", "📅", "🗓️", "⏰", "📍", "🗺️", "🔗", "👇",
+  "🎁", "🍽️", "📸", "🎶", "🕊️", "🌺", "💫", "🫶",
+];
+
+// ---- Sender per category ----
+
+/** whose WhatsApp sends a guest's invitation */
+export type Sender = "groom" | "bride";
+
+export type SenderMap = Record<string, Sender>;
+
+export function parseSenders(json: string | undefined): SenderMap {
+  try {
+    const raw = JSON.parse(json || "{}");
+    const out: SenderMap = {};
+    for (const [k, v] of Object.entries(raw ?? {})) if (v === "groom" || v === "bride") out[k] = v;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export function senderOf(guest: Pick<Guest, "category">, map: SenderMap): Sender | undefined {
+  return guest.category ? map[guest.category] : undefined;
+}
+
+export function senderName(sender: Sender, settings: Settings) {
+  return (sender === "groom" ? settings.groom_name : settings.bride_name) || (sender === "groom" ? "Mempelai pria" : "Mempelai wanita");
+}
+
 /** the guest's personal invitation link on this site */
 export function guestLink(code: string) {
   const origin = typeof window === "undefined" ? "" : window.location.origin;

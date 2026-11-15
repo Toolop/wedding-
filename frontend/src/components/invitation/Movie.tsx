@@ -3,9 +3,10 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Clapperboard } from "lucide-react";
-import { BLUSH, NAVY, RED } from "./watercolor";
+import { colors } from "./theme";
 import { Heart } from "./WatercolorArt";
 import { Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
+import { IMG } from "./assets";
 
 /*
  * "Nonton Berdua": their first movie, Look Back. Tear the ticket and the
@@ -13,7 +14,7 @@ import { Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapte
  * hop from the buckets to the two of them while they watch.
  */
 
-const SRC = "/images/illustrations/lookback.jpg";
+const SRC = IMG.lookback;
 const BITES = 5;
 
 /* spots on the stage (percent), measured on the drawing */
@@ -108,12 +109,12 @@ export function MovieArt({ game, active }: { game: MovieGame; active: boolean })
           {!playing && (
             <motion.div
               key="dark"
-              className="absolute inset-0 flex flex-col items-center justify-center bg-[#15191A]"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-cinema"
               exit={{ opacity: 0 }}
               transition={{ duration: 1.2 }}
             >
-              <span className="font-poster text-base tracking-widest text-[#F6FAF2]/85 sm:text-xl">LOOK BACK</span>
-              <span className="font-eyebrow text-[8px] text-[#F6FAF2]/45 sm:text-[10px]">segera dimulai</span>
+              <span className="font-poster text-base tracking-widest text-on-brand/85 sm:text-xl">LOOK BACK</span>
+              <span className="font-eyebrow text-[8px] text-on-brand/45 sm:text-[10px]">segera dimulai</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -128,7 +129,7 @@ export function MovieArt({ game, active }: { game: MovieGame; active: boolean })
       {/* the screen's glow spilling over the seats */}
       {playing && (
         <motion.div
-          className="pointer-events-none absolute inset-x-0 bottom-0 top-[50%] bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,214,160,0.28),transparent_65%)]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[50%] bg-[radial-gradient(ellipse_at_50%_0%,color-mix(in_srgb,var(--color-lamp)_28%,transparent),transparent_65%)]"
           animate={reduce ? undefined : { opacity: [0.6, 1, 0.7, 0.9, 0.6] }}
           transition={{ duration: 2.6, repeat: Infinity }}
         />
@@ -142,7 +143,7 @@ export function MovieArt({ game, active }: { game: MovieGame; active: boolean })
           animate={{ scale: [1, 1.35, 1, 1.2, 1] }}
           transition={{ duration: 1.4, repeat: Infinity }}
         >
-          <Heart color={BLUSH} animate={false} className="h-5 w-auto text-[#2F3D35] sm:h-6" />
+          <Heart color={colors.blush} animate={false} className="h-5 w-auto text-ink sm:h-6" />
         </motion.span>
       )}
 
@@ -152,7 +153,7 @@ export function MovieArt({ game, active }: { game: MovieGame; active: boolean })
         return (
           <motion.span
             key={k.id}
-            className="pointer-events-none absolute h-2.5 w-2.5 rounded-full border border-[#2F3D35]/50 bg-[#FFF3C9] sm:h-3 sm:w-3"
+            className="pointer-events-none absolute h-2.5 w-2.5 rounded-full border border-ink/50 bg-glow sm:h-3 sm:w-3"
             style={{ x: "-50%", y: "-50%" }}
             initial={{ left: `${m.from[0]}%`, top: `${m.from[1]}%`, scale: 0.6 }}
             animate={{
@@ -168,7 +169,7 @@ export function MovieArt({ game, active }: { game: MovieGame; active: boolean })
       {kernels.map((k) => (
         <motion.span
           key={`nyam-${k.id}`}
-          className="font-poster pointer-events-none absolute text-[10px] text-[#FFE7A8] sm:text-xs"
+          className="font-poster pointer-events-none absolute text-[10px] text-glow-soft sm:text-xs"
           style={{ left: `${MOUTHS[k.who].to[0] + (k.who ? 4 : -9)}%`, top: `${MOUTHS[k.who].to[1] - 6}%` }}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: [0, 1, 0], y: -6 }}
@@ -198,20 +199,20 @@ export function MovieInset({ game }: { game: MovieGame }) {
       >
         {/* the ticket: tearing it sends the stub tumbling off */}
         <span className="relative flex h-[62%] items-stretch">
-          <span className="flex flex-col justify-center rounded-l-md border-2 border-r-0 border-[#2F3D35]/70 bg-[#F3DDD8] px-2.5 sm:px-3.5">
-            <span className="font-poster text-sm leading-none text-[#2F3D35] sm:text-base">LOOK BACK</span>
-            <span className="font-eyebrow mt-1 text-[8px] text-[#2F3D35]/60 sm:text-[9px]">2 tiket</span>
+          <span className="flex flex-col justify-center rounded-l-md border-2 border-r-0 border-ink/70 bg-blush-soft px-2.5 sm:px-3.5">
+            <span className="font-poster text-sm leading-none text-ink sm:text-base">LOOK BACK</span>
+            <span className="font-eyebrow mt-1 text-[8px] text-ink/60 sm:text-[9px]">2 tiket</span>
           </span>
           <motion.span
-            className="flex items-center rounded-r-md border-2 border-dashed border-[#2F3D35]/70 bg-[#F3DDD8] px-2"
+            className="flex items-center rounded-r-md border border-ink/70 bg-blush-soft px-2"
             animate={game.torn ? { x: 18, y: 40, rotate: 35, opacity: 0 } : { rotate: [0, -3, 0] }}
             transition={game.torn ? { duration: 0.6, ease: "easeIn" } : { duration: 1.2, repeat: Infinity }}
           >
-            <span className="font-eyebrow text-[8px] text-[#2F3D35]/70 [writing-mode:vertical-rl]">ADMIT 2</span>
+            <span className="font-eyebrow text-[8px] text-ink/70 [writing-mode:vertical-rl]">ADMIT 2</span>
           </motion.span>
         </span>
         <span className="flex flex-col items-start gap-1">
-          <span className="font-poster text-sm text-[#2F3D35] sm:text-base">{game.torn ? "masuk!" : "Nonton berdua"}</span>
+          <span className="font-poster text-sm text-ink sm:text-base">{game.torn ? "masuk!" : "Nonton berdua"}</span>
           <Hint>{game.torn ? "lampu dimatikan…" : "ketuk untuk sobek tiketnya"}</Hint>
         </span>
       </button>
@@ -228,26 +229,26 @@ export function MovieInset({ game }: { game: MovieGame }) {
       {/* a striped popcorn bucket that hops on every bite */}
       <motion.span
         key={game.bites}
-        initial={{ y: game.bites ? -6 : 0, rotate: game.bites ? -6 : 0 }}
-        animate={{ y: 0, rotate: 0 }}
+        initial={{ y: game.bites ? -6 : 0}}
+        animate={{ y: 0}}
         transition={{ type: "spring", stiffness: 420, damping: 10 }}
         className="relative h-[66%] w-12 sm:w-16"
       >
-        <span className="absolute inset-x-[6%] top-0 h-[34%] rounded-t-full bg-[#FFF3C9] shadow-[inset_0_-3px_0_#E6CF8A]" />
+        <span className="absolute inset-x-[6%] top-0 h-[34%] rounded-t-full bg-glow shadow-[inset_0_-3px_0_var(--color-honey)]" />
         <span
-          className="absolute inset-x-0 bottom-0 top-[26%] border-2 border-[#2F3D35]/70"
+          className="absolute inset-x-0 bottom-0 top-[26%] border-2 border-ink/70"
           style={{
             clipPath: "polygon(0 0, 100% 0, 86% 100%, 14% 100%)",
-            background: `repeating-linear-gradient(90deg, ${RED} 0 18%, #FCFDF9 18% 36%)`,
+            background: `repeating-linear-gradient(90deg, ${colors.heart} 0 18%, var(--color-paper) 18% 36%)`,
           }}
         />
       </motion.span>
       <span className="flex flex-col items-start gap-1">
-        <span className="font-poster text-sm text-[#2F3D35] sm:text-base">
+        <span className="font-poster text-sm text-ink sm:text-base">
           {game.step === 2 ? "habis! 🍿" : "Ngemil popcorn"}
         </span>
         <Hint>{game.step === 2 ? "nonton berdua pertama kali ♡" : "ketuk sambil nonton"}</Hint>
-        <Dots count={BITES} filled={game.bites} color={NAVY} />
+        <Dots count={BITES} filled={game.bites} color={colors.brand} />
       </span>
     </button>
   );

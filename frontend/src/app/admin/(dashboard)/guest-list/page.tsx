@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Smartphone,
+  Smile,
   Clapperboard,
   LayoutDashboard,
   ScrollText,
@@ -26,7 +29,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AttendanceBadge } from "@/components/admin/attendance";
 import { useAdminData } from "@/components/admin/admin-data";
@@ -74,16 +77,22 @@ import { getToken } from "@/lib/auth";
 import {
   DEFAULT_WA_TEMPLATE,
   TEMPLATE_TAGS,
+  WA_EMOJIS,
   exportGuests,
   fillTemplate,
   formatPhone,
   guestLink,
+  parseSenders,
+  senderName,
+  senderOf,
   waLink,
+  type Sender,
 } from "@/lib/guests";
 import type { Guest, GuestMode } from "@/lib/types";
 
 const PAGE_SIZE = 20;
-const TEMPLATE_KEYS = ["wa_template"] as const;
+const TEMPLATE_KEYS = ["wa_template", "wa_senders"] as const;
+const SENDERS: Sender[] = ["groom", "bride"];
 
 type Status = "all" | "unsent" | "sent" | "opened" | "rsvp" | "no_rsvp";
 
@@ -158,7 +167,9 @@ export default function GuestListPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Guest | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [broadcast, setBroadcast] = useState<Guest[] | null>(null);
+  const [broadcast, setBroadcast] = useState<{ guests: Guest[]; sender?: Sender } | null>(null);
+  const [gatewaySenders, setGatewaySenders] = useState({ groom: false, bride: false });
+  const templateRef = useRef<HTMLTextAreaElement>(null);
   const [deleting, setDeleting] = useState<Guest[] | null>(null);
   const [resetting, setResetting] = useState<Guest | null>(null);
 
@@ -169,6 +180,7 @@ export default function GuestListPage() {
       .then((res) => {
         setGuests(res.items);
         setGateway(res.whatsapp_gateway);
+        setGatewaySenders(res.whatsapp_senders ?? { groom: false, bride: false });
       })
       .catch(() => toast.error("Gagal memuat daftar tamu"));
   }, []);
@@ -184,6 +196,29 @@ export default function GuestListPage() {
     () => [...new Set((guests ?? []).map((g) => g.category).filter(Boolean))].sort(),
     [guests]
   );
+
+  // the saved mapping decides who sends (the server reads the same one); the editor shows the draft
+  const senders = useMemo(() => parseSenders(settings.wa_senders), [settings.wa_senders]);
+  const draftSenders = useMemo(() => parseSenders(draft.wa_senders), [draft.wa_senders]);
+  const setCategorySender = (category: string, sender: Sender | "") => {
+    const next = { ...draftSenders };
+    if (sender) next[category] = sender;
+    else delete next[category];
+    set("wa_senders", Object.keys(next).length ? JSON.stringify(next) : "");
+  };
+
+  /** put text where the cursor is in the message editor */
+  const insertIntoTemplate = (text: string) => {
+    const el = templateRef.current;
+    const start = el?.selectionStart ?? template.length;
+    const end = el?.selectionEnd ?? template.length;
+    set("wa_template", template.slice(0, start) + text + template.slice(end));
+    requestAnimationFrame(() => {
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(start + text.length, start + text.length);
+    });
+  };
 
   const stats = useMemo(() => {
     const all = guests ?? [];
@@ -215,6 +250,12 @@ export default function GuestListPage() {
 
   const selectedGuests = filtered.filter((g) => selected.has(g.id));
   const unsent = filtered.filter((g) => !g.sent_at);
+  const unsentBySender = {
+    groom: unsent.filter((g) => senderOf(g, senders) === "groom"),
+    bride: unsent.filter((g) => senderOf(g, senders) === "bride"),
+    none: unsent.filter((g) => !senderOf(g, senders)),
+  };
+  const usesSenders = Object.keys(senders).length > 0;
   const allOnPageSelected = rows.length > 0 && rows.every((g) => selected.has(g.id));
 
   const toggle = (id: number) =>
@@ -450,13 +491,54 @@ export default function GuestListPage() {
                 <Trash2 />
                 Hapus {selectedGuests.length}
               </Button>
-              <Button className="flex-1" onClick={() => setBroadcast(selectedGuests)}>
+              <Button className="flex-1" onClick={() => setBroadcast({ guests: selectedGuests })}>
                 <Send />
                 Kirim ke {selectedGuests.length} terpilih
               </Button>
             </div>
+          ) : usesSenders ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button disabled={!unsent.length}>
+                  <Send />
+                  Kirim ke yang belum ({unsent.length})
+                  <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Kirim dari WhatsApp</DropdownMenuLabel>
+                {SENDERS.map((s) => (
+                  <DropdownMenuItem
+                    key={s}
+                    disabled={!unsentBySender[s].length}
+                    onClick={() => setBroadcast({ guests: unsentBySender[s], sender: s })}
+                  >
+                    <Smartphone />
+                    WA {senderName(s, settings)}
+                    <span className="ml-auto text-xs text-muted-foreground tabular-nums">{unsentBySender[s].length}</span>
+                  </DropdownMenuItem>
+                ))}
+                {unsentBySender.none.length > 0 && (
+                  <DropdownMenuItem onClick={() => setBroadcast({ guests: unsentBySender.none })}>
+                    <Users />
+                    Tanpa pengirim khusus
+                    <span className="ml-auto text-xs text-muted-foreground tabular-nums">{unsentBySender.none.length}</span>
+                  </DropdownMenuItem>
+                )}
+                {gateway && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setBroadcast({ guests: unsent })}>
+                      <Zap />
+                      Semua sekaligus (otomatis per pengirim)
+                      <span className="ml-auto text-xs text-muted-foreground tabular-nums">{unsent.length}</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Button disabled={!unsent.length} onClick={() => setBroadcast(unsent)}>
+            <Button disabled={!unsent.length} onClick={() => setBroadcast({ guests: unsent })}>
               <Send />
               Kirim ke semua yang belum ({unsent.length})
             </Button>
@@ -511,6 +593,7 @@ export default function GuestListPage() {
               ) : (
                 rows.map((g) => {
                   const message = fillTemplate(template, g, settings);
+                  const sender = senderOf(g, senders);
                   return (
                     <TableRow key={g.id} data-state={selected.has(g.id) ? "selected" : undefined}>
                       <TableCell className="pl-4">
@@ -524,7 +607,12 @@ export default function GuestListPage() {
                       </TableCell>
                       <TableCell>
                         <p className="font-medium">{g.name}</p>
-                        {g.category && <p className="text-xs text-muted-foreground">{g.category}</p>}
+                        {g.category && (
+                          <p className="text-xs text-muted-foreground">
+                            {g.category}
+                            {sender && <span title="Dikirim dari WhatsApp ini"> · via WA {senderName(sender, settings)}</span>}
+                          </p>
+                        )}
                         {(g.mode || g.skip_comic) && (
                           <div className="mt-1 flex flex-wrap gap-1">
                             {g.mode && (
@@ -570,7 +658,7 @@ export default function GuestListPage() {
                             size="icon"
                             className="size-8 text-[#1a9e4b]"
                             aria-label={`Kirim lewat WhatsApp ke ${g.name}`}
-                            title="Kirim lewat WhatsApp"
+                            title={sender ? `Kirim dari WA ${senderName(sender, settings)}` : "Kirim lewat WhatsApp"}
                           >
                             <a
                               href={waLink(g.phone, message)}
@@ -684,8 +772,39 @@ export default function GuestListPage() {
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="grid content-start gap-2">
-            <Label htmlFor="wa-template">Isi pesan</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="wa-template">Isi pesan</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" aria-label="Sisipkan emoji">
+                    <Smile />
+                    Emoji
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-72 p-2">
+                  <div className="grid grid-cols-8 gap-0.5">
+                    {WA_EMOJIS.map((e) => (
+                      <DropdownMenuItem
+                        key={e}
+                        className="justify-center p-1 text-lg"
+                        onSelect={(ev) => {
+                          // keep the picker open to add a few in a row
+                          ev.preventDefault();
+                          insertIntoTemplate(e);
+                        }}
+                      >
+                        {e}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                  <p className="px-1 pt-2 text-[11px] text-muted-foreground">
+                    Disisipkan di posisi kursor. Bisa juga ketik emoji langsung (Win + . di Windows).
+                  </p>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <Textarea
+              ref={templateRef}
               id="wa-template"
               rows={14}
               value={template}
@@ -693,11 +812,17 @@ export default function GuestListPage() {
             />
             <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
               {TEMPLATE_TAGS.map((t) => (
-                <code key={t.tag} className="rounded bg-muted px-1.5 py-0.5" title={t.hint}>
+                <button
+                  key={t.tag}
+                  type="button"
+                  className="rounded bg-muted px-1.5 py-0.5 font-mono hover:bg-muted-foreground/15"
+                  title={`Sisipkan ${t.hint}`}
+                  onClick={() => insertIntoTemplate(t.tag)}
+                >
                   {t.tag}
-                </code>
+                </button>
               ))}
-              <span>diganti otomatis per tamu.</span>
+              <span>diganti otomatis per tamu (klik untuk sisipkan).</span>
               {draft.wa_template && draft.wa_template !== DEFAULT_WA_TEMPLATE && (
                 <Button variant="link" size="xs" className="ml-auto" onClick={() => set("wa_template", "")}>
                   Kembalikan bawaan
@@ -719,6 +844,40 @@ export default function GuestListPage() {
         </CardContent>
       </Card>
 
+      {categories.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pengirim per kategori</CardTitle>
+            <CardDescription>
+              {gateway
+                ? `Pesan otomatis dikirim dari perangkat Fonnte milik pengirimnya (FONNTE_TOKEN_GROOM / FONNTE_TOKEN_BRIDE); yang belum punya memakai FONNTE_TOKEN.`
+                : `Tamu tiap kategori dikirimi dari WhatsApp mempelai yang dipilih. Link WhatsApp selalu terbuka di akun yang login di perangkat itu, jadi kirim bagian ${senderName("bride", settings)} dari HP/WhatsApp Web ${senderName("bride", settings)}, dan bagian ${senderName("groom", settings)} dari punya ${senderName("groom", settings)}.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((c) => (
+              <div key={c} className="grid gap-1.5">
+                <Label className="truncate">{c}</Label>
+                <Select value={draftSenders[c] ?? "none"} onValueChange={(v) => setCategorySender(c, v === "none" ? "" : (v as Sender))}>
+                  <SelectTrigger className="w-full" aria-label={`Pengirim untuk ${c}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Siapa saja</SelectItem>
+                    {SENDERS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        WA {senderName(s, settings)}
+                        {gateway && !gatewaySenders[s] && " (perangkat bersama)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       <SaveBar dirty={dirty} saving={saving} onSave={save} onReset={reset} />
 
       <GuestFormDialog
@@ -732,7 +891,8 @@ export default function GuestListPage() {
       <BroadcastDialog
         open={broadcast !== null}
         onOpenChange={(open) => !open && setBroadcast(null)}
-        guests={broadcast ?? []}
+        guests={broadcast?.guests ?? []}
+        senderLabel={broadcast?.sender && senderName(broadcast.sender, settings)}
         settings={settings}
         template={template}
         gateway={gateway}

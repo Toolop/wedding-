@@ -3,8 +3,9 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
-import { NAVY } from "./watercolor";
+import { colors } from "./theme";
 import { Bubble, Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
+import { IMG } from "./assets";
 
 /*
  * "Makan Siang Pertama": five drawings played like a little animation.
@@ -15,11 +16,11 @@ import { Bubble, Dots, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "
  */
 
 const FRAMES = [
-  "/images/illustrations/lunch-1.jpg", // pouting at the laptop
-  "/images/illustrations/lunch-2.jpg", // blank stare
-  "/images/illustrations/lunch-3.jpg", // she comes over
-  "/images/illustrations/lunch-4.jpg", // warung, talking
-  "/images/illustrations/lunch-5.jpg", // warung, laughing
+  IMG.lunch1, // pouting at the laptop
+  IMG.lunch2, // blank stare
+  IMG.lunch3, // she comes over
+  IMG.lunch4, // warung, talking
+  IMG.lunch5, // warung, laughing
 ];
 
 /** 0 alone at the desk · 1 invited · 2 chatting at the warung · 3 laughing */
@@ -97,7 +98,7 @@ export function LunchArt({ game, active }: { game: LunchGame; active: boolean })
         {game.step === 2 && game.said === 0 && (
           <motion.div
             key="wipe"
-            className="pointer-events-none absolute inset-0 bg-[#FCFDF9]"
+            className="pointer-events-none absolute inset-0 bg-paper"
             initial={{ clipPath: "inset(0 0 0 100%)" }}
             animate={{ clipPath: ["inset(0 0 0 100%)", "inset(0 0 0 0%)", "inset(0 100% 0 0%)"] }}
             transition={{ duration: 0.9, times: [0, 0.45, 1], ease: "easeInOut" }}
@@ -133,8 +134,8 @@ export function LunchInset({ game }: { game: LunchGame }) {
           whileTap={{ scale: 0.92 }}
           animate={{ scale: [1, 1.04, 1] }}
           transition={{ duration: 1.4, repeat: Infinity }}
-          className="crayon-pill font-poster rounded-full px-4 py-1.5 text-xs text-[#F6FAF2] sm:text-sm"
-          style={{ backgroundColor: NAVY }}
+          className="crayon-pill font-poster btn-pill text-on-brand"
+          style={{ backgroundColor: colors.brand }}
         >
           Ajak makan siang 🍱
         </motion.button>
@@ -156,7 +157,7 @@ export function LunchInset({ game }: { game: LunchGame }) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             whileTap={{ scale: 0.92 }}
-            className="crayon-pill font-poster self-center rounded-full bg-[#FCFDF9] px-3 py-0.5 text-[11px] text-[#2F3D35] sm:text-xs"
+            className="crayon-pill font-poster self-center rounded-full bg-paper px-3 py-0.5 text-[11px] text-ink sm:text-xs"
           >
             Berangkat! →
           </motion.button>
@@ -181,7 +182,7 @@ export function LunchInset({ game }: { game: LunchGame }) {
       </AnimatePresence>
       <span className="flex items-center justify-between gap-2">
         <Hint>{step === 3 ? "dan obrolan pun mengalir ♡" : game.said === 0 ? "ketuk untuk mulai ngobrol" : "ketuk lagi…"}</Hint>
-        <Dots count={game.chat.length} filled={game.said} color={NAVY} />
+        <Dots count={game.chat.length} filled={game.said} color={colors.brand} />
       </span>
     </button>
   );

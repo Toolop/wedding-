@@ -28,6 +28,7 @@ import {
 import { clearToken } from "@/lib/auth";
 import { useAdminData } from "./admin-data";
 import { NAV } from "./nav";
+import { IMG } from "@/components/invitation/assets";
 
 export function isActivePath(pathname: string, url: string) {
   // match whole segments so /admin/gift doesn't light up on /admin/gift-confirmations
@@ -54,7 +55,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin" onClick={() => setOpenMobile(false)}>
                 <Avatar className="size-8 rounded-lg">
-                  <AvatarImage src="/images/illustrations/hello.jpeg" alt="" className="object-cover" />
+                  <AvatarImage src={IMG.hello} alt="" className="object-cover" />
                   <AvatarFallback className="rounded-lg">♥</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

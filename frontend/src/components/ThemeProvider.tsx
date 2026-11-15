@@ -29,11 +29,12 @@ export default function ThemeProvider({
     "--color-secondary": settings.secondary_color || "#E5E3DE",
     "--color-accent": settings.accent_color || "#4A7FA5",
     "--color-surface": settings.background_color || "#F4F2EE",
-    "--font-heading": settings.font_heading || "'Patrick Hand', cursive",
-    "--font-body": settings.font_body || "'Nunito', sans-serif",
+    // the invitation's type is fixed (Cormorant + Jost); the admin font settings only affect the admin
+    "--font-heading": "'Cormorant Garamond', serif",
+    "--font-body": "'Jost', sans-serif",
     fontFamily: "var(--font-body)",
-    // the watercolour invitation always sits on warm paper, whatever the admin colours are
-    backgroundColor: "#F2F6EF",
+    // the invitation always sits on ivory paper, whatever the admin colours are
+    backgroundColor: "var(--color-page)",
   } as CSSProperties;
 
   return (

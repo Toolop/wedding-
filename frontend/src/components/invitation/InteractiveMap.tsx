@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MAP_FEATURES, MARKER_KINDS, type MapFeature, type MapMarker, type MapMeta, type MarkerKind } from "@/lib/map-meta";
-import { INK, NAVY, PAPER, RED } from "./watercolor";
+import { colors } from "./theme";
 
 /** the cream of the scrapbook cards on the couple's illustrated map */
 const SCRAP = "#F4E7CD";
@@ -11,18 +11,18 @@ const SCRAP = "#F4E7CD";
 /* ---------------------------------------------------------------- pieces */
 
 /** the venue pin, drawn like the red pin on the illustrated map */
-export function VenuePin({ size, color = RED }: { size: number; color?: string }) {
+export function VenuePin({ size, color = colors.heart }: { size: number; color?: string }) {
   return (
-    <svg viewBox="0 0 40 52" width={size} height={size * 1.3} aria-hidden className="drop-shadow-[1px_2px_0_rgba(47,61,53,0.35)]">
+    <svg viewBox="0 0 40 52" width={size} height={size * 1.3} aria-hidden className="drop-shadow-paint-xs">
       <path
         d="M20 50 C20 50 4 31 4 19 C4 9.6 11.2 3 20 3 C28.8 3 36 9.6 36 19 C36 31 20 50 20 50 Z"
         fill={color}
-        stroke={INK}
+        stroke={colors.ink}
         strokeWidth={2.6}
         strokeLinejoin="round"
       />
-      <circle cx="20" cy="19" r="6.5" fill="#FCFDF9" stroke={INK} strokeWidth={2} />
-      <path d="M11 13 C12.5 9.5 15 8 17.5 7.6" stroke="#fff" strokeOpacity={0.6} strokeWidth={2.4} strokeLinecap="round" fill="none" />
+      <circle cx="20" cy="19" r="6.5" fill="var(--color-paper)" stroke={colors.ink} strokeWidth={2} />
+      <path d="M11 13 C12.5 9.5 15 8 17.5 7.6" stroke="white" strokeOpacity={0.6} strokeWidth={2.4} strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -36,7 +36,7 @@ function FeatureSwatch({ feature }: { feature: MapFeature }) {
         </svg>
       );
     case "jalan":
-      return <span className="block h-2.5 w-7 rounded-full border border-[#2F3D35]/30" style={{ backgroundColor: "#A7A3C4" }} />;
+      return <span className="block h-2.5 w-7 rounded-full border border-ink/30" style={{ backgroundColor: "#A7A3C4" }} />;
     case "gang":
       return <span className="block h-1.5 w-7 rounded-full" style={{ backgroundColor: "#CBC8DC" }} />;
     case "bangunan":
@@ -61,7 +61,7 @@ function MarkerDot({ kind, size }: { kind: MarkerKind; size: number }) {
         width: size,
         height: size,
         backgroundColor: meta.color,
-        boxShadow: `0 0 0 1.5px ${INK}, 1px 2px 0 1.5px rgba(47,61,53,0.3)`,
+        boxShadow: `0 0 0 1.5px ${colors.ink}, 1px 2px 0 1.5px color-mix(in srgb, var(--color-ink) 30%, transparent)`,
       }}
     >
       <Icon className="text-white" style={{ width: size * 0.55, height: size * 0.55 }} strokeWidth={2.6} />
@@ -96,8 +96,8 @@ export function TornPaper({
 }) {
   const clip = tornPath(seed);
   return (
-    <div className={`relative ${className}`} style={{ filter: "drop-shadow(3px 4px 0 rgba(63,107,87,0.2))" }}>
-      <div style={{ clipPath: clip, backgroundColor: INK, padding: 2 }}>
+    <div className={`relative ${className}`} style={{ filter: "drop-shadow(3px 4px 0 color-mix(in srgb, var(--color-brand) 20%, transparent))" }}>
+      <div style={{ clipPath: clip, backgroundColor: colors.ink, padding: 2 }}>
         <div className="wc" style={{ clipPath: clip, backgroundColor: SCRAP }}>
           {children}
         </div>
@@ -106,7 +106,7 @@ export function TornPaper({
         <span
           aria-hidden
           className={`absolute -top-2.5 h-5 w-16 opacity-85 ${tape === "left" ? "-left-3 -rotate-[28deg]" : "left-1/2 -translate-x-1/2 -rotate-3"}`}
-          style={{ backgroundColor: "#C9DBBE", boxShadow: "inset 0 0 0 1px rgba(47,61,53,0.12)" }}
+          style={{ backgroundColor: "#C9DBBE", boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 12%, transparent)" }}
         />
       )}
     </div>
@@ -117,7 +117,7 @@ export function TornPaper({
 function Sparks({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path d="M4 9 L9 11 M6 3 L10 8 M12 1 L12.5 7" stroke={NAVY} strokeWidth={2} strokeLinecap="round" />
+      <path d="M4 9 L9 11 M6 3 L10 8 M12 1 L12.5 7" stroke={colors.brand} strokeWidth={2} strokeLinecap="round" />
     </svg>
   );
 }
@@ -126,7 +126,7 @@ function Sparks({ className = "" }: { className?: string }) {
 export function VenueTitleCard({ venue, address, compact = false }: { venue: string; address: string; compact?: boolean }) {
   return (
     <TornPaper seed={3} className="rotate-[-1.6deg]">
-      <div className={compact ? "px-4 pb-3 pt-3" : "px-5 pb-4 pt-4"} style={{ color: NAVY }}>
+      <div className={compact ? "px-4 pb-3 pt-3" : "px-5 pb-4 pt-4"} style={{ color: colors.brand }}>
         <div className="flex items-start gap-1">
           <Sparks className="-ml-1 mt-1 h-5 w-5 flex-none" />
           <p className={`font-poster leading-[1.05] ${compact ? "text-xl" : "text-2xl sm:text-[28px]"}`}>{venue}</p>
@@ -134,9 +134,9 @@ export function VenueTitleCard({ venue, address, compact = false }: { venue: str
         </div>
         {address && (
           <>
-            <span aria-hidden className="my-2 block h-[2px] w-full rounded-full" style={{ backgroundColor: NAVY, opacity: 0.8 }} />
+            <span aria-hidden className="my-2 block h-[2px] w-full rounded-full" style={{ backgroundColor: colors.brand, opacity: 0.8 }} />
             <p className={`flex items-start gap-2 font-heading leading-snug ${compact ? "text-base" : "text-lg"}`}>
-              <VenuePin size={compact ? 13 : 15} color={NAVY} />
+              <VenuePin size={compact ? 13 : 15} color={colors.brand} />
               <span>{address}</span>
             </p>
           </>
@@ -151,7 +151,7 @@ export function VenuePolaroid({ src, caption }: { src: string; caption: string }
   return (
     <div
       className="relative w-full rounded-[4px] crayon-box bg-white p-2 pb-1"
-      style={{ boxShadow: "3px 5px 0 rgba(63,107,87,0.2)" }}
+      style={{ boxShadow: "3px 5px 0 color-mix(in srgb, var(--color-brand) 20%, transparent)" }}
     >
       <span
         aria-hidden
@@ -160,7 +160,7 @@ export function VenuePolaroid({ src, caption }: { src: string; caption: string }
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={`Foto ${caption}`} className="block aspect-[4/3] w-full rounded-[2px] object-cover" />
-      <p className="font-heading px-1 py-1.5 text-center text-[15px] leading-tight" style={{ color: NAVY }}>
+      <p className="font-heading px-1 py-1.5 text-center text-[15px] leading-tight" style={{ color: colors.brand }}>
         <span className="opacity-60">⸝ </span>
         {caption}
         <span className="opacity-60"> ⸜</span>
@@ -182,11 +182,11 @@ export function Compass({ size, className = "", delay = 0.5 }: { size: number; c
       transition={{ delay, type: "spring", stiffness: 90, damping: 11 }}
       className={className}
     >
-      <path d="M30 8 L33.5 26.5 L52 30 L33.5 33.5 L30 52 L26.5 33.5 L8 30 L26.5 26.5 Z" fill="#A9C3A6" stroke={NAVY} strokeWidth={1.3} strokeLinejoin="round" />
-      <path d="M30 4 L34 30 L30 56 L26 30 Z" fill={NAVY} stroke={NAVY} strokeWidth={1} strokeLinejoin="round" />
-      <path d="M4 30 L30 26 L56 30 L30 34 Z" fill={NAVY} stroke={NAVY} strokeWidth={1} strokeLinejoin="round" />
+      <path d="M30 8 L33.5 26.5 L52 30 L33.5 33.5 L30 52 L26.5 33.5 L8 30 L26.5 26.5 Z" fill="#A9C3A6" stroke={colors.brand} strokeWidth={1.3} strokeLinejoin="round" />
+      <path d="M30 4 L34 30 L30 56 L26 30 Z" fill={colors.brand} stroke={colors.brand} strokeWidth={1} strokeLinejoin="round" />
+      <path d="M4 30 L30 26 L56 30 L30 34 Z" fill={colors.brand} stroke={colors.brand} strokeWidth={1} strokeLinejoin="round" />
       <path d="M30 4 L34 30 L30 30 Z M4 30 L30 26 L30 30 Z" fill="#B9C3DD" />
-      <circle cx="30" cy="30" r="2.6" fill={PAPER} stroke={NAVY} strokeWidth={1.2} />
+      <circle cx="30" cy="30" r="2.6" fill={colors.paper} stroke={colors.brand} strokeWidth={1.2} />
       {(
         [
           ["N", 30, 3],
@@ -195,7 +195,7 @@ export function Compass({ size, className = "", delay = 0.5 }: { size: number; c
           ["E", 61, 32],
         ] as const
       ).map(([l, x, y]) => (
-        <text key={l} x={x} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={NAVY} fontFamily="Fredoka, sans-serif">
+        <text key={l} x={x} y={y} textAnchor="middle" fontSize="8" fontWeight="700" fill={colors.brand} fontFamily="Fredoka, sans-serif">
           {l}
         </text>
       ))}
@@ -215,7 +215,7 @@ export function MapLegend({ meta, wide = false }: { meta: MapMeta; wide?: boolea
 
   return (
     <TornPaper seed={7} tape="none" className="rotate-[0.8deg]">
-      <div className="relative px-4 pb-4 pt-3" style={{ color: NAVY }}>
+      <div className="relative px-4 pb-4 pt-3" style={{ color: colors.brand }}>
         <p className="font-poster text-xl leading-none">
           <span className="mr-1 opacity-60">·</span>Legenda:
         </p>
@@ -285,7 +285,7 @@ function Marker({
             initial={{ opacity: 0, x: flip ? 6 : -6 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}
-            className="whitespace-nowrap rounded-full bg-white/90 px-1.5 py-px font-heading text-[12px] leading-tight shadow-[1px_1px_0_rgba(47,61,53,0.2)]"
+            className="whitespace-nowrap rounded-full bg-white/90 px-1.5 py-px font-heading text-[12px] leading-tight shadow-paint-xs"
             style={{ color: kind.color }}
           >
             {marker.label}
@@ -337,14 +337,14 @@ export function InteractiveMap({
   const pinSize = compact ? 26 : 32;
 
   return (
-    <div ref={root} className="relative overflow-hidden" style={{ color: INK }} onClick={() => setActiveMarker(null)}>
+    <div ref={root} className="relative overflow-hidden" style={{ color: colors.ink }} onClick={() => setActiveMarker(null)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} draggable={false} onLoad={onImageLoad} className="block h-auto w-full select-none" />
 
       {/* a soft paper veil so the labels read clearly once everything is shown */}
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[#FCFDF9]"
+        className="pointer-events-none absolute inset-0 bg-paper"
         animate={{ opacity: revealed ? 0.18 : 0 }}
       />
 
@@ -375,7 +375,7 @@ export function InteractiveMap({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.9, ease: "easeOut" }}
                 className="pointer-events-none absolute z-10 h-10 w-10 rounded-full border-[3px]"
-                style={{ left: `${pin.x}%`, top: `${pin.y}%`, translate: "-50% -50%", borderColor: RED }}
+                style={{ left: `${pin.x}%`, top: `${pin.y}%`, translate: "-50% -50%", borderColor: colors.heart }}
               />
             )}
           </AnimatePresence>
@@ -399,7 +399,7 @@ export function InteractiveMap({
             <span
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-full h-3 w-8 -translate-x-1/2 -translate-y-1/2 animate-ping rounded-[50%] border-2"
-              style={{ borderColor: RED, animationDuration: "1.6s", display: revealed ? "none" : undefined }}
+              style={{ borderColor: colors.heart, animationDuration: "1.6s", display: revealed ? "none" : undefined }}
             />
             <VenuePin size={pinSize} />
             <AnimatePresence mode="wait">
@@ -410,8 +410,8 @@ export function InteractiveMap({
                   animate={{ opacity: 1, scale: 1, rotate: -6 }}
                   exit={{ opacity: 0, scale: 0.5 }}
                   transition={{ delay: 0.25, type: "spring", stiffness: 300, damping: 14 }}
-                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-px text-base leading-tight text-white shadow-[2px_2px_0_rgba(47,61,53,0.3)]"
-                  style={{ backgroundColor: RED }}
+                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-px text-base leading-tight text-white shadow-paint-sm"
+                  style={{ backgroundColor: colors.heart }}
                 >
                   di sini!
                 </motion.span>
@@ -422,7 +422,7 @@ export function InteractiveMap({
                   animate={{ opacity: 1, y: [0, -4, 0] }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ y: { repeat: Infinity, duration: 1.6, ease: "easeInOut" } }}
-                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-base leading-tight shadow-[2px_2px_0_rgba(47,61,53,0.25)]"
+                  className="font-script pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-base leading-tight shadow-paint-sm"
                 >
                   ketuk aku!
                 </motion.span>

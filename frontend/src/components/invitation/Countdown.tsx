@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { parseDate } from "@/lib/dates";
-import { INK, TONES, type ToneKey } from "./watercolor";
+import { colors, TONES, type ToneKey } from "./theme";
 
 export type TimeLeft = { d: number; h: number; m: number; s: number; done: boolean };
 
@@ -81,10 +81,10 @@ function FlipTile({
         className={`relative overflow-hidden rounded-[10px] crayon-box wc ${
           big ? "h-[68px] w-[64px] sm:h-[76px] sm:w-[74px]" : "h-[46px] w-[50px] sm:h-[50px] sm:w-[56px]"
         }`}
-        style={{ backgroundColor: t.bg, color: INK, boxShadow: `3px 4px 0 0 ${t.edge}` }}
+        style={{ backgroundColor: t.bg, color: colors.ink, boxShadow: `3px 4px 0 0 ${t.edge}` }}
       >
         {/* the hinge across the middle of a flip clock */}
-        <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-[#2F3D35]/20" />
+        <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-ink/20" />
         <span aria-hidden className="absolute inset-x-0 top-0 h-1/2 bg-white/25" />
         {/* clip-path, not just overflow, so the 3D flip can't leak past the tile */}
         <span className="absolute inset-0 [clip-path:inset(0)]">
@@ -107,16 +107,16 @@ export function FlipCountdown({ target, size = "sm" }: { target: string; size?: 
   const left = useCountdown(target);
   if (left?.done) {
     return (
-      <p className="font-heading text-2xl" style={{ color: INK }}>
+      <p className="font-heading text-2xl" style={{ color: colors.ink }}>
         Hari bahagianya sudah tiba!
       </p>
     );
   }
   const units: { value: string; label: string; tone: ToneKey }[] = [
-    { value: left ? String(left.d) : "--", label: "hari", tone: "mauve" },
+    { value: left ? String(left.d) : "--", label: "hari", tone: "sage" },
     { value: left ? pad(left.h) : "--", label: "jam", tone: "butter" },
-    { value: left ? pad(left.m) : "--", label: "menit", tone: "teal" },
-    { value: left ? pad(left.s) : "--", label: "detik", tone: "coral" },
+    { value: left ? pad(left.m) : "--", label: "menit", tone: "seafoam" },
+    { value: left ? pad(left.s) : "--", label: "detik", tone: "moss" },
   ];
   return (
     <div className={`flex ${size === "lg" ? "gap-2.5 sm:gap-3" : "gap-1.5 sm:gap-2"}`} role="timer" aria-live="off">
@@ -132,7 +132,7 @@ export function CountdownStrip({ target }: { target: string }) {
   const left = useCountdown(target);
   if (left?.done) {
     return (
-      <span className="font-heading text-xl" style={{ color: INK }}>
+      <span className="font-heading text-xl" style={{ color: colors.ink }}>
         Hari bahagianya sudah tiba!
       </span>
     );
@@ -144,7 +144,7 @@ export function CountdownStrip({ target }: { target: string }) {
     { value: left ? pad(left.s) : "--", label: "detik" },
   ];
   return (
-    <span className="flex items-start gap-1.5 sm:gap-2" role="timer" aria-live="off" style={{ color: INK }}>
+    <span className="flex items-start gap-1.5 sm:gap-2" role="timer" aria-live="off" style={{ color: colors.ink }}>
       {units.map((u, i) => (
         <span key={u.label} className="flex items-start gap-1.5 sm:gap-2">
           {i > 0 && (
@@ -163,6 +163,35 @@ export function CountdownStrip({ target }: { target: string }) {
             </span>
             <span className="font-eyebrow text-[8px] uppercase opacity-55">{u.label}</span>
           </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * The classic countdown: four serif numbers with italic labels, hairline dividers.
+ * Colours inherit, so it works on the green card (on-brand) and on paper.
+ */
+export function CountdownClassic({ target }: { target: string }) {
+  const left = useCountdown(target);
+  if (left?.done) {
+    return <p className="font-script text-2xl">Hari bahagianya sudah tiba!</p>;
+  }
+  const units = [
+    { value: left ? String(left.d) : "--", label: "hari" },
+    { value: left ? pad(left.h) : "--", label: "jam" },
+    { value: left ? pad(left.m) : "--", label: "menit" },
+    { value: left ? pad(left.s) : "--", label: "detik" },
+  ];
+  return (
+    <span className="grid w-full grid-cols-4" role="timer" aria-live="off">
+      {units.map((u, i) => (
+        <span key={u.label} className={`flex flex-col items-center gap-1 ${i ? "border-l border-honey/45" : ""}`}>
+          <span className="relative block h-[1.05em] min-w-[2ch] font-serif text-[clamp(2rem,3.2vw,2.9rem)] font-medium leading-none tabular-nums [clip-path:inset(0)]">
+            <RollingValue value={u.value} inClass="digit-roll-in" outClass="digit-roll-out" className="block text-center" />
+          </span>
+          <span className="font-script text-[15px] leading-none text-on-brand-muted">{u.label}</span>
         </span>
       ))}
     </span>

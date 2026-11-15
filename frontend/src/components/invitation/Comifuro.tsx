@@ -3,8 +3,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { MapPin, TrainFront } from "lucide-react";
-import { NAVY } from "./watercolor";
+import { colors } from "./theme";
 import { Bubble, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chapterKit";
+import { IMG } from "./assets";
 
 /*
  * "Hobi yang Sama": a day at Comifuro, then the ride home together. The
@@ -12,8 +13,8 @@ import { Bubble, Frame, HeartRise, Hint, Stage, TimeTag, useAfter } from "./chap
  * brings the next bit of their first long chat.
  */
 
-const SRC = "/images/illustrations/comifuro.jpg";
-const TRAIN = "/images/illustrations/kereta.png";
+const SRC = IMG.comifuro;
+const TRAIN = IMG.kereta;
 const STOPS = 3;
 
 /** 0 at the festival · 1 on the train · 2 home */
@@ -108,9 +109,9 @@ export function ComifuroArt({ game, active }: { game: ComifuroGame; active: bool
         ].map(([x, y], i) => (
           <motion.span
             key={i}
-            className="pointer-events-none absolute text-lg text-[#FCFDF9] sm:text-2xl"
-            style={{ left: `${x}%`, top: `${y}%`, textShadow: "0 0 6px #7A6FC0" }}
-            animate={{ scale: [0.6, 1.15, 0.6], opacity: [0.4, 1, 0.4], rotate: [0, 30, 0] }}
+            className="pointer-events-none absolute text-lg text-paper sm:text-2xl"
+            style={{ left: `${x}%`, top: `${y}%`, textShadow: "0 0 6px var(--color-dusk)" }}
+            animate={{ scale: [0.6, 1.15, 0.6], opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.5 }}
           >
             ✦
@@ -137,7 +138,7 @@ export function ComifuroArt({ game, active }: { game: ComifuroGame; active: bool
             ].map(([y, d, delay], i) => (
               <motion.span
                 key={i}
-                className="absolute h-[2px] w-[28%] rounded-full bg-[#FCFDF9]/70"
+                className="absolute h-[2px] w-[28%] rounded-full bg-paper/70"
                 style={{ top: `${y}%` }}
                 initial={{ left: "110%" }}
                 animate={{ left: "-35%" }}
@@ -173,8 +174,8 @@ export function ComifuroInset({ game }: { game: ComifuroGame }) {
           whileTap={{ scale: 0.92 }}
           animate={{ scale: [1, 1.04, 1] }}
           transition={{ duration: 1.4, repeat: Infinity }}
-          className="crayon-pill font-poster rounded-full px-4 py-1.5 text-xs text-[#F6FAF2] sm:text-sm"
-          style={{ backgroundColor: NAVY }}
+          className="crayon-pill font-poster btn-pill text-on-brand"
+          style={{ backgroundColor: colors.brand }}
         >
           Pulang bareng 🚆
         </motion.button>
@@ -198,12 +199,12 @@ export function ComifuroInset({ game }: { game: ComifuroGame }) {
 
       {/* the line: stations as dots, the train slides one stop per tap */}
       <span className="relative mx-3 block h-6">
-        <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-[#2F3D35]/25" />
+        <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-ink/25" />
         {Array.from({ length: STOPS + 1 }, (_, i) => (
           <span
             key={i}
-            className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#2F3D35]/60"
-            style={{ left: `${(i / STOPS) * 100}%`, backgroundColor: i <= rode ? NAVY : "#FCFDF9" }}
+            className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink/60"
+            style={{ left: `${(i / STOPS) * 100}%`, backgroundColor: i <= rode ? colors.brand : "var(--color-paper)" }}
           />
         ))}
         <motion.span

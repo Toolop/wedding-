@@ -3,29 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, CalendarHeart, ExternalLink, MapPinned, X } from "lucide-react";
+import { CalendarHeart, ExternalLink, Gift, MapPinned, X } from "lucide-react";
 import { getWishes, mediaUrl } from "@/lib/api";
 import type { InvitationData, Settings, WishesResponse } from "@/lib/types";
-import { CountdownStrip, useCountdown } from "./Countdown";
+import { CountdownClassic, useCountdown } from "./Countdown";
 import { usePortalRoot } from "../ThemeProvider";
-import { BLUSH, CHROME, INK, PAPER, RED, TONES, type IllustrationKey, type ToneKey } from "./watercolor";
-import {
-  CalendarPage,
-  Camera,
-  ClockFace,
-  Envelope,
-  GiftBox,
-  Heart,
-  HeartBurst,
-  Illustration,
-  MapPin,
-  Phone,
-  Rings,
-  WashBackdrop,
-} from "./WatercolorArt";
-import { Flower, FlowerFrame } from "./Flowers";
+import { type IllustrationKey } from "./assets";
+import { ArrowLink, BotanicalFrame, DoubleFrame, Eyebrow, Monogram, Ornament, PhotoCorners } from "./classy";
 import { GalleryPanel } from "./GalleryPanel";
-import { PeekingCouple, PeekingCoupleCorners } from "./PeekingCouple";
 import { GiftPanel } from "./GiftPanel";
 import { CeremonyPanel } from "./CeremonyPanel";
 import { ContactPanel, CouplePanel, DatePanel, splitTime } from "./PortalPanels";
@@ -35,15 +20,6 @@ import { RsvpPanel } from "./RsvpPanel";
 function parseDate(value: string) {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function calendarFace(value: string) {
-  const d = parseDate(value);
-  if (!d) return { day: "--", month: "SOON" };
-  return {
-    day: String(d.getDate()),
-    month: new Intl.DateTimeFormat("id-ID", { month: "short" }).format(d).toUpperCase(),
-  };
 }
 
 /** Google Calendar "add event" link for the wedding day. */
@@ -71,22 +47,12 @@ type CardAction = { label: string; href?: string; card?: string };
 
 type CardDef = {
   key: string;
-  tone: ToneKey;
   title: string;
   subtitle: string;
-  tilt: number;
-  art: ReactNode;
-  /** one live fact shown on the sticker at every size ("55 hari lagi", "4 foto") */
-  chip?: string;
-  /** a richer preview for roomy screens; `peekOnly` hides the art when it shows */
-  peek?: ReactNode;
-  peekOnly?: boolean;
-  /** a compact preview that shows on phones, beside the art */
-  mini?: ReactNode;
-  /** only the five keys with `onBoard` sit on the sticker grid */
-  onBoard?: boolean;
-  /** spans two grid columns, for the card that gets the most attention */
-  wide?: boolean;
+  /** what the card shows on the board; cards without one only open from elsewhere */
+  face?: ReactNode;
+  /** grid placement on the board (desktop: 4 columns) */
+  span?: string;
   detail: ReactNode;
   actions: CardAction[];
 };
@@ -94,86 +60,212 @@ type CardDef = {
 type Live = { daysLeft: number | null; rsvp: WishesResponse["summary"] | null };
 
 const PEEK_PHOTOS: IllustrationKey[] = ["cafe", "hello", "dinner"];
+const WEEK_LETTERS = ["S", "S", "R", "K", "J", "S", "M"];
+const longMonth = (d: Date) => new Intl.DateTimeFormat("id-ID", { month: "long" }).format(d).toUpperCase();
+const weekdayName = (d: Date) => new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(d);
 
-/** photos fanned out like prints on a table, overlapping and always centred inside the card */
-function PhotoFan({ urls, mini = false }: { urls: string[]; mini?: boolean }) {
-  const shown = urls.slice(0, mini ? 3 : 5);
-  const mid = (shown.length - 1) / 2;
+/** the seven days (Monday first) of the week the wedding falls in */
+function weekAround(d: Date) {
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const x = new Date(monday);
+    x.setDate(monday.getDate() + i);
+    return x;
+  });
+}
+
+function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: number | null }) {
+  const left =
+    daysLeft === null ? "" : daysLeft > 0 ? `${daysLeft} hari lagi` : daysLeft === 0 ? "Hari ini!" : "Sudah resmi";
   return (
-    <span className={`flex max-w-full items-center justify-center ${mini ? "" : "py-2"}`}>
-      {shown.map((src, i) => {
-        const off = i - mid;
-        return (
-          <span
-            key={i}
-            className={`relative block flex-none bg-white shadow-[3px_4px_0_rgba(47,61,53,0.22)] transition-transform duration-300 group-hover:-translate-y-1 ${
-              mini ? "w-[46px] p-[3px] pb-1.5" : "w-[84px] p-1.5 pb-4"
-            }`}
-            style={{
-              marginLeft: i ? (mini ? "-12px" : "-26px") : 0,
-              rotate: `${off * 6}deg`,
-              translate: `0 ${Math.abs(off) * (mini ? 2 : 4)}px`,
-              zIndex: 10 - Math.round(Math.abs(off) * 2),
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt=""
-              className="aspect-[4/5] w-full object-cover"
-            />
+    <DoubleFrame className="h-full" innerClassName="flex flex-col items-center px-2 pb-3 pt-4 text-center sm:pt-5">
+      <span className="font-flourish text-[1.6rem] leading-none text-gold-ink sm:text-[1.75rem]">Save the Date</span>
+      {wedding ? (
+        <>
+          <span className="font-eyebrow mt-3 text-[11px] uppercase tracking-[0.25em] text-muted">{weekdayName(wedding)}</span>
+          <span className="font-serif text-[3.5rem] font-medium leading-[0.95] text-brand sm:text-[4rem]">
+            {String(wedding.getDate()).padStart(2, "0")}
           </span>
-        );
-      })}
+          <span className="font-eyebrow text-xs uppercase tracking-[0.3em] text-ink">{longMonth(wedding)}</span>
+          <span className="font-serif text-xl italic text-muted">{wedding.getFullYear()}</span>
+          <Ornament className="my-3" />
+          <span className="hidden w-full grid-cols-7 gap-0.5 text-[10px] font-semibold text-muted [@media(min-height:780px)]:grid">
+            {WEEK_LETTERS.map((l, i) => (
+              <span key={i} className={i === 6 ? "text-gold-ink" : ""}>
+                {l}
+              </span>
+            ))}
+            {weekAround(wedding).map((d) => {
+              const hit = d.toDateString() === wedding.toDateString();
+              return (
+                <span
+                  key={d.getTime()}
+                  className={`mx-auto grid h-5 w-5 place-items-center rounded-full text-xs font-medium leading-none ${
+                    hit ? "bg-brand font-semibold text-paper" : "text-ink"
+                  }`}
+                >
+                  {d.getDate()}
+                </span>
+              );
+            })}
+          </span>
+        </>
+      ) : (
+        <CalendarHeart className="my-6 h-10 w-10 text-gold-ink" strokeWidth={1.2} />
+      )}
+      {left && <span className="mt-auto pt-2 text-xs font-medium text-muted">{left}</span>}
+    </DoubleFrame>
+  );
+}
+
+function CeremonyFace({ settings }: { settings: Settings }) {
+  const rows = [
+    { k: "Akad nikah", t: settings.akad_time, at: settings.akad_location },
+    { k: "Resepsi", t: settings.resepsi_time, at: settings.resepsi_location },
+  ].filter((e) => e.t || e.at);
+  const wedding = parseDate(settings.wedding_date);
+  const zone = splitTime(settings.resepsi_time || settings.akad_time).zone;
+  return (
+    <span className="flex h-full flex-col rounded-[6px] border border-line bg-paper p-5 text-left sm:p-6">
+      <span className="flex flex-col items-center text-center">
+        <span className="font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">Akad &amp; Resepsi</span>
+        <span className="font-eyebrow mt-1 text-[11px] uppercase tracking-[0.25em] text-muted">Rangkaian acara</span>
+      </span>
+      <span className="mt-4 flex flex-col border-y border-line-soft">
+        {rows.map((e, i) => (
+          <span key={e.k} className={`flex gap-4 py-3 sm:gap-[18px] sm:py-4 ${i ? "border-t border-line-soft" : ""}`}>
+            <span className="w-[68px] flex-none font-serif text-[1.7rem] font-medium leading-none text-brand sm:w-[76px] sm:text-[2rem]">
+              {splitTime(e.t).start}
+            </span>
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">{e.k}</span>
+              <span className="line-clamp-1 font-serif text-lg font-semibold leading-tight sm:text-xl">{e.at}</span>
+            </span>
+          </span>
+        ))}
+      </span>
+      <span className="mt-auto flex items-center justify-between pt-3">
+        <span className="text-xs text-muted sm:text-[13px]">
+          {wedding ? new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(wedding) : ""}
+          {zone ? ` · ${zone}` : ""}
+        </span>
+        <ArrowLink>Detail</ArrowLink>
+      </span>
     </span>
+  );
+}
+
+function GiftFace({ count }: { count: number }) {
+  return (
+    <DoubleFrame tone="blush" className="h-full" innerClassName="flex flex-col items-center px-3 pb-1 pt-5 text-center">
+      <span className="font-serif text-[1.7rem] font-medium italic leading-[1.05] sm:text-3xl">Tanda Kasih</span>
+      <span className="font-eyebrow mt-1 text-[10px] uppercase tracking-[0.3em] text-gold-ink">Wedding gift</span>
+      <Ornament className="my-3" />
+      <span className="grid h-[72px] w-[72px] place-items-center rounded-full border border-gold-soft bg-paper sm:h-[84px] sm:w-[84px]">
+        <Gift className="h-8 w-8 text-gold-ink sm:h-10 sm:w-10" strokeWidth={1.2} />
+      </span>
+      <span className="font-serif mt-3 text-base italic leading-snug text-muted sm:text-[17px]">
+        Doa restu Anda adalah karunia terindah bagi kami.
+      </span>
+      {count > 0 && <span className="sr-only">{count} rekening</span>}
+      <span className="mt-auto flex w-full items-center justify-between border-t border-line">
+        <ArrowLink className="w-full justify-between">Kirim hadiah</ArrowLink>
+      </span>
+    </DoubleFrame>
+  );
+}
+
+function GalleryFace({ photos, total }: { photos: string[]; total: number }) {
+  const [big, ...rest] = photos;
+  const small = rest.slice(0, 4);
+  return (
+    <span className="flex h-full flex-col gap-3 rounded-[6px] border border-line bg-mist-soft p-4 text-left sm:p-5">
+      <span className="flex items-end justify-between">
+        <span>
+          <span className="block font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">Galeri Kita</span>
+          <span className="font-eyebrow block text-[11px] uppercase tracking-[0.25em] text-muted">Momen kami berdua</span>
+        </span>
+        <span className="flex items-center gap-3.5">
+          {total > 0 && <span className="hidden text-[13px] text-muted sm:inline">{total} foto</span>}
+          <ArrowLink>Lihat album</ArrowLink>
+        </span>
+      </span>
+      {/* an open album: one print on the left page, four on the right */}
+      <span className="flex min-h-0 flex-1 overflow-hidden rounded-[4px] shadow-paint-md">
+        <span className="flex flex-1 flex-col items-center justify-center gap-2.5 border border-r-0 border-line bg-page p-3 shadow-[inset_-14px_0_18px_-14px_color-mix(in_srgb,var(--color-ink)_22%,transparent)]">
+          {big && (
+            <PhotoCorners>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={big} alt="" className="h-[clamp(5.5rem,17vh,9.5rem)] w-[clamp(4.5rem,14vh,8.25rem)] object-cover" />
+            </PhotoCorners>
+          )}
+          <span className="font-flourish hidden text-2xl leading-[1.1] text-brand [@media(min-height:780px)]:block">
+            sampai jumpa di hari H kami
+          </span>
+        </span>
+        <span aria-hidden className="w-0.5 flex-none bg-line" />
+        <span className="grid flex-1 grid-cols-2 content-center justify-items-center gap-2.5 border border-l-0 border-line bg-page p-3 shadow-[inset_14px_0_18px_-14px_color-mix(in_srgb,var(--color-ink)_22%,transparent)]">
+          {small.map((src, i) => (
+            <PhotoCorners key={i}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" className="h-[clamp(3rem,8.5vh,5.5rem)] w-[clamp(3rem,8.5vh,5.5rem)] object-cover" />
+            </PhotoCorners>
+          ))}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function RsvpFace({ rsvp }: { rsvp: WishesResponse["summary"] | null }) {
+  const guests = rsvp?.guests ?? 0;
+  return (
+    <DoubleFrame tone="brand" className="h-full" innerClassName="flex flex-col items-center px-3 pb-1 pt-5 text-center">
+      <span className="font-serif text-[1.7rem] font-medium italic leading-[1.05] sm:text-3xl">RSVP &amp; Ucapan</span>
+      <span className="font-eyebrow mt-1 text-[10px] uppercase tracking-[0.3em] text-honey">Konfirmasi kehadiran</span>
+      {guests > 0 ? (
+        <>
+          <span className="mt-auto grid h-[104px] w-[104px] place-items-center rounded-full border border-honey/80 p-[5px] sm:h-[116px] sm:w-[116px]">
+            <span className="grid h-full w-full place-items-center rounded-full border border-honey/40 font-serif text-[3.4rem] font-medium leading-none">
+              {guests}
+            </span>
+          </span>
+          <span className="font-flourish mt-2 text-[1.7rem] leading-[1.1]">tamu akan hadir</span>
+          <Ornament onBrand className="mt-2" />
+          {rsvp && rsvp.hadir > 0 && (
+            <span className="font-eyebrow mt-2 text-[10px] uppercase tracking-[0.2em] text-on-brand-muted">
+              {rsvp.hadir} sudah konfirmasi
+            </span>
+          )}
+        </>
+      ) : (
+        <>
+          <Ornament onBrand className="my-4" />
+          <span className="font-serif px-2 text-lg italic leading-snug text-on-brand-muted">Kabari kami sebelum hari H</span>
+        </>
+      )}
+      <span className="mt-auto w-full border-t border-honey/35 pt-0">
+        <ArrowLink onBrand className="w-full justify-between">Isi RSVP</ArrowLink>
+      </span>
+    </DoubleFrame>
   );
 }
 
 function buildCards(data: InvitationData, live: Live): CardDef[] {
   const { settings, gallery, gifts } = data;
-  const face = calendarFace(settings.wedding_date);
   const gcal = calendarUrl(settings);
   const wedding = parseDate(settings.wedding_date);
-  const times = [settings.akad_time, settings.resepsi_time].filter(Boolean).map((t) => splitTime(t).start);
-  const accounts = gifts?.length
-    ? gifts.map((g) => g.provider || g.account_number)
-    : settings.bank_name
-      ? [settings.bank_name]
-      : [];
+  const accounts = gifts?.length ? gifts.length : settings.bank_name ? 1 : 0;
   const photos = gallery.length
     ? gallery.map((g) => mediaUrl(g.image_url))
     : PEEK_PHOTOS.map((n) => `/images/illustrations/${n}.jpeg`);
   return [
     {
       key: "date",
-      tone: "mauve",
       title: "The Date",
       subtitle: "Tandai harinya",
-      tilt: -2.2,
-      onBoard: true,
-      art: <CalendarPage day={face.day} month={face.month} className="h-20 w-auto" />,
-      chip:
-        live.daysLeft === null
-          ? undefined
-          : live.daysLeft > 0
-            ? `${live.daysLeft} hari lagi`
-            : live.daysLeft === 0
-              ? "Hari ini!"
-              : "Sudah resmi",
-      peek: wedding && (
-        <span className="flex flex-col items-center">
-          <span className="font-eyebrow text-[9px] uppercase opacity-60">
-            {new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(wedding)}
-          </span>
-          <span className="font-poster text-6xl leading-none" style={{ color: "#C2676A" }}>
-            {wedding.getDate()}
-          </span>
-          <span className="font-heading text-lg leading-tight">
-            {new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(wedding)}
-          </span>
-        </span>
-      ),
-      peekOnly: true,
+      face: <DateFace wedding={wedding} daysLeft={live.daysLeft} />,
       detail: <DatePanel settings={settings} />,
       actions: [
         ...(gcal ? [{ label: "Simpan ke Google Calendar", href: gcal }] : []),
@@ -182,272 +274,53 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
     },
     {
       key: "ceremony",
-      tone: "cream",
-      title: "Ceremony & Reception",
-      subtitle: "Key details",
-      tilt: 1.6,
-      onBoard: true,
-      art: <HeartBurst className="h-16 w-auto" />,
-      chip: times.length ? `${times.join(" · ")} WIB` : undefined,
-      peek: (
-        <span className="flex w-full flex-col gap-1.5">
-          {[
-            { k: "Akad", t: settings.akad_time, at: settings.akad_location },
-            { k: "Resepsi", t: settings.resepsi_time, at: settings.resepsi_location },
-          ]
-            .filter((e) => e.t || e.at)
-            .map((e) => (
-              <span key={e.k} className="flex items-center gap-2 rounded-[8px] bg-white/65 px-2 py-1 text-left">
-                <span className="font-poster w-[52px] flex-none text-base tabular-nums">{splitTime(e.t).start}</span>
-                <span className="min-w-0">
-                  <span className="font-eyebrow block text-[8px] uppercase opacity-60">{e.k}</span>
-                  <span className="font-heading block truncate text-sm leading-tight">{e.at}</span>
-                </span>
-              </span>
-            ))}
-        </span>
-      ),
+      title: "Akad & Resepsi",
+      subtitle: "Rangkaian acara",
+      span: "col-span-2",
+      face: <CeremonyFace settings={settings} />,
       detail: <CeremonyPanel settings={settings} />,
-      actions: [
-        { label: "Konfirmasi kehadiran", card: "rsvp" },
-      ],
+      actions: [{ label: "Konfirmasi kehadiran", card: "rsvp" }],
     },
     {
       key: "registry",
-      tone: "sky",
-      title: "Gift",
-      subtitle: "Tanda kasih",
-      tilt: -1.4,
-      onBoard: true,
-      art: <GiftBox className="h-16 w-auto" />,
-      chip: accounts.length ? `${accounts.length} rekening` : undefined,
-      peek: accounts.length > 0 && (
-        <span className="flex flex-wrap justify-center gap-1.5">
-          {accounts.slice(0, 4).map((a, i) => (
-            <span
-              key={i}
-              className="font-poster rounded-[6px] bg-white/75 px-2 py-0.5 text-sm shadow-[2px_2px_0_rgba(63,107,87,0.18)]"
-              style={{ rotate: `${i % 2 ? 2 : -2}deg` }}
-            >
-              {a}
-            </span>
-          ))}
-        </span>
-      ),
+      title: "Tanda Kasih",
+      subtitle: "Wedding gift",
+      face: <GiftFace count={accounts} />,
       detail: <GiftPanel settings={settings} gifts={gifts} />,
       actions: [{ label: "Kembali ke RSVP", card: "rsvp" }],
     },
     {
       key: "gallery",
-      tone: "teal",
       title: "Galeri Kita",
       subtitle: "Momen kami berdua",
-      tilt: 0.8,
-      onBoard: true,
-      wide: true,
-      art: <Camera className="h-16 w-auto" />,
-      chip: gallery.length ? `${gallery.length} foto` : "segera",
-      peek: <PhotoFan urls={photos} />,
-      mini: <PhotoFan urls={photos} mini />,
-      peekOnly: true,
+      span: "col-span-2 lg:col-span-3",
+      face: <GalleryFace photos={photos} total={gallery.length} />,
       detail: <GalleryPanel gallery={gallery} />,
       actions: [],
     },
     {
       key: "rsvp",
-      tone: "magenta",
       title: "RSVP & Ucapan",
       subtitle: "Konfirmasi kehadiran",
-      tilt: 1.8,
-      onBoard: true,
-      art: <Envelope className="h-16 w-auto" />,
-      chip: live.rsvp && live.rsvp.hadir > 0 ? `${live.rsvp.hadir} sudah konfirmasi` : "Kabari kami",
-      peek: live.rsvp && live.rsvp.guests > 0 && (
-        <span className="flex flex-col items-center px-3">
-          <span className="font-poster text-6xl leading-none">{live.rsvp.guests}</span>
-          <span className="font-script whitespace-nowrap pb-1 pt-0.5 text-xl leading-snug opacity-90">tamu akan hadir</span>
-        </span>
-      ),
-      peekOnly: true,
+      face: <RsvpFace rsvp={live.rsvp} />,
       detail: <RsvpPanel />,
       actions: [{ label: "Info hadiah", card: "registry" }],
     },
     {
       key: "couple",
-      tone: "mauve",
-      title: "The Couple",
-      subtitle: "Mempelai",
-      tilt: 0,
-      art: <Rings className="h-14 w-auto" />,
+      title: "Mempelai",
+      subtitle: "The couple",
       detail: <CouplePanel settings={settings} />,
       actions: [],
     },
     {
       key: "contact",
-      tone: "teal",
-      title: "Contact",
+      title: "Kontak",
       subtitle: "Sapa kami",
-      tilt: 0,
-      art: <Phone className="h-12 w-auto" />,
       detail: <ContactPanel settings={settings} />,
       actions: [{ label: "Konfirmasi kehadiran", card: "rsvp" }],
     },
   ];
-}
-
-/* --------------------------------------------------------------- stickers */
-function StickerCard({
-  card,
-  index,
-  onOpen,
-}: {
-  card: CardDef;
-  index: number;
-  onOpen: () => void;
-}) {
-  const tone = TONES[card.tone];
-  const dark = card.tone === "magenta";
-  return (
-    <motion.button
-      type="button"
-      onClick={onOpen}
-      initial={{ opacity: 0, y: 24, scale: 0.9, rotate: card.tilt * 3 }}
-      animate={{ opacity: 1, y: 0, scale: 1, rotate: card.tilt }}
-      transition={{
-        delay: 0.35 + index * 0.09,
-        type: "spring",
-        stiffness: 200,
-        damping: 16,
-      }}
-      whileHover={{ y: -6, rotate: 0, scale: 1.035 }}
-      whileTap={{ scale: 0.96, rotate: 0 }}
-      className={`group relative h-full min-h-0 overflow-hidden rounded-[14px] crayon-box wc ${card.wide ? "col-span-2" : ""} ${card.key === "registry" ? "max-sm:order-1" : ""} ${card.key === "gallery" ? "max-sm:order-2" : ""}`}
-      style={{
-        backgroundColor: tone.bg,
-        color: tone.ink,
-        boxShadow: `4px 5px 0 0 ${tone.edge}`,
-      }}
-    >
-      {/* phones and tablets: a compact tile. Icon badge and arrow on top, the words and the
-          live fact at the bottom, so the card is full at any height instead of half empty */}
-      <span className={`flex h-full w-full gap-3 p-3 text-left lg:hidden ${card.wide ? "flex-row items-stretch" : "flex-col"}`}>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="flex items-start justify-between gap-2">
-            <span
-              className={`grid h-12 w-12 flex-none place-items-center rounded-full shadow-[2px_3px_0_rgba(47,61,53,0.15)] [&>*]:!h-8 [&>*]:!w-auto ${
-                dark ? "bg-[#F6FAF2]" : "bg-white/85"
-              }`}
-              style={{ color: INK }}
-            >
-              {card.art}
-            </span>
-            {!card.wide && (
-              <span
-                className={`grid h-7 w-7 flex-none place-items-center rounded-full transition-transform group-active:translate-x-0.5 ${
-                  dark ? "bg-white/15" : "bg-white/60"
-                }`}
-              >
-                <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            )}
-          </span>
-          <span className="mt-auto pt-2">
-            <span className="font-heading block text-[17px] leading-[1.1]">{card.title}</span>
-            <span className="font-eyebrow mt-0.5 block text-[8px] uppercase opacity-70">{card.subtitle}</span>
-            {card.chip && (
-              <span
-                className="mt-1.5 inline-block max-w-full truncate rounded-full bg-white/80 px-2 py-0.5 font-code text-[10px] leading-tight"
-                style={{ color: INK }}
-              >
-                {card.chip}
-              </span>
-            )}
-          </span>
-        </span>
-        {card.wide && (
-          <span className="flex flex-none flex-col items-end justify-between">
-            <span className={`grid h-7 w-7 place-items-center rounded-full ${dark ? "bg-white/15" : "bg-white/60"}`}>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </span>
-            {card.mini}
-          </span>
-        )}
-      </span>
-
-      {/* desktop: the original sticker, with a live preview when there is room */}
-      <span className="hidden h-full w-full flex-col items-center gap-0.5 px-3 pb-2 pt-2.5 text-center lg:flex">
-        <span className="font-heading shrink-0 text-xl leading-tight">{card.title}</span>
-        <span className="font-eyebrow shrink-0 text-[9px] uppercase opacity-70">{card.subtitle}</span>
-
-        {/* middle: a live preview on roomy screens, the hand-drawn art otherwise */}
-        <span className={`flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 overflow-hidden py-1 ${card.wide ? "!flex-row gap-8" : ""}`}>
-          {card.peek && (
-            <span className="hidden w-full justify-center [@media(min-height:720px)]:flex">{card.peek}</span>
-          )}
-          {card.mini && (
-            <span className="flex justify-center [@media(min-height:720px)]:hidden">{card.mini}</span>
-          )}
-          <span
-            className={`hidden items-end justify-center [@media(min-height:740px)]:flex ${
-              card.peek ? (card.peekOnly ? "[@media(min-height:720px)]:!hidden" : "[@media(min-height:720px)]:[&>*]:h-12") : ""
-            }`}
-          >
-            {card.art}
-          </span>
-        </span>
-
-        <span className="flex w-full shrink-0 items-center justify-center gap-1 px-5">
-          {card.chip && (
-            <span
-              className="truncate rounded-full bg-white/75 px-2 py-0.5 font-code text-[11px] leading-tight"
-              style={{ color: INK }}
-            >
-              {card.chip}
-            </span>
-          )}
-        </span>
-        <span className="pointer-events-none absolute bottom-2 right-2 opacity-40 transition-all group-hover:translate-x-0.5 group-hover:opacity-90">
-          <ArrowRight className="h-4 w-4" />
-        </span>
-      </span>
-    </motion.button>
-  );
-}
-
-/** Wide banner button, like the two on the left of the reference art. */
-function BannerButton({
-  label,
-  sub,
-  tone,
-  delay,
-  onClick,
-}: {
-  label: string;
-  sub: string;
-  tone: ToneKey;
-  delay: number;
-  onClick: () => void;
-}) {
-  const t = TONES[tone];
-  return (
-    <motion.button
-      type="button"
-      onClick={onClick}
-      initial={{ opacity: 0, x: -24 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, type: "spring", stiffness: 180, damping: 18 }}
-      whileHover={{ x: 6 }}
-      whileTap={{ scale: 0.97 }}
-      className="flex w-full items-center justify-between gap-3 rounded-[12px] crayon-box wc px-4 py-2.5 text-left"
-      style={{ backgroundColor: t.bg, color: t.ink, boxShadow: `4px 4px 0 0 ${t.edge}` }}
-    >
-      <span>
-        <span className="font-poster block text-base leading-tight sm:text-lg">{label}</span>
-        <span className="block font-eyebrow text-[9px] uppercase opacity-70">{sub}</span>
-      </span>
-      <ArrowRight className="h-5 w-5 flex-none" />
-    </motion.button>
-  );
 }
 
 /* ------------------------------------------------------------- pop-up card */
@@ -460,8 +333,6 @@ function PopupWindow({
   onClose: () => void;
   onNavigate: (key: string) => void;
 }) {
-  const tone = TONES[card.tone];
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -475,79 +346,43 @@ function PopupWindow({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <motion.div
-        className="absolute inset-0 bg-[#3F6B57]/35 backdrop-blur-[3px]"
-        onClick={onClose}
-      />
+      <motion.div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={onClose} />
 
       <motion.div
         role="dialog"
         aria-modal="true"
         aria-label={card.title}
-        initial={{ opacity: 0, scale: 0.82, y: 40, rotate: card.tilt }}
-        animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 24 }}
-        transition={{ type: "spring", stiffness: 240, damping: 22 }}
-        className="wc relative flex max-h-[88dvh] w-full max-w-lg flex-col overflow-hidden rounded-[16px] crayon-box"
-        style={{ backgroundColor: PAPER, boxShadow: "10px 12px 0 0 rgba(63,107,87,0.35)" }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="relative flex max-h-[88dvh] w-full max-w-lg flex-col overflow-hidden rounded-[6px] border border-line bg-paper shadow-paint-lg"
       >
-        {/* browser chrome */}
-        <div
-          className="flex flex-none items-center gap-2 crayon-rule-b px-3 py-2"
-          style={{ backgroundColor: CHROME }}
-        >
-          <span className="flex gap-1.5">
-            {["#E9A9A1", "#E6CF8A", "#8CC3BA"].map((c) => (
-              <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#2F3D35]/40" style={{ backgroundColor: c }} />
-            ))}
-          </span>
-          <span className="ml-1 flex-1 truncate rounded-full border border-dashed border-[#2F3D35]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2F3D35]/70">
-            ours.co/{card.key}
-          </span>
+        <div className="relative flex-none border-b border-line px-5 pb-4 pt-5 text-center">
+          <Eyebrow className="justify-center">{card.subtitle}</Eyebrow>
+          <h3 className="mt-1 font-serif text-3xl font-semibold leading-[1.1]">{card.title}</h3>
+          <Ornament className="mt-3" />
           <button
             onClick={onClose}
             aria-label="Tutup"
-            className="rounded-full p-1 text-[#2F3D35] transition-transform hover:rotate-90"
+            className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-chrome"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" strokeWidth={1.6} />
           </button>
         </div>
 
-        {/* header strip in the card's own colour */}
-        <div
-          className="flex flex-none items-center justify-between gap-4 px-5 py-3"
-          style={{ backgroundColor: tone.bg, color: tone.ink }}
-        >
-          <div>
-            <h3 className="font-heading text-2xl leading-none sm:text-3xl">{card.title}</h3>
-            <p className="font-eyebrow mt-1 text-[9px] uppercase opacity-70">{card.subtitle}</p>
-          </div>
-          <motion.span
-            initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            transition={{ delay: 0.12, type: "spring", stiffness: 200, damping: 14 }}
-            className="flex-none"
-          >
-            {card.art}
-          </motion.span>
-        </div>
-
-        {/* body — the only place scrolling is allowed */}
+        {/* body: the only place scrolling is allowed */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.35 }}
-          className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-[#2F3D35]"
+          transition={{ delay: 0.12, duration: 0.35 }}
+          className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-ink"
         >
           {card.detail}
         </motion.div>
 
-        {/* actions */}
         {card.actions.length > 0 && (
-          <div
-            className="flex flex-none flex-wrap gap-2 crayon-rule-t px-4 py-3"
-            style={{ backgroundColor: CHROME }}
-          >
+          <div className="flex flex-none flex-wrap gap-2 border-t border-line bg-chrome px-4 py-3">
             {card.actions.map((action) =>
               action.href ? (
                 <a
@@ -555,17 +390,17 @@ function PopupWindow({
                   href={action.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/70 px-4 py-2 font-code text-xs text-[#2F3D35] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-paper px-5 font-code text-[13px] text-ink transition-colors hover:border-gold"
                 >
-                  {action.label} <ExternalLink className="h-3.5 w-3.5" />
+                  {action.label} <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.6} />
                 </a>
               ) : (
                 <button
                   key={action.label}
                   onClick={() => action.card && onNavigate(action.card)}
-                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-[#3F6B57] px-4 py-2 font-code text-xs text-[#F6FAF2] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-brand px-5 font-code text-[13px] text-on-brand transition-colors hover:bg-brand-hover"
                 >
-                  {action.label} <ArrowRight className="h-3.5 w-3.5" />
+                  {action.label}
                 </button>
               )
             )}
@@ -577,10 +412,16 @@ function PopupWindow({
 }
 
 /* ------------------------------------------------------------------- hero */
+const rise = (delay: number) => ({
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+});
+
 export default function Hero({ data }: { data: InvitationData }) {
   const { settings } = data;
   const left = useCountdown(settings.wedding_date);
-  // -1 once the moment has passed, so the sticker can say "Sudah resmi"
+  // -1 once the moment has passed, so the card can say "Sudah resmi"
   const daysLeft = left ? (left.done ? -1 : left.d) : null;
   const [rsvp, setRsvp] = useState<WishesResponse["summary"] | null>(null);
   useEffect(() => {
@@ -589,7 +430,7 @@ export default function Hero({ data }: { data: InvitationData }) {
       .catch(() => undefined);
   }, []);
   const cards = useMemo(() => buildCards(data, { daysLeft, rsvp }), [data, daysLeft, rsvp]);
-  const board = cards.filter((c) => c.onBoard);
+  const board = cards.filter((c) => c.face);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const wedding = parseDate(settings.wedding_date);
   const venue = settings.resepsi_location || settings.akad_location;
@@ -603,352 +444,200 @@ export default function Hero({ data }: { data: InvitationData }) {
     setTimeout(() => setOpenKey(key), 180);
   };
 
-  const title = "The wedding of";
   const groom = settings.groom_name || "Groom";
   const bride = settings.bride_name || "Bride";
   const gcal = calendarUrl(settings);
-  const weekday = wedding ? new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(wedding) : "";
+  const longDate = wedding
+    ? new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })
+        .format(wedding)
+        .toUpperCase()
+    : "";
+  const weekday = wedding ? weekdayName(wedding) : "";
   const monthShort = wedding ? new Intl.DateTimeFormat("id-ID", { month: "short" }).format(wedding) : "";
 
+  const parties = [
+    { name: groom, full: settings.groom_full_name, parents: settings.groom_parents, img: settings.groom_photo, label: "Mempelai pria" },
+    { name: bride, full: settings.bride_full_name, parents: settings.bride_parents, img: settings.bride_photo, label: "Mempelai wanita" },
+  ];
+
   return (
-    <section
-      className="relative isolate flex min-h-[100dvh] w-full items-center justify-center overflow-hidden px-3 py-3 sm:px-6 sm:py-5 lg:h-[100dvh]"
-      style={{
-        backgroundColor: "#F2F6EF",
-      }}
-    >
-      <WashBackdrop />
-      <FlowerFrame />
+    <section className="relative isolate flex min-h-[100dvh] w-full flex-col overflow-hidden bg-page lg:h-[100dvh]">
+      <BotanicalFrame />
 
-      {/* the whole invitation lives inside this one browser window; the couple peeks around its edges */}
-      <div className="relative z-10 flex w-full max-w-6xl flex-col lg:max-h-full">
-        <motion.div
-          initial={{ opacity: 0, y: 34, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="wc relative z-10 flex min-h-0 w-full flex-col overflow-hidden rounded-[18px] crayon-box bg-[#FCFDF9]/90 backdrop-blur-[2px]"
-          style={{ boxShadow: "10px 12px 0 0 rgba(63,107,87,0.28)" }}
-        >
-          {/* the window's top bar. On phones the music button (fixed, top-left) sits in its
-              left end, so the dots step aside there */}
-          <div
-            className="flex flex-none items-center gap-2 crayon-rule-b py-2 pl-14 pr-3 sm:px-3"
-            style={{ backgroundColor: CHROME }}
-          >
-            <span className="hidden gap-1.5 sm:flex">
-              {["#E9A9A1", "#E6CF8A", "#8CC3BA"].map((c) => (
-                <span key={c} className="h-2.5 w-2.5 rounded-full border border-[#2F3D35]/40" style={{ backgroundColor: c }} />
-              ))}
-            </span>
-            <span className="ml-1 min-w-0 flex-1 truncate rounded-full border border-dashed border-[#2F3D35]/35 bg-white/70 px-3 py-0.5 font-code text-[10px] text-[#2F3D35]/70">
-              ours.co — your wedding portal
-            </span>
-          </div>
+      <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-5 pb-6 pt-8 sm:px-8 lg:px-14 lg:pb-3 lg:pt-8">
+        <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-10">
+          {/* ---- left: the invitation itself ---- */}
+          <div className="flex min-h-0 flex-col gap-3 [@media(min-height:860px)]:gap-[18px]">
+            <motion.div {...rise(0.1)}>
+              <Eyebrow rule className="tracking-[0.35em]">The wedding of</Eyebrow>
+            </motion.div>
 
-          <div className="grid min-h-0 flex-1 gap-4 px-4 py-4 sm:px-8 sm:py-6 lg:grid-cols-12 lg:gap-8">
-            {/* ---- poster column: an invitation card, not a headline ---- */}
-            <div className="flex min-h-0 flex-col lg:col-span-5">
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.5 }}
-                className="flex items-center gap-2 font-eyebrow text-[10px] uppercase text-[#3F6B57] sm:text-xs"
-              >
-                <Flower kind="sprig" className="h-5 w-auto -rotate-[30deg] sm:h-6" />
-                {title}
-                <span aria-hidden className="h-px flex-1 border-t-2 border-dashed border-[#3F6B57]/30" />
-              </motion.p>
+            <motion.button
+              onClick={() => setOpenKey("couple")}
+              {...rise(0.2)}
+              aria-label={`${groom} & ${bride}, tentang mempelai`}
+              className="flex w-fit items-baseline gap-3 text-left font-serif font-medium leading-none tracking-[-0.02em] text-ink text-[clamp(3.5rem,min(7vw,10.5vh),6.5rem)]"
+            >
+              <span>{groom}</span>
+              <span className="font-flourish text-[0.85em] font-normal tracking-normal text-gold">&amp;</span>
+              <span>{bride}</span>
+            </motion.button>
 
-              {/* the couple's names are the headline, and the door to their own pop-up */}
-              <motion.button
-                onClick={() => setOpenKey("couple")}
-                whileHover={{ x: 4 }}
-                aria-label="Tentang mempelai"
-                className="mt-1 flex w-fit flex-wrap items-baseline gap-x-3 text-left font-poster text-[2.6rem] leading-[1.05] text-[#2F3D35] sm:text-5xl lg:text-[clamp(2.75rem,4.2vw,3.9rem)]"
-              >
-                {[groom, "&", bride].map((part, i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25 + i * 0.12, type: "spring", stiffness: 240, damping: 18 }}
-                    className={i === 1 ? "font-script text-[1.1em] font-normal" : undefined}
-                    style={i === 1 ? { color: RED } : undefined}
-                  >
-                    {part}
-                  </motion.span>
-                ))}
-                <motion.span
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7, type: "spring", stiffness: 220, damping: 14 }}
-                  className="self-center"
-                >
-                  <Rings className="h-7 w-auto sm:h-8 lg:h-10" delay={0.7} />
-                </motion.span>
-              </motion.button>
+            <motion.p {...rise(0.3)} className="font-script -mt-1 text-xl leading-snug text-muted lg:text-2xl">
+              Dengan penuh cinta, kami mengundang Anda untuk hadir di hari bahagia kami.
+            </motion.p>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.75, duration: 0.6 }}
-                className="mt-2 flex items-center gap-3 font-script text-lg leading-snug text-[#2F3D35]/70 sm:text-xl lg:text-2xl"
-              >
-                <span>dengan penuh cinta, kami mengundangmu</span>
-                <Heart color={BLUSH} className="h-4 w-auto flex-none" />
-              </motion.p>
-
-              {/* the couple card: both of them, their parents, and a clear "open" cue; the whole card is the button */}
-              <motion.button
-                type="button"
-                onClick={() => setOpenKey("couple")}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.85, duration: 0.5 }}
-                whileHover={{ y: -3 }}
-                whileTap={{ y: 2, scale: 0.985 }}
-                aria-label="Kenalan dengan mempelai"
-                className="group relative mt-4 block w-full max-w-xl shrink-0 overflow-hidden rounded-[20px] bg-white text-left shadow-[5px_6px_0_rgba(63,107,87,0.2)] ring-1 ring-[#3F6B57]/15"
-              >
-                {/* the two of them facing each other, an "&" seal on the seam between */}
-                <span className="relative grid grid-cols-2">
-                  {[
-                    { name: groom, full: settings.groom_full_name, parents: settings.groom_parents, img: settings.groom_photo, bg: "#E4EEDF" },
-                    { name: bride, full: settings.bride_full_name, parents: settings.bride_parents, img: settings.bride_photo, bg: "#F6E4E0" },
-                  ].map((p, i) => (
-                    <span
-                      key={i}
-                      className={`flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:py-3.5 ${
-                        i ? "flex-row-reverse pl-6 text-right sm:pl-7" : "pr-6 sm:pr-7"
-                      }`}
-                      style={{ backgroundColor: p.bg }}
-                    >
-                      <span className="grid h-10 w-10 flex-none place-items-center overflow-hidden rounded-full bg-white p-0.5 shadow-[0_2px_6px_rgba(47,61,53,0.18)] sm:h-14 sm:w-14">
-                        <span className="grid h-full w-full place-items-center overflow-hidden rounded-full">
-                          {p.img ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={mediaUrl(p.img)} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <Heart color="#E9A9A1" animate={false} className="h-5 w-auto" />
-                          )}
-                        </span>
-                      </span>
-                      <span className="flex min-w-0 flex-col">
-                        <span className="font-eyebrow hidden text-[8px] uppercase tracking-[0.15em] text-[#3F6B57]/70 sm:block">
-                          {i ? "Mempelai wanita" : "Mempelai pria"}
-                        </span>
-                        <span className="font-heading line-clamp-2 text-[15px] leading-[1.15] text-[#2F3D35] sm:text-lg sm:leading-[1.15]">
-                          {p.full || p.name}
-                        </span>
-                        {p.parents && (
-                          <span className="mt-0.5 line-clamp-2 font-body text-[10px] leading-snug text-[#2F3D35]/65 sm:text-[11px]">
-                            {p.parents}
+            <motion.button
+              type="button"
+              onClick={() => setOpenKey("couple")}
+              {...rise(0.4)}
+              whileHover={{ y: -2 }}
+              aria-label="Kenalan dengan mempelai"
+              className="block w-full text-left"
+            >
+              <DoubleFrame innerClassName="grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center px-2 py-3 text-center sm:grid-cols-[minmax(0,1fr)_44px_minmax(0,1fr)] sm:px-3 sm:py-3.5">
+                {[parties[0], null, parties[1]].map((p, i) =>
+                  p === null ? (
+                    <span key={i} aria-hidden className="flex flex-col items-center gap-1.5 self-stretch">
+                      <span className="w-px flex-1 bg-line" />
+                      <span className="font-flourish text-4xl leading-none text-gold">&amp;</span>
+                      <span className="w-px flex-1 bg-line" />
+                    </span>
+                  ) : (
+                    <span key={i} className="flex min-w-0 flex-col items-center gap-0.5">
+                      <span className="mb-1.5 h-[60px] w-[60px] overflow-hidden rounded-full border border-gold p-[3px]">
+                        {p.img ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={mediaUrl(p.img)} alt="" className="h-full w-full rounded-full object-cover" />
+                        ) : (
+                          <span className="grid h-full w-full place-items-center rounded-full bg-chrome font-serif text-lg text-brand">
+                            {(p.name || "?").charAt(0)}
                           </span>
                         )}
                       </span>
+                      <span className="font-eyebrow text-[10px] uppercase tracking-[0.25em] text-gold-ink">{p.label}</span>
+                      <span className="line-clamp-2 font-serif text-lg font-semibold leading-[1.1] sm:text-[22px]">{p.full || p.name}</span>
+                      {p.parents && <span className="line-clamp-2 text-xs leading-snug text-muted">{p.parents}</span>}
                     </span>
-                  ))}
-                  <span
-                    aria-hidden
-                    className="absolute left-1/2 top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white font-script text-2xl leading-none shadow-[0_2px_6px_rgba(47,61,53,0.2)] transition-transform group-hover:scale-110"
-                    style={{ color: RED }}
-                  >
-                    &amp;
-                  </span>
-                </span>
-                {/* footer: what tapping does */}
-                <span className="flex items-center justify-between gap-3 bg-[#3F6B57] px-4 py-1.5 text-[#F6FAF2]">
-                  <span className="font-eyebrow text-[9px] uppercase tracking-[0.15em] sm:text-[10px]">Kenalan dengan mempelai</span>
-                  <span className="inline-flex items-center gap-1.5 font-code text-[11px] transition-transform group-hover:translate-x-0.5">
-                    lihat
-                    <span className="relative grid h-5 w-5 place-items-center rounded-full bg-[#F6FAF2] text-[#3F6B57]">
-                      <span className="absolute inset-0 animate-ping rounded-full bg-[#F6FAF2]/50" />
-                      <ArrowRight className="relative h-3 w-3" strokeWidth={2.8} />
-                    </span>
-                  </span>
-                </span>
-              </motion.button>
-
-              {/* save-the-date ticket: date on the stub, live countdown and venue on the body */}
-              <motion.button
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.85, duration: 0.6 }}
-                onClick={() => setOpenKey("date")}
-                whileHover={{ y: -3, rotate: -0.4 }}
-                whileTap={{ scale: 0.98 }}
-                aria-label="Hitung mundur, buka detail tanggal"
-                className="mt-3 flex w-full items-stretch rounded-[14px] crayon-box wc text-left sm:mt-4"
-                style={{ backgroundColor: PAPER, boxShadow: "5px 6px 0 0 rgba(63,107,87,0.22)" }}
-              >
-                <span
-                  className="flex w-[84px] flex-none flex-col items-center justify-center rounded-l-[12px] px-2 py-2 sm:w-[96px]"
-                  style={{ backgroundColor: TONES.magenta.bg, color: TONES.magenta.ink }}
-                >
-                  {wedding ? (
-                    <>
-                      <span className="font-eyebrow text-[9px] uppercase opacity-80">{weekday}</span>
-                      <span className="font-poster text-[38px] leading-none sm:text-[44px]">
-                        {String(wedding.getDate()).padStart(2, "0")}
-                      </span>
-                      <span className="font-eyebrow text-[9px] uppercase opacity-80">
-                        {monthShort} {wedding.getFullYear()}
-                      </span>
-                    </>
-                  ) : (
-                    <CalendarHeart className="h-8 w-8" />
-                  )}
-                </span>
-                {/* perforation */}
-                <span aria-hidden className="my-2 border-l-2 border-dashed border-[#2F3D35]/25" />
-                <span className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3 py-2 sm:px-4">
-                  <span className="font-eyebrow text-[9px] uppercase text-[#3F6B57]">menuju hari bahagia</span>
-                  <CountdownStrip target={settings.wedding_date} />
-                  {venue && (
-                    <span className="flex min-w-0 items-center gap-1 font-code text-xs text-[#2F3D35]/70">
-                      <MapPinned className="h-3.5 w-3.5 flex-none" />
-                      <span className="truncate">{venue}</span>
-                    </span>
-                  )}
-                </span>
-              </motion.button>
-
-              <div className="mt-4 hidden lg:block">
-                <BannerButton
-                  label="KONFIRMASI KEHADIRAN"
-                  sub="Kabari kami sebelum hari H"
-                  tone="magenta"
-                  delay={0.9}
-                  onClick={() => setOpenKey("rsvp")}
-                />
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.05, duration: 0.5 }}
-                  className="mt-2.5 flex flex-wrap items-center gap-2"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpenKey("ceremony")}
-                    className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/70 px-3.5 py-1.5 font-code text-xs text-[#3F6B57] transition-colors hover:bg-[#E4EEDF]"
-                  >
-                    <MapPinned className="h-3.5 w-3.5" /> Lihat lokasi
-                  </button>
-                  {gcal && (
-                    <a
-                      href={gcal}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full crayon-pill bg-white/70 px-3.5 py-1.5 font-code text-xs text-[#3F6B57] transition-colors hover:bg-[#E4EEDF]"
-                    >
-                      <CalendarHeart className="h-3.5 w-3.5" /> Simpan tanggal
-                    </a>
-                  )}
-                </motion.div>
-              </div>
-
-              {/* a taped-in polaroid of the two of them, with a handwritten note beside it */}
-              <motion.div
-                initial={{ opacity: 0, y: 16, rotate: -8 }}
-                animate={{ opacity: 1, y: 0, rotate: -3 }}
-                transition={{ delay: 1.2, type: "spring", stiffness: 140, damping: 16 }}
-                className="mt-auto hidden min-h-0 items-end gap-3 pt-3 lg:[@media(min-height:900px)]:flex"
-              >
-                <span
-                  className="relative block flex-none rounded-[4px] bg-white p-1.5 pb-5"
-                  style={{ boxShadow: "3px 5px 0 0 rgba(63,107,87,0.18), 0 0 0 1px rgba(47,61,53,0.08)" }}
-                >
-                  <span
-                    aria-hidden
-                    className="absolute -top-2.5 left-1/2 h-5 w-14 -translate-x-1/2 rotate-[4deg] opacity-80"
-                    style={{ backgroundColor: "#D9E6CC" }}
-                  />
-                  <Illustration name="cafe" className="h-auto max-h-36 w-auto" />
-                </span>
-                <span className="mb-4 flex rotate-3 items-center gap-1 font-script text-xl leading-tight text-[#2F3D35]/70">
-                  sampai jumpa
-                  <br />
-                  di hari H kami
-                  <Heart color={BLUSH} className="h-5 w-auto" />
-                </span>
-              </motion.div>
-            </div>
-
-            {/* ---- sticker board ---- */}
-            <div className="grid min-h-0 auto-rows-[9.5rem] grid-cols-2 gap-2.5 sm:grid-cols-3 lg:col-span-7 lg:auto-rows-auto lg:gap-4">
-              {board.map((card, i) => (
-                <StickerCard
-                  key={card.key}
-                  card={card}
-                  index={i}
-                  onOpen={() => setOpenKey(card.key)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* ---- bottom dock: place / time / contact as tappable chips, rings as the monogram ---- */}
-          <div
-            className="flex flex-none items-center justify-between gap-3 crayon-rule-t px-3 py-2.5 text-[#2F3D35] sm:px-6 sm:py-3"
-            style={{ backgroundColor: "#E4EEDF" }}
-          >
-            <motion.button
-              onClick={() => setOpenKey("couple")}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4 }}
-              whileHover={{ y: -2 }}
-              aria-label="Tentang mempelai"
-              className="hidden flex-none items-center gap-2 sm:flex"
-            >
-              <Rings className="h-8 w-auto" delay={1.4} />
-              <span className="font-script text-xl leading-none text-[#2F3D35]/75">
-                {bride} &amp; {groom}
-              </span>
+                  ),
+                )}
+              </DoubleFrame>
             </motion.button>
-            <div className="flex min-w-0 flex-1 items-stretch justify-center gap-2 sm:flex-none sm:gap-3">
-              {[
-                { key: "place", label: "Lokasi", sub: venue || "Lihat peta", icon: <MapPin className="h-6 w-auto" />, target: "ceremony" },
-                { key: "time", label: "Waktu", sub: wedding ? `${weekday}, ${wedding.getDate()} ${monthShort}` : "Tanggal", icon: <ClockFace className="h-6 w-auto" />, target: "date" },
-                { key: "contact", label: "Kontak", sub: "Sapa kami", icon: <Phone className="h-6 w-auto" />, target: "contact" },
-              ].map((item, i) => (
-                <motion.button
-                  key={item.key}
-                  onClick={() => setOpenKey(item.target)}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 + i * 0.1, duration: 0.5 }}
-                  whileHover={{ y: -3, rotate: i % 2 ? 0.8 : -0.8 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="crayon-box flex min-w-0 flex-1 items-center gap-2 rounded-[12px] bg-white/70 px-2.5 py-1.5 text-left shadow-[3px_3px_0_rgba(63,107,87,0.2)] sm:flex-none sm:gap-2.5 sm:px-3.5"
-                >
-                  <span className="flex-none">{item.icon}</span>
-                  <span className="min-w-0">
-                    <span className="font-heading block text-sm leading-tight sm:text-base">{item.label}</span>
-                    <span className="font-eyebrow block max-w-[110px] truncate text-[8px] uppercase opacity-60 sm:text-[9px]">{item.sub}</span>
+
+            <motion.button
+              type="button"
+              onClick={() => setOpenKey("date")}
+              {...rise(0.5)}
+              whileHover={{ y: -2 }}
+              aria-label="Hitung mundur, buka detail tanggal"
+              className="block w-full text-left"
+            >
+              <DoubleFrame tone="brand" innerClassName="flex flex-col items-center gap-2.5 px-4 py-3.5 sm:px-6">
+                <span className="flex w-full items-center justify-center gap-3">
+                  <span aria-hidden className="h-px w-8 bg-honey" />
+                  <span className="font-eyebrow text-[11px] uppercase tracking-[0.3em] text-honey">Menuju hari bahagia</span>
+                  <span aria-hidden className="h-px w-8 bg-honey" />
+                </span>
+                <CountdownClassic target={settings.wedding_date} />
+                <span className="font-code text-center text-xs font-medium uppercase tracking-[0.15em] text-on-brand-muted">
+                  {longDate}
+                  {venue ? ` ◆ ${venue}` : ""}
+                </span>
+              </DoubleFrame>
+            </motion.button>
+
+            <motion.div {...rise(0.6)} className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => setOpenKey("rsvp")}
+                className="block w-full rounded-[6px] border border-line bg-paper p-1.5 text-left transition-transform hover:-translate-y-0.5"
+              >
+                <span className="relative flex flex-col items-center gap-1 rounded-[3px] border border-gold-soft bg-brand px-12 py-3 text-center text-on-brand">
+                  <span className="flex items-center gap-3.5">
+                    <span aria-hidden className="hidden h-px w-7 bg-honey sm:block" />
+                    <span className="font-serif text-2xl font-medium italic leading-[1.05] sm:text-[27px]">Konfirmasi Kehadiran</span>
+                    <span aria-hidden className="hidden h-px w-7 bg-honey sm:block" />
                   </span>
-                </motion.button>
-              ))}
-            </div>
-            <span className="hidden w-[150px] flex-none lg:block" aria-hidden />
+                  <span className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-honey">Kabari kami sebelum hari H</span>
+                  <svg aria-hidden width="26" height="12" viewBox="0 0 28 14" fill="none" strokeWidth="1.3" strokeLinecap="round" className="absolute right-5 top-1/2 -mt-1.5 stroke-honey">
+                    <path d="M1 7h25M20 1l6 6-6 6" />
+                  </svg>
+                </span>
+              </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenKey("ceremony")}
+                  className="flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-full border border-line bg-paper font-code text-sm transition-colors hover:border-gold"
+                >
+                  <MapPinned className="h-4 w-4 text-brand" strokeWidth={1.5} /> Lihat Lokasi
+                </button>
+                {gcal && (
+                  <a
+                    href={gcal}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-full border border-line bg-paper font-code text-sm transition-colors hover:border-gold"
+                  >
+                    <CalendarHeart className="h-4 w-4 text-brand" strokeWidth={1.5} /> Simpan Tanggal
+                  </a>
+                )}
+              </div>
+            </motion.div>
           </div>
-          <PeekingCoupleCorners />
-        </motion.div>
-        <PeekingCouple />
+
+          {/* ---- right: the board ---- */}
+          <div className="grid min-h-0 auto-rows-[minmax(15rem,auto)] grid-cols-2 gap-3 lg:grid-cols-4 lg:grid-rows-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-4">
+            {board.map((card, i) => (
+              <motion.button
+                key={card.key}
+                type="button"
+                onClick={() => setOpenKey(card.key)}
+                aria-label={card.title}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -2 }}
+                className={`block h-full min-h-0 text-left ${card.span ?? ""}`}
+              >
+                {card.face}
+              </motion.button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* portalled so pop-ups escape the hero's stacking context and sit above the petals */}
+      {/* ---- footer: monogram, place / time / contact ---- */}
+      <footer className="relative z-10 flex flex-none flex-wrap items-center gap-x-7 gap-y-2 border-t border-line bg-chrome px-5 py-3 sm:px-8 lg:h-[76px] lg:flex-nowrap lg:px-14 lg:py-0">
+        <button onClick={() => setOpenKey("couple")} aria-label="Tentang mempelai" className="flex flex-none items-center gap-3">
+          <Monogram a={groom.charAt(0)} b={bride.charAt(0)} size={44} />
+          <span className="font-flourish text-[1.75rem] leading-none text-brand">
+            {groom} &amp; {bride}
+          </span>
+        </button>
+        <div className="flex min-w-0 flex-1 items-stretch justify-end gap-5 pr-16 sm:gap-9 lg:pr-20">
+          {[
+            { key: "place", label: "Lokasi", value: venue || "Lihat peta", target: "ceremony" },
+            { key: "time", label: "Waktu", value: wedding ? `${weekday}, ${wedding.getDate()} ${monthShort} ${wedding.getFullYear()}` : "Tanggal", target: "date" },
+            { key: "contact", label: "Kontak", value: "Sapa kami", target: "contact" },
+          ].map((item, i) => (
+            <button
+              key={item.key}
+              onClick={() => setOpenKey(item.target)}
+              className={`flex min-w-0 flex-col gap-0.5 text-left ${i ? "border-l border-line pl-5 sm:pl-9" : ""} ${i === 0 ? "max-sm:hidden" : ""}`}
+            >
+              <span className="font-eyebrow text-[11px] uppercase tracking-[0.25em] text-gold-ink">{item.label}</span>
+              <span className="truncate font-serif text-base font-semibold sm:text-lg">{item.value}</span>
+            </button>
+          ))}
+        </div>
+      </footer>
+
+      {/* portalled so pop-ups escape the hero's stacking context */}
       {portalRoot &&
         createPortal(
           <AnimatePresence>
-            {openCard && (
-              <PopupWindow
-                key={openCard.key}
-                card={openCard}
-                onClose={close}
-                onNavigate={navigate}
-              />
-            )}
+            {openCard && <PopupWindow key={openCard.key} card={openCard} onClose={close} onNavigate={navigate} />}
           </AnimatePresence>,
           portalRoot
         )}

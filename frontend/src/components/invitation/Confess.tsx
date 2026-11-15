@@ -3,11 +3,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { BusFront } from "lucide-react";
-import { BLUSH, NAVY, RED } from "./watercolor";
+import { colors } from "./theme";
 import { Heart } from "./WatercolorArt";
 import { Bubble, Frame, HeartRise, Hint, Stage, TimeTag, useAfter, useHold } from "./chapterKit";
 import { playBeat, playBurst, unlockAudio } from "./heartbeat";
 import { duckMusic } from "./musicDuck";
+import { IMG } from "./assets";
 
 /*
  * "Sebuah Pengakuan": the ride home on TransJakarta 9D. Hold to help the
@@ -18,10 +19,10 @@ import { duckMusic } from "./musicDuck";
  */
 
 const FRAMES = [
-  "/images/illustrations/tj-1.jpg", // sitting side by side
-  "/images/illustrations/tj-2.jpg", // he blurts it out
-  "/images/illustrations/tj-3.jpg", // and runs for the door
-  "/images/illustrations/tj-4.jpg", // her hands, the chocolate, the city at night
+  IMG.tj1, // sitting side by side
+  IMG.tj2, // he blurts it out
+  IMG.tj3, // and runs for the door
+  IMG.tj4, // her hands, the chocolate, the city at night
 ];
 
 /** 0 working up the nerve · 1 confessing · 2 his stop · 3 he's gone */
@@ -114,7 +115,7 @@ export function ConfessArt({ game }: { game: ConfessGame }) {
         <>
           <motion.span
             key={`glow-${game.beat}`}
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,transparent_45%,rgba(194,103,106,0.55)_100%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,transparent_45%,color-mix(in_srgb,var(--color-heart)_55%,transparent)_100%)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: game.beat ? [0, 0.25 + p * 0.75, 0] : 0 }}
             transition={{ duration: 0.45 }}
@@ -127,7 +128,7 @@ export function ConfessArt({ game }: { game: ConfessGame }) {
               animate={game.beat ? { scale: [1, 1.35, 1.05, 1.22, 1] } : { scale: [1, 1.08, 1] }}
               transition={game.beat ? { duration: 0.42 } : { duration: 1.4, repeat: Infinity }}
             >
-              <Heart color={BLUSH} animate={false} className="h-7 w-auto text-[#2F3D35] sm:h-9" />
+              <Heart color={colors.blush} animate={false} className="h-7 w-auto text-ink sm:h-9" />
             </motion.span>
           </span>
         </>
@@ -139,10 +140,10 @@ export function ConfessArt({ game }: { game: ConfessGame }) {
       {/* the confession, scribbled over the frame */}
       {step === 1 && game.given && (
         <motion.span
-          className="font-script pointer-events-none absolute bottom-[6%] left-1/2 z-10 whitespace-nowrap rounded-xl bg-[#FCFDF9]/90 px-3 py-0.5 text-lg text-[#2F3D35] sm:text-2xl"
+          className="font-script pointer-events-none absolute bottom-[6%] left-1/2 z-10 whitespace-nowrap rounded-xl bg-paper/90 px-3 py-0.5 text-lg text-ink sm:text-2xl"
           style={{ x: "-50%" }}
-          initial={{ opacity: 0, scale: 0.5, rotate: -6 }}
-          animate={{ opacity: 1, scale: 1, rotate: -3 }}
+          initial={{ opacity: 0, scale: 0.5}}
+          animate={{ opacity: 1, scale: 1}}
           transition={{ type: "spring", stiffness: 260, damping: 14 }}
         >
           aku suka kamu! ♡
@@ -154,7 +155,7 @@ export function ConfessArt({ game }: { game: ConfessGame }) {
         [38, 52, 66].map((y, i) => (
           <motion.span
             key={y}
-            className="pointer-events-none absolute h-0.5 w-[18%] rounded-full bg-[#FCFDF9]/90"
+            className="pointer-events-none absolute h-0.5 w-[18%] rounded-full bg-paper/90"
             style={{ top: `${y}%`, left: "44%" }}
             animate={{ x: ["0%", "-120%"], opacity: [0, 1, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, repeatDelay: 0.4 }}
@@ -181,7 +182,7 @@ function HeartBurstFx() {
   return (
     <div className="pointer-events-none absolute inset-0 z-10">
       <motion.div
-        className="absolute inset-0 bg-[#FFF6F1]"
+        className="absolute inset-0 bg-blush-wash"
         initial={{ opacity: 0.85 }}
         animate={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -192,17 +193,17 @@ function HeartBurstFx() {
         animate={{ scale: [1.6, 3.2], opacity: [1, 0] }}
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
-        <Heart color={BLUSH} animate={false} className="h-9 w-auto text-[#2F3D35]" />
+        <Heart color={colors.blush} animate={false} className="h-9 w-auto text-ink" />
       </motion.span>
       {bits.map((b, i) => (
         <motion.span
           key={i}
           className="absolute right-[11%] top-[32%]"
-          initial={{ x: 0, y: 0, scale: 0.4, opacity: 1, rotate: 0 }}
-          animate={{ x: -b.x * 4.6, y: b.y * 4.6, scale: [0.4, 1, 0.8], opacity: [1, 1, 0], rotate: b.rot }}
+          initial={{ x: 0, y: 0, scale: 0.4, opacity: 1}}
+          animate={{ x: -b.x * 4.6, y: b.y * 4.6, scale: [0.4, 1, 0.8], opacity: [1, 1, 0]}}
           transition={{ duration: 1.3, ease: "easeOut" }}
         >
-          <Heart color={i % 3 ? BLUSH : RED} animate={false} className="h-4 w-auto text-[#2F3D35] sm:h-5" />
+          <Heart color={i % 3 ? colors.blush : colors.heart} animate={false} className="h-4 w-auto text-ink sm:h-5" />
         </motion.span>
       ))}
     </div>
@@ -240,14 +241,14 @@ export function ConfessInset({ game }: { game: ConfessGame }) {
             transition={{ duration: 0.4 }}
             className="block"
           >
-            <Heart color={RED} animate={false} className="h-5 w-auto text-[#2F3D35] sm:h-6" />
+            <Heart color={colors.heart} animate={false} className="h-5 w-auto text-ink sm:h-6" />
           </motion.span>
-          <span className="font-poster text-sm text-[#2F3D35] sm:text-base">Kumpulkan keberanian</span>
+          <span className="font-poster text-sm text-ink sm:text-base">Kumpulkan keberanian</span>
         </span>
-        <span className="block h-3 w-full overflow-hidden rounded-full border-2 border-[#2F3D35]/60 bg-[#FCFDF9]">
+        <span className="block h-3 w-full overflow-hidden rounded-full border-2 border-ink/60 bg-paper">
           <span
             className="block h-full rounded-full"
-            style={{ width: `${courage.progress * 100}%`, backgroundColor: RED }}
+            style={{ width: `${courage.progress * 100}%`, backgroundColor: colors.heart }}
           />
         </span>
         <Hint>
@@ -273,8 +274,8 @@ export function ConfessInset({ game }: { game: ConfessGame }) {
               whileTap={{ scale: 0.92 }}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 1.2, repeat: Infinity }}
-              className="crayon-pill font-poster rounded-full px-4 py-1.5 text-xs text-[#F6FAF2] sm:text-sm"
-              style={{ backgroundColor: NAVY }}
+              className="crayon-pill font-poster btn-pill text-on-brand"
+              style={{ backgroundColor: colors.brand }}
             >
               Kasih cokelat 🍫
             </motion.button>
@@ -295,7 +296,7 @@ export function ConfessInset({ game }: { game: ConfessGame }) {
         <motion.span
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-eyebrow rounded-full bg-[#2A3550] px-2.5 py-0.5 text-[9px] text-[#F6FAF2] sm:text-[10px]"
+          className="font-eyebrow rounded-full bg-night px-2.5 py-0.5 text-[9px] text-on-brand sm:text-[10px]"
         >
           🔔 halte berikutnya…
         </motion.span>
@@ -306,7 +307,7 @@ export function ConfessInset({ game }: { game: ConfessGame }) {
           whileTap={{ scale: 0.9, x: 10 }}
           animate={{ x: [0, 4, 0] }}
           transition={{ duration: 0.5, repeat: Infinity }}
-          className="crayon-pill font-poster rounded-full bg-[#FCFDF9] px-4 py-1 text-xs text-[#2F3D35] sm:text-sm"
+          className="crayon-pill font-poster rounded-full bg-paper px-4 py-1 text-xs text-ink sm:text-sm"
         >
           Kabur! 🏃💨
         </motion.button>

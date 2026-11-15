@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Eye, EyeOff, ExternalLink, Map as MapIcon, MapPin, Maximize2, Minus, Plus, X } from "lucide-react";
+import { Clock, Eye, EyeOff, ExternalLink, Map as MapIcon, MapPin, Maximize2, Minus, Plus, X } from "lucide-react";
 import { mediaUrl } from "@/lib/api";
 import { parseDate, parseLooseDate } from "@/lib/dates";
 import { parseMapMeta, type MapMeta } from "@/lib/map-meta";
@@ -11,8 +11,7 @@ import type { Settings } from "@/lib/types";
 import { usePortalRoot } from "../ThemeProvider";
 import { InteractiveMap, MapLegend, VenuePolaroid } from "./InteractiveMap";
 import { formatLongDate, splitTime } from "./PortalPanels";
-import { BLUSH, INK, PAPER, TONES } from "./watercolor";
-import { ClockFace, Heart, IllustrationBadge, Rings } from "./WatercolorArt";
+import { colors, alpha, TONES } from "./theme";
 
 type EventInfo = {
   key: "akad" | "resepsi";
@@ -63,14 +62,14 @@ function EventTicket({
   const time = splitTime(event.time);
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, rotate: index % 2 ? 0.8 : -0.8 }}
-      animate={{ opacity: 1, y: 0, rotate: index % 2 ? 0.4 : -0.4 }}
+      initial={{ opacity: 0, y: 10}}
+      animate={{ opacity: 1, y: 0}}
       transition={{ delay: 0.08 + index * 0.12, type: "spring", stiffness: 200, damping: 20 }}
-      className="relative flex overflow-hidden rounded-[14px] crayon-box wc"
-      style={{ backgroundColor: PAPER, boxShadow: `4px 5px 0 0 ${t.edge}` }}
+      className="relative flex overflow-hidden rounded-[6px] crayon-box "
+      style={{ backgroundColor: colors.paper, }}
     >
       <div
-        className="wc flex w-[92px] flex-none flex-col items-center justify-center px-2 py-3 text-center"
+        className="flex w-[92px] flex-none flex-col items-center justify-center px-2 py-3 text-center"
         style={{ backgroundColor: t.bg, color: t.ink }}
       >
         {event.time ? (
@@ -88,7 +87,7 @@ function EventTicket({
         )}
       </div>
 
-      <div aria-hidden className="w-0 flex-none border-l-2 border-dotted" style={{ borderColor: `${INK}55` }} />
+      <div aria-hidden className="w-0 flex-none border-l-2 border-dotted" style={{ borderColor: `${alpha(colors.ink, 33)}` }} />
 
       <div className="min-w-0 flex-1 px-4 py-3">
         <div className="flex items-start justify-between gap-2">
@@ -153,18 +152,18 @@ function EventArch({
   return (
     <motion.div
       // akad swings in from the left, resepsi from the right, each settling straight
-      initial={{ opacity: 0, x: index % 2 ? 70 : -70, rotate: index % 2 ? 5 : -5 }}
-      whileInView={{ opacity: 1, x: 0, rotate: 0 }}
+      initial={{ opacity: 0, x: index % 2 ? 70 : -70}}
+      whileInView={{ opacity: 1, x: 0}}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ type: "spring", stiffness: 70, damping: 16 }}
-      className="relative mx-auto w-full max-w-[340px] rounded-b-[22px] rounded-t-[170px] bg-white p-2 shadow-[6px_8px_0_rgba(63,107,87,0.18)]"
+      className="relative mx-auto w-full max-w-[340px] rounded-b-[22px] rounded-t-[170px] bg-white p-2 shadow-wash-lg"
     >
       <div
-        className="wc flex flex-col items-center rounded-b-[16px] rounded-t-[164px] border-2 border-dashed px-6 pb-6 pt-10 text-center"
-        style={{ backgroundColor: t.bg, color: t.ink, borderColor: `${INK}30` }}
+        className="flex flex-col items-center rounded-[6px] border px-6 pb-6 pt-10 text-center"
+        style={{ backgroundColor: t.bg, color: t.ink, borderColor: `${alpha(colors.ink, 19)}` }}
       >
         {/* venue photo in a round window when there is one, the event's little drawing otherwise */}
-        <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border-[3px] border-white bg-white/70 shadow-[2px_3px_0_rgba(63,107,87,0.18)]">
+        <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border-[3px] border-white bg-white/70 shadow-wash-sm">
           {event.venuePhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={mediaUrl(event.venuePhoto)} alt="" className="h-full w-full object-cover" />
@@ -176,11 +175,11 @@ function EventArch({
         <p className="font-eyebrow mt-4 text-[10px] uppercase tracking-[0.25em] opacity-60">
           {String(index + 1).padStart(2, "0")} · {showDate && event.date ? event.date : "Acara"}
         </p>
-        <h3 className="font-script text-[2.6rem] leading-none">{event.kicker}</h3>
+        <h3 className="font-serif text-[2.4rem] font-medium leading-none">{event.kicker}</h3>
 
         <div className="my-4 flex w-full items-center gap-3">
           <span className="h-px flex-1 bg-current opacity-25" />
-          <ClockFace className="h-7 w-7 flex-none" animate={false} />
+          <Clock className="h-6 w-6 flex-none text-gold-ink" strokeWidth={1.3} />
           <span className="h-px flex-1 bg-current opacity-25" />
         </div>
 
@@ -209,7 +208,7 @@ function EventArch({
                 href={event.maps}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3F6B57] px-4 py-2.5 font-code text-xs text-[#F6FAF2] shadow-[0_3px_0_#2A4A3C] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 font-code text-xs text-on-brand shadow-press transition-transform hover:-translate-y-0.5"
               >
                 <MapPin className="h-3.5 w-3.5" /> Petunjuk arah
               </a>
@@ -217,7 +216,7 @@ function EventArch({
             {onShowMap && (
               <button
                 onClick={onShowMap}
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#3F6B57]/50 bg-white/70 px-4 py-2 font-code text-xs text-[#3F6B57] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand/50 bg-white/70 px-4 py-2 font-code text-xs text-brand transition-transform hover:-translate-y-0.5"
               >
                 <MapIcon className="h-3.5 w-3.5" /> Lihat peta ilustrasi
               </button>
@@ -297,16 +296,16 @@ function MapViewer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#3F6B57]/70 p-3 sm:p-6"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-brand/70 p-3 sm:p-6"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, rotate: -1.5 }}
-            animate={{ scale: 1, rotate: 0 }}
+            initial={{ scale: 0.9}}
+            animate={{ scale: 1}}
             exit={{ scale: 0.92, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-[14px] crayon-box wc"
-            style={{ backgroundColor: PAPER, color: INK, boxShadow: "8px 10px 0 0 rgba(63,107,87,0.4)" }}
+            className="flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-[6px] crayon-box "
+            style={{ backgroundColor: colors.paper, color: colors.ink, }}
           >
             <div className="crayon-rule-b flex items-center justify-between gap-3 px-4 py-2.5">
               <p className="font-heading truncate text-xl">{map.venue || map.label}</p>
@@ -377,7 +376,7 @@ function MapViewer({
                   onClick={() => zoomTo(level - 1)}
                   disabled={level === 0}
                   aria-label="Perkecil"
-                  className="rounded-full crayon-pill bg-white/85 p-1.5 transition-opacity disabled:opacity-35"
+                  className="crayon-pill btn-icon bg-white/85 transition-opacity"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
@@ -385,7 +384,7 @@ function MapViewer({
                   onClick={() => zoomTo(level + 1)}
                   disabled={level === MAP_ZOOMS.length - 1}
                   aria-label="Perbesar"
-                  className="rounded-full crayon-pill bg-white/85 p-1.5 transition-opacity disabled:opacity-35"
+                  className="crayon-pill btn-icon bg-white/85 transition-opacity"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -396,8 +395,8 @@ function MapViewer({
                   href={map.maps}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-[#F6FAF2] transition-transform hover:-translate-y-0.5"
-                  style={{ backgroundColor: TONES.magenta.bg }}
+                  className="inline-flex items-center gap-1.5 rounded-full crayon-pill px-3 py-1.5 font-code text-[11px] text-on-brand transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: TONES.brand.bg }}
                 >
                   Buka di Google Maps <ExternalLink className="h-3 w-3" />
                 </a>
@@ -443,29 +442,29 @@ function MapSection({
   return (
     <section
       ref={sectionRef}
-      className="scroll-mt-3 rounded-[22px] bg-white p-2 shadow-[6px_8px_0_rgba(63,107,87,0.18)]"
+      className="scroll-mt-3 rounded-[22px] bg-white p-2 shadow-wash-lg"
     >
       {/* header: what this map is of, and a switch when akad and resepsi are at different places */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-2 pb-2.5 pt-1.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <span
             className="grid h-10 w-10 flex-none place-items-center rounded-full"
-            style={{ backgroundColor: TONES.mauve.bg }}
+            style={{ backgroundColor: TONES.sage.bg }}
           >
-            <MapPin className="h-5 w-5" style={{ color: TONES.magenta.bg }} />
+            <MapPin className="h-5 w-5" style={{ color: TONES.brand.bg }} />
           </span>
           <div className="min-w-0">
             <p className="font-eyebrow flex items-center gap-1.5 text-[9px] uppercase tracking-[0.2em] opacity-60">
               Peta lokasi
               {maps.length === 1 && (
-                <span className="rounded-full bg-[#E4EEDF] px-1.5 py-px normal-case tracking-normal">{map.label}</span>
+                <span className="rounded-full bg-chrome px-1.5 py-px normal-case tracking-normal">{map.label}</span>
               )}
             </p>
             <p className="font-heading truncate text-lg leading-tight">{map.venue}</p>
           </div>
         </div>
         {maps.length > 1 && (
-          <div role="tablist" className="flex gap-1 rounded-full bg-[#E4EEDF] p-1">
+          <div role="tablist" className="flex gap-1 rounded-full bg-chrome p-1">
             {maps.map((m, i) => (
               <button
                 key={m.id}
@@ -478,11 +477,11 @@ function MapSection({
                   <motion.span
                     layoutId="map-tab"
                     className="absolute inset-0 rounded-full"
-                    style={{ backgroundColor: TONES.magenta.bg }}
+                    style={{ backgroundColor: TONES.brand.bg }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <span className="relative" style={{ color: i === active ? TONES.magenta.ink : INK }}>
+                <span className="relative" style={{ color: i === active ? TONES.brand.ink : colors.ink }}>
                   {m.label}
                 </span>
               </button>
@@ -500,7 +499,7 @@ function MapSection({
           transition={{ duration: 0.25 }}
           className="relative"
         >
-          <div className="relative overflow-hidden rounded-[16px] border-2 border-[#2F3D35]/10" style={{ backgroundColor: PAPER }}>
+          <div className="relative overflow-hidden rounded-[6px] border-2 border-ink/10" style={{ backgroundColor: colors.paper }}>
             <InteractiveMap
               src={map.src}
               alt={`Peta lokasi ${map.venue}`}
@@ -512,7 +511,7 @@ function MapSection({
             <button
               onClick={() => setZoomed(true)}
               aria-label="Perbesar peta"
-              className="absolute right-2 top-2 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-[#2F3D35] shadow-[0_2px_8px_rgba(47,61,53,0.25)] backdrop-blur transition-transform hover:scale-105"
+              className="absolute right-2 top-2 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_8px_color-mix(in_srgb,var(--color-ink)_25%,transparent)] backdrop-blur transition-transform hover:scale-105"
             >
               <Maximize2 className="h-4 w-4" />
             </button>
@@ -535,8 +534,8 @@ function MapSection({
                 >
                   {map.photo && (
                     <motion.div
-                      initial={{ opacity: 0, y: 24, rotate: 6 }}
-                      animate={{ opacity: 1, y: 0, rotate: -3 }}
+                      initial={{ opacity: 0, y: 24}}
+                      animate={{ opacity: 1, y: 0}}
                       transition={{ delay: 0.2, type: "spring", stiffness: 180, damping: 15 }}
                       className={narrow ? "mx-auto mt-2 w-3/5" : "mt-2"}
                     >
@@ -544,8 +543,8 @@ function MapSection({
                     </motion.div>
                   )}
                   <motion.div
-                    initial={{ opacity: 0, y: 24, rotate: -4 }}
-                    animate={{ opacity: 1, y: 0, rotate: 0 }}
+                    initial={{ opacity: 0, y: 24}}
+                    animate={{ opacity: 1, y: 0}}
                     transition={{ delay: 0.32, type: "spring", stiffness: 180, damping: 16 }}
                     className="mt-4"
                   >
@@ -575,7 +574,7 @@ function MapSection({
           {hasLayer && (
             <button
               onClick={onToggle}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-[#3F6B57]/40 bg-white px-3 py-2 font-code text-[11px] text-[#3F6B57] transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-brand/40 bg-white px-3 py-2 font-code text-[11px] text-brand transition-transform hover:-translate-y-0.5"
             >
               {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               {revealed ? "Tutup keterangan" : "Keterangan"}
@@ -586,7 +585,7 @@ function MapSection({
               href={map.maps}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#3F6B57] px-3 py-2 font-code text-[11px] text-[#F6FAF2] shadow-[0_3px_0_#2A4A3C] transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand px-3 py-2 font-code text-[11px] text-on-brand shadow-press transition-transform hover:-translate-y-0.5"
             >
               Buka Google Maps <ExternalLink className="h-3 w-3" />
             </a>
@@ -621,8 +620,8 @@ export function CeremonyPanel({
         mapImage: settings.akad_map_image,
         mapMeta: parseMapMeta(settings.akad_map_meta),
         venuePhoto: settings.akad_venue_photo,
-        tone: "cream",
-        art: <Rings className="h-9 w-auto" />,
+        tone: "fern",
+        art: <span />,
       },
       {
         key: "resepsi",
@@ -635,8 +634,8 @@ export function CeremonyPanel({
         mapImage: settings.resepsi_map_image,
         mapMeta: parseMapMeta(settings.resepsi_map_meta),
         venuePhoto: settings.resepsi_venue_photo,
-        tone: "sky",
-        art: <Heart color={BLUSH} className="h-8 w-auto" delay={0.2} />,
+        tone: "mist",
+        art: <span />,
       },
     ] satisfies EventInfo[]
   ).filter((e) => e.date || e.time || e.location);
@@ -698,16 +697,16 @@ export function CeremonyPanel({
   const dayLabel = sameDay && dates[0] ? dates[0] : formatLongDate(settings.wedding_date);
 
   return (
-    <div className="space-y-5" style={{ color: INK }}>
+    <div className="space-y-5" style={{ color: colors.ink }}>
       {scroll ? (
         <div>
           {events.map((event, i) => (
             <div key={event.key}>
               {i > 0 && (
                 <div aria-hidden className="flex flex-col items-center py-3">
-                  <span className="h-5 border-l-2 border-dashed" style={{ borderColor: `${INK}55` }} />
+                  <span className="h-5 border-l" style={{ borderColor: `${alpha(colors.ink, 33)}` }} />
                   <span className="font-script text-xl opacity-60">lalu…</span>
-                  <span className="h-5 border-l-2 border-dashed" style={{ borderColor: `${INK}55` }} />
+                  <span className="h-5 border-l" style={{ borderColor: `${alpha(colors.ink, 33)}` }} />
                 </div>
               )}
               <EventArch
@@ -729,7 +728,6 @@ export function CeremonyPanel({
             {!sameDay ? "dua hari, dua momen" : events.length > 1 ? "satu hari, dua momen" : "satu hari bahagia"}
           </p>
         </div>
-        <IllustrationBadge name="dinner" className="h-20 w-20 sm:h-24 sm:w-24" tilt={6} focus="50% 30%" />
       </div>
 
       <div>
@@ -737,7 +735,7 @@ export function CeremonyPanel({
           <div key={event.key}>
             {i > 0 && (
               <div aria-hidden className="flex h-8 items-center" style={{ paddingLeft: 41 }}>
-                <span className="h-full border-l-2 border-dashed" style={{ borderColor: `${INK}66` }} />
+                <span className="h-full border-l" style={{ borderColor: `${alpha(colors.ink, 40)}` }} />
                 <span className="font-script ml-3 text-lg opacity-60">lalu…</span>
               </div>
             )}
@@ -768,14 +766,13 @@ export function CeremonyPanel({
       )}
 
       <div
-        className={`mx-1 flex items-center gap-3 rounded-[10px] crayon-box wc px-3 py-2.5 ${scroll ? "mx-auto max-w-[340px]" : "rotate-[-1.2deg]"}`}
+        className={`mx-1 flex items-center gap-3 rounded-[6px] crayon-box px-3 py-2.5 ${scroll ? "mx-auto max-w-[340px]" : ""}`}
         style={{
           backgroundColor: TONES.butter.bg,
           color: TONES.butter.ink,
-          boxShadow: `3px 3px 0 0 ${TONES.butter.edge}`,
-        }}
+          }}
       >
-        <ClockFace className="h-9 w-9 flex-none" delay={0.35} />
+        <Clock className="h-7 w-7 flex-none text-gold-ink" strokeWidth={1.3} />
         <p className="font-script text-xl leading-snug">
           Mohon hadir sedikit lebih awal agar tidak melewatkan momen pentingnya.
         </p>

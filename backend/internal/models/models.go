@@ -35,6 +35,8 @@ type Settings struct {
 
 	// WhatsApp invitation text; {nama}, {link} and {mempelai} are filled per guest
 	WaTemplate string `json:"wa_template"`
+	// JSON {"<category>": "groom"|"bride"}: whose WhatsApp sends that category's invitations
+	WaSenders string `gorm:"type:text" json:"wa_senders"`
 
 	AkadTime     string `json:"akad_time"`
 	AkadDate     string `json:"akad_date"`

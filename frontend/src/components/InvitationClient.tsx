@@ -7,12 +7,12 @@ import type { InvitationData } from "@/lib/types";
 import { GuestProvider, type GuestAccess, type InvitedGuest } from "./invitation/guest";
 import ThemeProvider from "./ThemeProvider";
 import ComicIntro from "./invitation/ComicIntro";
-import CuteCursor from "./invitation/CuteCursor";
 import OpeningScreen from "./invitation/OpeningScreen";
 import Hero from "./invitation/Hero";
 import ScrollInvitation from "./invitation/ScrollInvitation";
 import MusicToggle from "./invitation/MusicToggle";
 import { WatercolorDefs } from "./invitation/WatercolorArt";
+import { colors, readColor } from "./invitation/theme";
 
 type Stage = "comic" | "envelope" | "opened";
 type Mode = "dashboard" | "scroll";
@@ -80,23 +80,22 @@ export default function InvitationClient({
     <GuestProvider value={guest}>
       <ThemeProvider settings={settings} scroll={scrolling}>
         <WatercolorDefs />
-        <CuteCursor />
         <Toaster
           position="top-center"
           toastOptions={{
             style: {
-              background: "#FCFDF9",
-              color: "#2F3D35",
-              border: "2px dashed #2F3D35",
-              borderRadius: "999px",
-              fontFamily: "Nunito, sans-serif",
-              fontWeight: 600,
+              background: colors.paper,
+              color: colors.ink,
+              border: `1px solid ${colors.line}`,
+              borderRadius: "6px",
+              fontFamily: "Jost, sans-serif",
+              fontWeight: 500,
             },
-            iconTheme: { primary: "#C2676A", secondary: "#FCFDF9" },
+            iconTheme: { primary: readColor(colors.brand), secondary: readColor(colors.paper) },
           }}
         />
         {/* same paper as the comic and envelope, so the gap between their fades doesn't flash */}
-        {stage !== "opened" && <div aria-hidden className="fixed inset-0 -z-10 bg-[#F2F6EF]" />}
+        {stage !== "opened" && <div aria-hidden className="fixed inset-0 -z-10 bg-page" />}
         <AnimatePresence mode="wait">
           {stage === "comic" && (
             <ComicIntro

@@ -53,6 +53,7 @@ Two free accounts, no credit card. Allow about 30 minutes.
    | `ADMIN_PASSWORD` | from step 0 |
    | `ALLOWED_ORIGIN` | `https://example.com` for now; it gets fixed in step 4 |
    | `FONNTE_TOKEN` | optional: a [Fonnte](https://fonnte.com) device token to send WhatsApp invitations automatically |
+   | `FONNTE_TOKEN_GROOM` / `FONNTE_TOKEN_BRIDE` | optional: separate devices so each side's categories (set under Daftar Tamu → Pengirim per kategori) send from the groom's / bride's own number; falls back to `FONNTE_TOKEN` |
 4. **Deploy.** Then open `https://<your-api>.vercel.app/healthz`. You should see `{"status":"ok"}`. On this first start the API creates the tables and fills in sample data.
 
 ## 3. Vercel: the website

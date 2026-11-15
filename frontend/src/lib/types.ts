@@ -30,6 +30,8 @@ export interface Settings {
 
   /** WhatsApp invitation text with {nama}, {link} and {mempelai} placeholders */
   wa_template: string;
+  /** JSON {"<category>": "groom" | "bride"}: whose WhatsApp sends that category's invitations */
+  wa_senders: string;
 
   akad_time: string;
   akad_date: string;
