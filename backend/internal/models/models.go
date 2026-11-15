@@ -145,6 +145,8 @@ type Guest struct {
 	// values mean "as usual", so existing rows need no backfill.
 	Mode      string `gorm:"size:16" json:"mode"`
 	SkipComic bool   `json:"skip_comic"`
+	// invited to the resepsi only: the invitation leaves the akad out
+	SkipAkad bool `json:"skip_akad"`
 	// when the invitation was sent over WhatsApp, and when the link was first opened
 	SentAt    *time.Time `json:"sent_at"`
 	OpenedAt  *time.Time `json:"opened_at"`

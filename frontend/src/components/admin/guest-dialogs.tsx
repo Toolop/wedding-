@@ -40,11 +40,13 @@ export const GUEST_MODES: { value: GuestMode; label: string; hint: string }[] = 
 export function GuestOpeningFields({
   mode,
   skipComic,
+  skipAkad,
   onChange,
 }: {
   mode: GuestMode;
   skipComic: boolean;
-  onChange: (next: { mode?: GuestMode; skip_comic?: boolean }) => void;
+  skipAkad: boolean;
+  onChange: (next: { mode?: GuestMode; skip_comic?: boolean; skip_akad?: boolean }) => void;
 }) {
   return (
     <div className="grid gap-3 rounded-lg border bg-muted/30 p-3">
@@ -83,6 +85,20 @@ export function GuestOpeningFields({
           </span>
         </span>
       </label>
+      <label className="flex items-start gap-2.5 text-sm">
+        <input
+          type="checkbox"
+          className="mt-0.5 size-4 accent-primary"
+          checked={!skipAkad}
+          onChange={(e) => onChange({ skip_akad: !e.target.checked })}
+        />
+        <span>
+          Undang ke akad
+          <span className="block text-xs text-muted-foreground">
+            Kalau dimatikan, undangan hanya menampilkan resepsi (tanpa jam, tempat, dan peta akad).
+          </span>
+        </span>
+      </label>
     </div>
   );
 }
@@ -101,7 +117,7 @@ export function GuestFormDialog({
   categories: string[];
   onSaved: () => void;
 }) {
-  const empty: GuestInput = { name: "", phone: "", category: "", mode: "", skip_comic: false };
+  const empty: GuestInput = { name: "", phone: "", category: "", mode: "", skip_comic: false, skip_akad: false };
   const [draft, setDraft] = useState<GuestInput>(empty);
   const [saving, setSaving] = useState(false);
   const [lastOpen, setLastOpen] = useState(false);
@@ -117,6 +133,7 @@ export function GuestFormDialog({
               category: guest.category,
               mode: guest.mode ?? "",
               skip_comic: guest.skip_comic ?? false,
+              skip_akad: guest.skip_akad ?? false,
             }
           : empty
       );
@@ -138,7 +155,7 @@ export function GuestFormDialog({
       if (guest) onOpenChange(false);
       // keep the dialog open for adding the next guest
       // (and the category and opening choices, which usually repeat for a batch)
-      else setDraft((d) => ({ ...empty, category: d.category, mode: d.mode, skip_comic: d.skip_comic }));
+      else setDraft((d) => ({ ...empty, category: d.category, mode: d.mode, skip_comic: d.skip_comic, skip_akad: d.skip_akad }));
     } catch (err) {
       toast.error(apiErrorMessage(err, "Gagal menyimpan tamu"));
     } finally {
@@ -202,6 +219,7 @@ export function GuestFormDialog({
           <GuestOpeningFields
             mode={draft.mode ?? ""}
             skipComic={draft.skip_comic ?? false}
+            skipAkad={draft.skip_akad ?? false}
             onChange={(next) => setDraft({ ...draft, ...next })}
           />
           <DialogFooter>

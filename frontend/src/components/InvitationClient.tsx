@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Toaster } from "react-hot-toast";
 import type { InvitationData } from "@/lib/types";
 import { GuestProvider, type GuestAccess, type InvitedGuest } from "./invitation/guest";
@@ -52,7 +52,24 @@ export default function InvitationClient({
   // the song begins when the guest opens their eyes in the comic (or skips it);
   // without the comic, it begins when they open the envelope
   const [music, setMusic] = useState(false);
-  const { settings } = data;
+  // a guest invited to the resepsi only gets the invitation without any akad details
+  const settings = useMemo(
+    () =>
+      guest?.skip_akad
+        ? {
+            ...data.settings,
+            akad_date: "",
+            akad_time: "",
+            akad_location: "",
+            akad_address: "",
+            akad_maps_url: "",
+            akad_map_image: "",
+            akad_map_meta: "",
+            akad_venue_photo: "",
+          }
+        : data.settings,
+    [data.settings, guest?.skip_akad]
+  );
   // without a valid personal link the envelope stays shut, whatever stage we start at
   const stage: Stage = allowed || current === "comic" ? current : "envelope";
 

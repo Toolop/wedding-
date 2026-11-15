@@ -64,7 +64,7 @@ export async function getInvitation(): Promise<InvitationData> {
 export async function getGuestByCode(
   code: string,
   preview = false
-): Promise<{ name: string; code: string; mode?: GuestMode; skip_comic?: boolean } | null> {
+): Promise<{ name: string; code: string; mode?: GuestMode; skip_comic?: boolean; skip_akad?: boolean } | null> {
   try {
     const res = await api.get(`/guests/${encodeURIComponent(code)}`, {
       params: preview ? { preview: 1 } : undefined,
@@ -274,6 +274,7 @@ export type GuestInput = {
   category: string;
   mode?: GuestMode;
   skip_comic?: boolean;
+  skip_akad?: boolean;
 };
 
 export async function adminListGuests(

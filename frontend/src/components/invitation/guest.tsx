@@ -7,7 +7,7 @@ import type { GuestMode } from "@/lib/types";
 
 /** who the invitation was sent to; `code` is set when it came from the guest list,
  *  along with how the admin wants their invitation to open */
-export type InvitedGuest = { name: string; code?: string; mode?: GuestMode; skip_comic?: boolean };
+export type InvitedGuest = { name: string; code?: string; mode?: GuestMode; skip_comic?: boolean; skip_akad?: boolean };
 
 const GuestContext = createContext<InvitedGuest | null>(null);
 

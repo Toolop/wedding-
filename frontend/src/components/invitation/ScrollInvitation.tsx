@@ -975,7 +975,7 @@ export default function ScrollInvitation({ data }: { data: InvitationData }) {
         <Tear from="paper" to="mint" />
         <SaveTheDate settings={settings} />
         <Tear from="mint" to="paper" flip />
-        <PanelSection id="acara" band="paper" no="03" eyebrow="akad & resepsi" title="Acara">
+        <PanelSection id="acara" band="paper" no="03" eyebrow={settings.akad_date || settings.akad_time || settings.akad_location ? "akad & resepsi" : "resepsi"} title="Acara">
           <CeremonyPanel settings={settings} variant="scroll" />
         </PanelSection>
         <Tear from="paper" to="mint" />

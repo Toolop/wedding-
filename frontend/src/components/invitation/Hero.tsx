@@ -119,6 +119,8 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
   );
 }
 
+const hasAkad = (s: Settings) => Boolean(s.akad_date || s.akad_time || s.akad_location);
+
 function CeremonyFace({ settings }: { settings: Settings }) {
   const rows = [
     { k: "Akad nikah", t: settings.akad_time, at: settings.akad_location },
@@ -129,7 +131,7 @@ function CeremonyFace({ settings }: { settings: Settings }) {
   return (
     <span className="flex h-full flex-col rounded-[6px] border border-line bg-paper p-5 text-left sm:p-6">
       <span className="flex flex-col items-center text-center">
-        <span className="font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">Akad &amp; Resepsi</span>
+        <span className="font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">{hasAkad(settings) ? "Akad & Resepsi" : "Resepsi"}</span>
         <span className="font-eyebrow mt-1 text-[11px] uppercase tracking-[0.25em] text-muted">Rangkaian acara</span>
       </span>
       <span className="mt-4 flex flex-col border-y border-line-soft">
@@ -275,7 +277,7 @@ function buildCards(data: InvitationData, live: Live): CardDef[] {
     },
     {
       key: "ceremony",
-      title: "Akad & Resepsi",
+      title: hasAkad(settings) ? "Akad & Resepsi" : "Resepsi",
       subtitle: "Rangkaian acara",
       span: "sm:col-span-2 max-lg:order-3",
       face: <CeremonyFace settings={settings} />,

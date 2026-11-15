@@ -160,6 +160,7 @@ type guestInput struct {
 	Category  string `json:"category"`
 	Mode      string `json:"mode"`
 	SkipComic bool   `json:"skip_comic"`
+	SkipAkad  bool   `json:"skip_akad"`
 }
 
 // guestModes are the invitation layouts a guest can be given; "" is the default
@@ -182,7 +183,7 @@ func (in guestInput) clean() (models.Guest, error) {
 	if !guestModes[mode] {
 		return models.Guest{}, errors.New("tampilan harus dashboard atau scroll")
 	}
-	return models.Guest{Name: name, Phone: phone, Category: category, Mode: mode, SkipComic: in.SkipComic}, nil
+	return models.Guest{Name: name, Phone: phone, Category: category, Mode: mode, SkipComic: in.SkipComic, SkipAkad: in.SkipAkad}, nil
 }
 
 // createWithCode gives the guest a fresh link code; a clash is vanishingly
@@ -221,7 +222,7 @@ func (h *GuestHandler) GetByCode(c *gin.Context) {
 		h.db.Model(&models.Guest{}).Where("id = ? AND opened_at IS NULL", g.ID).Update("opened_at", time.Now())
 	}
 	// only what the invitation shows; the phone number stays admin-only
-	utils.Success(c, 200, gin.H{"name": g.Name, "code": g.Code, "mode": g.Mode, "skip_comic": g.SkipComic})
+	utils.Success(c, 200, gin.H{"name": g.Name, "code": g.Code, "mode": g.Mode, "skip_comic": g.SkipComic, "skip_akad": g.SkipAkad})
 }
 
 // ---- Admin ----
@@ -351,6 +352,7 @@ func (h *GuestHandler) Update(c *gin.Context) {
 		Category  *string `json:"category"`
 		Mode      *string `json:"mode"`
 		SkipComic *bool   `json:"skip_comic"`
+		SkipAkad  *bool   `json:"skip_akad"`
 		Sent      *bool   `json:"sent"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -358,7 +360,7 @@ func (h *GuestHandler) Update(c *gin.Context) {
 		return
 	}
 
-	in := guestInput{Name: g.Name, Phone: g.Phone, Category: g.Category, Mode: g.Mode, SkipComic: g.SkipComic}
+	in := guestInput{Name: g.Name, Phone: g.Phone, Category: g.Category, Mode: g.Mode, SkipComic: g.SkipComic, SkipAkad: g.SkipAkad}
 	if req.Name != nil {
 		in.Name = *req.Name
 	}
@@ -374,6 +376,9 @@ func (h *GuestHandler) Update(c *gin.Context) {
 	if req.SkipComic != nil {
 		in.SkipComic = *req.SkipComic
 	}
+	if req.SkipAkad != nil {
+		in.SkipAkad = *req.SkipAkad
+	}
 	cleaned, err := in.clean()
 	if err != nil {
 		utils.Error(c, 400, err.Error())
@@ -381,7 +386,7 @@ func (h *GuestHandler) Update(c *gin.Context) {
 	}
 	updates := map[string]interface{}{
 		"name": cleaned.Name, "phone": cleaned.Phone, "category": cleaned.Category,
-		"mode": cleaned.Mode, "skip_comic": cleaned.SkipComic,
+		"mode": cleaned.Mode, "skip_comic": cleaned.SkipComic, "skip_akad": cleaned.SkipAkad,
 	}
 	if req.Sent != nil {
 		if *req.Sent {

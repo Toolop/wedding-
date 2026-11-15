@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  Check,
+  X,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -312,7 +314,7 @@ export default function GuestListPage() {
   };
 
   /** set how the chosen guests' invitations open, a few requests at a time */
-  const applyOpening = async (targets: Guest[], patch: { mode?: GuestMode; skip_comic?: boolean }, label: string) => {
+  const applyOpening = async (targets: Guest[], patch: { mode?: GuestMode; skip_comic?: boolean; skip_akad?: boolean }, label: string) => {
     const token = getToken();
     if (!token || !targets.length) return;
     const id = toast.loading(`Mengatur ${targets.length} tamu…`);
@@ -485,6 +487,16 @@ export default function GuestListPage() {
                     <SkipForward />
                     Lewati komik
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Akad</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => applyOpening(selectedGuests, { skip_akad: false }, "diundang ke akad")}>
+                    <Check />
+                    Undang ke akad
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => applyOpening(selectedGuests, { skip_akad: true }, "tanpa akad (resepsi saja)")}>
+                    <X />
+                    Tanpa akad (resepsi saja)
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button variant="outline" className="text-destructive" onClick={() => setDeleting(selectedGuests)}>
@@ -613,7 +625,7 @@ export default function GuestListPage() {
                             {sender && <span title="Dikirim dari WhatsApp ini"> · via WA {senderName(sender, settings)}</span>}
                           </p>
                         )}
-                        {(g.mode || g.skip_comic) && (
+                        {(g.mode || g.skip_comic || g.skip_akad) && (
                           <div className="mt-1 flex flex-wrap gap-1">
                             {g.mode && (
                               <Badge variant="secondary" className="gap-1 px-1.5 text-[10px] font-normal">
@@ -625,6 +637,11 @@ export default function GuestListPage() {
                               <Badge variant="secondary" className="gap-1 px-1.5 text-[10px] font-normal">
                                 <SkipForward className="size-3" />
                                 Tanpa komik
+                              </Badge>
+                            )}
+                            {g.skip_akad && (
+                              <Badge variant="secondary" className="gap-1 px-1.5 text-[10px] font-normal">
+                                Resepsi saja
                               </Badge>
                             )}
                           </div>

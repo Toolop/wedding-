@@ -136,6 +136,8 @@ export interface Guest {
   mode: GuestMode;
   /** jump straight to the envelope, without the comic intro */
   skip_comic: boolean;
+  /** invited to the resepsi only: the invitation leaves the akad out */
+  skip_akad: boolean;
   sent_at: string | null;
   opened_at: string | null;
   created_at: string;
