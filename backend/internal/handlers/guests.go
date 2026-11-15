@@ -522,7 +522,7 @@ func (h *GuestHandler) sendFonnte(c *gin.Context, token, phone, message string) 
 		return err
 	}
 	req.Header.Set("Authorization", token)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 	res, err := h.client.Do(req)
 	if err != nil {
 		return err

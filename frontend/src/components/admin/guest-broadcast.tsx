@@ -111,6 +111,8 @@ export function BroadcastDialog({
 
   // manual: the click opens WhatsApp (a user gesture, so no popup blocker), then we mark and advance
   const sendManual = (g: Guest) => {
+    // open this guest's chat from the guest we were handed, before the view moves on to the next
+    window.open(waLink(g.phone, fillTemplate(template, g, settings)), "_blank", "noopener,noreferrer");
     setIndex((i) => i + 1);
     setSentCount((n) => n + 1);
     const token = getToken();
@@ -223,15 +225,11 @@ export function BroadcastDialog({
                   <SkipForward />
                   Lewati
                 </Button>
-                <Button asChild className="bg-[#25D366] text-white hover:bg-[#1ebe5b]">
-                  <a
-                    href={waLink(current.phone, fillTemplate(template, current, settings))}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => sendManual(current)}
-                  >
-                    Kirim ke {current.name.split(" ")[0]}
-                  </a>
+                <Button
+                  className="bg-[#25D366] text-white hover:bg-[#1ebe5b]"
+                  onClick={() => sendManual(current)}
+                >
+                  Kirim ke {current.name.split(" ")[0]}
                 </Button>
               </>
             )
