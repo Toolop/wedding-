@@ -73,7 +73,14 @@ export function fillTemplate(template: string, guest: Pick<Guest, "name" | "code
 
 /** wa.me link with the message typed in; without a number WhatsApp asks who to send it to */
 export function waLink(phone: string, text: string) {
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  // drop broken characters (the "�" and lone surrogate halves a bad paste leaves behind) and
+  // normalise, so the emoji that are intact reach WhatsApp as clean UTF-8
+  const clean = text
+    .normalize("NFC")
+    .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]|\uFFFD/g, "");
+  const query = `text=${encodeURIComponent(clean)}`;
+  // api.whatsapp.com hands the text over as-is; the wa.me redirect garbles emoji in some desktop apps
+  return `https://api.whatsapp.com/send?${phone ? `phone=${phone}&` : ""}${query}`;
 }
 
 /** mirrors the API: 0812..., +62 812..., 812... → 62812...; null when it can't be a number */
