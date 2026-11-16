@@ -221,7 +221,7 @@ export function FindUsArt({ game, active }: { game: FindUsGame; active: boolean 
 
   return (
     <div className="absolute inset-0 flex flex-col px-[3%] pb-[3%] pt-[92px]">
-      <span className="font-eyebrow pointer-events-none absolute right-[3%] top-3 z-10 inline-flex items-center gap-1 rounded-full border border-line bg-paper px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted">
+      <span className="font-eyebrow pointer-events-none absolute right-[3%] top-3 z-10 inline-flex items-center gap-1 rounded-full border border-line bg-paper px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-ink-soft">
         <MapPin className="h-3 w-3" strokeWidth={1.6} /> Sucofindo
       </span>
       <div ref={area} className="relative flex min-h-0 flex-1 items-center justify-center">
@@ -509,12 +509,12 @@ function FaceSlot({ who, game, sub }: { who: Who; game: FindUsGame; sub: string 
         }}
       >
         {!found && (
-          <span className="absolute inset-0 grid place-items-center font-serif text-lg text-muted">?</span>
+          <span className="absolute inset-0 grid place-items-center font-serif text-lg text-ink-soft">?</span>
         )}
       </motion.div>
       <div className="min-w-0 text-left">
         <p className="truncate font-serif text-base font-semibold leading-tight text-ink sm:text-lg">{game.names[who]}</p>
-        <p className="font-eyebrow truncate text-[10px] uppercase tracking-[0.12em] text-muted">{found ? "ketemu ✓" : sub}</p>
+        <p className="font-eyebrow truncate text-[10px] uppercase tracking-[0.12em] text-ink-soft">{found ? "ketemu ✓" : sub}</p>
       </div>
     </div>
   );
@@ -559,7 +559,7 @@ export function FindUsInset({ game, done }: { game: FindUsGame; done: boolean })
               onClick={game.openTutorial}
               onPointerDown={(e) => e.stopPropagation()}
               aria-label="Cara bermain"
-              className="grid h-10 w-10 place-items-center rounded-full border border-line bg-paper text-muted transition-colors hover:border-gold"
+              className="grid h-10 w-10 place-items-center rounded-full border border-line bg-paper text-ink-soft transition-colors hover:border-gold"
             >
               <HelpCircle className="h-5 w-5" strokeWidth={1.5} />
             </button>

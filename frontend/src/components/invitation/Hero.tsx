@@ -83,14 +83,14 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
       <span className="font-flourish whitespace-nowrap text-[1.45rem] leading-none text-gold-ink sm:text-[1.75rem]">Save the Date</span>
       {wedding ? (
         <>
-          <span className="font-eyebrow mt-3 text-[11px] uppercase tracking-[0.25em] text-muted">{weekdayName(wedding)}</span>
+          <span className="font-eyebrow mt-3 text-[11px] uppercase tracking-[0.25em] text-ink-soft">{weekdayName(wedding)}</span>
           <span className="font-serif text-[3.5rem] font-medium leading-[0.95] text-brand sm:text-[4rem]">
             {String(wedding.getDate()).padStart(2, "0")}
           </span>
           <span className="font-eyebrow text-xs uppercase tracking-[0.3em] text-ink">{longMonth(wedding)}</span>
-          <span className="font-serif text-xl italic text-muted">{wedding.getFullYear()}</span>
+          <span className="font-serif text-xl italic text-ink-soft">{wedding.getFullYear()}</span>
           <Ornament className="my-3" />
-          <span className="grid w-full grid-cols-7 gap-0.5 text-[10px] font-semibold text-muted lg:hidden lg:[@media(min-height:780px)]:grid">
+          <span className="grid w-full grid-cols-7 gap-0.5 text-[10px] font-semibold text-ink-soft lg:hidden lg:[@media(min-height:780px)]:grid">
             {WEEK_LETTERS.map((l, i) => (
               <span key={i} className={i === 6 ? "text-gold-ink" : ""}>
                 {l}
@@ -114,7 +114,7 @@ function DateFace({ wedding, daysLeft }: { wedding: Date | null; daysLeft: numbe
       ) : (
         <CalendarHeart className="my-6 h-10 w-10 text-gold-ink" strokeWidth={1.2} />
       )}
-      {left && <span className="mt-auto pt-3 text-xs font-medium text-muted">{left}</span>}
+      {left && <span className="mt-auto pt-3 text-xs font-medium text-ink-soft">{left}</span>}
     </DoubleFrame>
   );
 }
@@ -132,7 +132,7 @@ function CeremonyFace({ settings }: { settings: Settings }) {
     <span className="flex h-full flex-col rounded-[6px] border border-line bg-paper p-5 text-left sm:p-6">
       <span className="flex flex-col items-center text-center">
         <span className="font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">{hasAkad(settings) ? "Akad & Resepsi" : "Resepsi"}</span>
-        <span className="font-eyebrow mt-1 text-[11px] uppercase tracking-[0.25em] text-muted">Rangkaian acara</span>
+        <span className="font-eyebrow mt-1 text-[11px] uppercase tracking-[0.25em] text-ink-soft">Rangkaian acara</span>
       </span>
       <span className="mt-4 flex flex-col border-y border-line-soft">
         {rows.map((e, i) => (
@@ -148,7 +148,7 @@ function CeremonyFace({ settings }: { settings: Settings }) {
         ))}
       </span>
       <span className="mt-auto flex items-center justify-between pt-3">
-        <span className="text-xs text-muted sm:text-[13px]">
+        <span className="text-xs text-ink-soft sm:text-[13px]">
           {wedding ? new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(wedding) : ""}
           {zone ? ` · ${zone}` : ""}
         </span>
@@ -167,7 +167,7 @@ function GiftFace({ count }: { count: number }) {
       <span className="grid h-[72px] w-[72px] place-items-center rounded-full border border-gold-soft bg-paper sm:h-[84px] sm:w-[84px]">
         <Gift className="h-8 w-8 text-gold-ink sm:h-10 sm:w-10" strokeWidth={1.2} />
       </span>
-      <span className="font-serif mt-3 text-base italic leading-snug text-muted sm:text-[17px]">
+      <span className="font-serif mt-3 text-base italic leading-snug text-ink-soft sm:text-[17px]">
         Doa restu Anda adalah karunia terindah bagi kami.
       </span>
       {count > 0 && <span className="sr-only">{count} rekening</span>}
@@ -186,10 +186,10 @@ function GalleryFace({ photos, total }: { photos: string[]; total: number }) {
       <span className="flex items-end justify-between">
         <span>
           <span className="block font-serif text-2xl font-semibold leading-[1.1] sm:text-[1.9rem]">Galeri Kita</span>
-          <span className="font-eyebrow block text-[11px] uppercase tracking-[0.25em] text-muted">Momen kami berdua</span>
+          <span className="font-eyebrow block text-[11px] uppercase tracking-[0.25em] text-ink-soft">Momen kami berdua</span>
         </span>
         <span className="flex items-center gap-3.5">
-          {total > 0 && <span className="hidden text-[13px] text-muted sm:inline">{total} foto</span>}
+          {total > 0 && <span className="hidden text-[13px] text-ink-soft sm:inline">{total} foto</span>}
           <ArrowLink>Lihat album</ArrowLink>
         </span>
       </span>
@@ -488,7 +488,7 @@ export default function Hero({ data }: { data: InvitationData }) {
               <span>{bride}</span>
             </motion.button>
 
-            <motion.p {...rise(0.3)} className="font-script -mt-1 text-xl leading-snug text-muted lg:text-2xl">
+            <motion.p {...rise(0.3)} className="font-script -mt-1 text-xl leading-snug text-ink-soft lg:text-2xl">
               Dengan penuh cinta, kami mengundang Anda untuk hadir di hari bahagia kami.
             </motion.p>
 
@@ -522,7 +522,7 @@ export default function Hero({ data }: { data: InvitationData }) {
                       </span>
                       <span className="font-eyebrow text-[10px] uppercase tracking-[0.25em] text-gold-ink">{p.label}</span>
                       <span className="line-clamp-2 font-serif text-lg font-semibold leading-[1.1] sm:text-[22px]">{p.full || p.name}</span>
-                      {p.parents && <span className="line-clamp-2 text-xs leading-snug text-muted">{p.parents}</span>}
+                      {p.parents && <span className="line-clamp-2 text-xs leading-snug text-ink-soft">{p.parents}</span>}
                     </span>
                   ),
                 )}

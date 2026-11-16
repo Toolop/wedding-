@@ -41,7 +41,7 @@ export default function Home() {
         >
           <Monogram a="R" b="T" size={112} />
         </motion.div>
-        <p className="font-script text-2xl text-muted">Memuat undangan…</p>
+        <p className="font-script text-2xl text-ink-soft">Memuat undangan…</p>
       </div>
     );
   }

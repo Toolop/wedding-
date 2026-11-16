@@ -388,7 +388,7 @@ function Cover({ settings }: { settings: Settings }) {
             transition={settle(3.7)}
             className="mt-7 w-full max-w-[280px]"
           >
-            <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth.</p>
+            <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-ink-soft">Kepada Yth.</p>
             <p className="mt-1 font-script text-[1.7rem] font-medium leading-tight">{guest}</p>
           </motion.div>
         )}
@@ -400,7 +400,7 @@ function Cover({ settings }: { settings: Settings }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={settle(4.2)}
-        className="absolute bottom-7 flex flex-col items-center gap-2 font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted"
+        className="absolute bottom-7 flex flex-col items-center gap-2 font-eyebrow text-[10px] uppercase tracking-[0.3em] text-ink-soft"
       >
         scroll
         <span className="relative block h-9 w-px overflow-hidden bg-line">
@@ -626,7 +626,7 @@ function DateCard({ date, settings }: { date: Date; settings: Settings }) {
         </div>
 
         {time.start && (
-          <motion.p variants={rise} transition={{ duration: 0.8, ease: EASE }} className="mt-2 font-script text-xl text-muted">
+          <motion.p variants={rise} transition={{ duration: 0.8, ease: EASE }} className="mt-2 font-script text-xl text-ink-soft">
             pukul {time.start} {time.zone}
           </motion.p>
         )}
@@ -641,7 +641,7 @@ function DateCard({ date, settings }: { date: Date; settings: Settings }) {
             const hit = d.getDate() === day && d.getMonth() === date.getMonth();
             return (
               <span key={i} className="flex flex-col items-center gap-1.5">
-                <span className={`font-eyebrow text-[10px] ${hit ? "text-gold-ink" : "text-muted"}`}>{WEEK_LETTERS[i]}</span>
+                <span className={`font-eyebrow text-[10px] ${hit ? "text-gold-ink" : "text-ink-soft"}`}>{WEEK_LETTERS[i]}</span>
                 <span
                   className={`relative grid h-9 w-9 place-items-center rounded-full font-serif text-lg leading-none ${
                     hit ? "bg-brand font-semibold text-paper" : d.getMonth() === date.getMonth() ? "" : "text-stone"
@@ -684,7 +684,7 @@ function SaveTheDate({ settings }: { settings: Settings }) {
       <Heading no="02" eyebrow="save the date" title="Hari Bahagia" align="right" />
       {d && <DateCard date={d} settings={settings} />}
       <FadeIn delay={0.2}>
-        <p className="font-script mx-auto mt-8 max-w-xs text-2xl leading-snug text-muted">
+        <p className="font-script mx-auto mt-8 max-w-xs text-2xl leading-snug text-ink-soft">
           Satu hari yang kami tunggu sejak lama, dan kami ingin Anda ada di dalamnya.
         </p>
       </FadeIn>
@@ -928,7 +928,7 @@ function SidePanel({ settings }: { settings: Settings }) {
       <p className="relative mt-1 font-serif text-xl tracking-[0.3em] text-brand">{dotDate(settings)}</p>
 
       {(settings.bride_parents || settings.groom_parents) && (
-        <div className="relative mt-4 grid w-full max-w-sm grid-cols-2 gap-4 font-body text-xs leading-relaxed text-muted">
+        <div className="relative mt-4 grid w-full max-w-sm grid-cols-2 gap-4 font-body text-xs leading-relaxed text-ink-soft">
           {[
             [bride, settings.bride_parents],
             [groom, settings.groom_parents],
@@ -947,7 +947,7 @@ function SidePanel({ settings }: { settings: Settings }) {
 
       {guest && (
         <DoubleFrame className="relative mt-7 w-full max-w-xs" innerClassName="px-6 py-4">
-          <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth. Bapak/Ibu/Saudara/i</p>
+          <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-ink-soft">Kepada Yth. Bapak/Ibu/Saudara/i</p>
           <p className="mt-1.5 font-script text-3xl font-medium">{guest}</p>
         </DoubleFrame>
       )}

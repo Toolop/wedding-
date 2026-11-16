@@ -90,7 +90,7 @@ export default function OpeningScreen({
       {/* desktop: quiet side accents and the monogram, like the printed card's margins */}
       <div aria-hidden className="absolute left-[150px] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3.5 lg:flex">
         <span className="h-[60px] w-px bg-gold-soft" />
-        <span className="font-serif text-lg font-medium tracking-[0.35em] text-muted [writing-mode:vertical-rl]">{dateLine.replaceAll(" · ", " · ")}</span>
+        <span className="font-serif text-lg font-medium tracking-[0.35em] text-ink-soft [writing-mode:vertical-rl]">{dateLine.replaceAll(" · ", " · ")}</span>
         <span className="h-[60px] w-px bg-gold-soft" />
       </div>
       <div aria-hidden className="absolute right-[150px] top-1/2 hidden -translate-y-1/2 flex-col items-center gap-3.5 lg:flex">
@@ -141,20 +141,20 @@ export default function OpeningScreen({
               className="mt-[clamp(0.2rem,1dvh,0.5rem)] flex flex-col items-center"
             >
               <p className="font-flourish text-[clamp(2.4rem,8dvh,4.25rem)] leading-[1.05] text-ink">{bride}</p>
-              {settings.bride_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-muted [@media(max-height:640px)]:hidden">{settings.bride_parents}</p>}
+              {settings.bride_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-ink-soft [@media(max-height:640px)]:hidden">{settings.bride_parents}</p>}
               <span className="my-[clamp(0.1rem,0.8dvh,0.5rem)] flex items-center gap-3.5" aria-hidden>
                 <span className="h-px w-11 bg-gold" />
                 <span className="font-serif text-3xl italic leading-none text-gold">&amp;</span>
                 <span className="h-px w-11 bg-gold" />
               </span>
               <p className="font-flourish text-[clamp(2.4rem,8dvh,4.25rem)] leading-[1.05] text-ink">{groom}</p>
-              {settings.groom_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-muted [@media(max-height:640px)]:hidden">{settings.groom_parents}</p>}
+              {settings.groom_parents && <p className="max-w-[260px] text-[clamp(10px,1.6dvh,12px)] leading-snug text-ink-soft [@media(max-height:640px)]:hidden">{settings.groom_parents}</p>}
             </motion.div>
 
             {dotted && (
               <div className="mt-[clamp(0.5rem,2dvh,1.25rem)] flex flex-col items-center gap-1">
                 <span className="font-serif text-[clamp(1.3rem,3.6dvh,1.7rem)] font-medium leading-none tracking-[0.1em] text-brand">{dotted}</span>
-                <span className="font-eyebrow text-[10px] uppercase tracking-[0.22em] text-muted">
+                <span className="font-eyebrow text-[10px] uppercase tracking-[0.22em] text-ink-soft">
                   {weekday}
                   {time ? ` · ${time} WIB` : ""}
                 </span>
@@ -171,7 +171,7 @@ export default function OpeningScreen({
                     <Lock className="h-4 w-4 flex-none" strokeWidth={1.6} />
                     {BLOCKED_TEXT[blocked].title}
                   </p>
-                  <p className="mt-1 font-script text-lg leading-snug text-muted">{BLOCKED_TEXT[blocked].body}</p>
+                  <p className="mt-1 font-script text-lg leading-snug text-ink-soft">{BLOCKED_TEXT[blocked].body}</p>
                   {blocked === "error" && (
                     <button
                       onClick={() => window.location.reload()}
@@ -184,8 +184,8 @@ export default function OpeningScreen({
                 </div>
               ) : (
                 <>
-                  <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-muted">Kepada Yth.</p>
-                  <p className="text-xs text-muted">Bapak/Ibu/Saudara/i</p>
+                  <p className="font-eyebrow text-[10px] uppercase tracking-[0.3em] text-ink-soft">Kepada Yth.</p>
+                  <p className="text-xs text-ink-soft">Bapak/Ibu/Saudara/i</p>
                   <p className="font-script mt-0.5 break-words text-[clamp(1.5rem,4.4dvh,2rem)] font-medium leading-[1.1] text-ink">
                     {guestName || "Tamu Undangan"}
                   </p>

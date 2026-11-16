@@ -68,7 +68,7 @@ function ThankYou({ name, attendance, onAgain }: { name: string; attendance: Att
         <Eyebrow className="justify-center">{meta.label}</Eyebrow>
         <p className="mt-2 font-serif text-3xl font-medium leading-tight">Terima kasih, {name}</p>
         <Ornament className="my-3" />
-        <p className="font-script text-xl leading-snug text-muted">
+        <p className="font-script text-xl leading-snug text-ink-soft">
           {attendance === "hadir"
             ? "Kursi Anda sudah kami siapkan. Sampai jumpa di hari bahagia kami."
             : attendance === "masih_ragu"
@@ -111,7 +111,7 @@ function WishNote({ wish, index }: { wish: Wish; index: number }) {
         </div>
         {wish.message && <p className="mt-1 font-script text-lg leading-snug text-ink/85">{wish.message}</p>}
         {wish.photo_url && <WishPhoto src={mediaUrl(wish.photo_url)} name={wish.name} />}
-        <p className="mt-1 font-code text-[11px] text-muted">{timeAgo(wish.created_at)}</p>
+        <p className="mt-1 font-code text-[11px] text-ink-soft">{timeAgo(wish.created_at)}</p>
       </div>
     </motion.li>
   );
@@ -282,7 +282,7 @@ export function RsvpPanel() {
           >
             <div className="text-center">
               <p className="font-serif text-[1.7rem] font-medium leading-tight">Konfirmasi Kehadiran</p>
-              <p className="font-script mt-0.5 text-lg text-muted">Bisa datang? Kabari kami, ya.</p>
+              <p className="font-script mt-0.5 text-lg text-ink-soft">Bisa datang? Kabari kami, ya.</p>
               <Ornament className="mt-3" />
             </div>
 
@@ -324,7 +324,7 @@ export function RsvpPanel() {
                     >
                       <Icon className={`h-4 w-4 ${on ? "text-honey" : "text-gold-ink"}`} strokeWidth={1.5} />
                       <span className="font-serif text-base font-semibold leading-tight">{m.label}</span>
-                      <span className={`font-script text-sm leading-none ${on ? "text-on-brand-muted" : "text-muted"}`}>{m.hint}</span>
+                      <span className={`font-script text-sm leading-none ${on ? "text-on-brand-muted" : "text-ink-soft"}`}>{m.hint}</span>
                     </button>
                   );
                 })}
@@ -377,7 +377,7 @@ export function RsvpPanel() {
                 <label htmlFor="rsvp-message" className={label}>
                   Ucapan &amp; doa
                 </label>
-                <span className="font-code text-[11px] tabular-nums text-muted">{message.length}/500</span>
+                <span className="font-code text-[11px] tabular-nums text-ink-soft">{message.length}/500</span>
               </div>
               <textarea
                 id="rsvp-message"
@@ -394,7 +394,7 @@ export function RsvpPanel() {
 
             <div>
               <span className={label}>
-                Foto <span className="normal-case tracking-normal text-muted">(opsional)</span>
+                Foto <span className="normal-case tracking-normal text-ink-soft">(opsional)</span>
               </span>
               <input
                 ref={photoInput}
@@ -429,7 +429,7 @@ export function RsvpPanel() {
                     <span className="block truncate font-serif text-lg font-semibold leading-tight">
                       {photo ? "Foto terlampir" : "Tambahkan satu foto"}
                     </span>
-                    <span className="font-code block text-xs text-muted">
+                    <span className="font-code block text-xs text-ink-soft">
                       {photo ? "Ketuk untuk mengganti" : "Muncul di dinding ucapan · maks. 4MB"}
                     </span>
                   </span>
@@ -475,7 +475,7 @@ export function RsvpPanel() {
         </div>
 
         {wishes.length === 0 ? (
-          <p className="font-script text-center text-2xl text-muted">Belum ada ucapan. Jadilah yang pertama.</p>
+          <p className="font-script text-center text-2xl text-ink-soft">Belum ada ucapan. Jadilah yang pertama.</p>
         ) : (
           <>
             <ul className="space-y-4">

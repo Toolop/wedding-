@@ -28,7 +28,7 @@ export const colors = {
   goldSoft: "var(--color-gold-soft)",
   line: "var(--color-line)",
   lineSoft: "var(--color-line-soft)",
-  muted: "var(--color-muted)",
+  muted: "var(--color-ink-soft)",
   onBrandMuted: "var(--color-on-brand-muted)",
 } as const;
 

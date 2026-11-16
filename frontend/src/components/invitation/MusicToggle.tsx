@@ -81,7 +81,7 @@ export default function MusicToggle({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1 }}
           className={`fixed left-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-gold text-brand shadow-paint-sm transition-colors sm:bottom-4 sm:left-auto sm:right-4 sm:top-auto ${
-            playing ? "bg-paper" : "bg-chrome text-muted"
+            playing ? "bg-paper" : "bg-chrome text-ink-soft"
           }`}
           aria-label={playing ? "Matikan musik" : "Nyalakan musik"}
           aria-pressed={playing}

@@ -75,7 +75,7 @@ function MonthCalendar({ date }: { date: Date }) {
         {WEEKDAYS.map((w, i) => (
           <span
             key={w}
-            className={`font-eyebrow pb-1 text-[10px] uppercase ${i === 6 ? "text-gold-ink" : "text-muted"}`}
+            className={`font-eyebrow pb-1 text-[10px] uppercase ${i === 6 ? "text-gold-ink" : "text-ink-soft"}`}
           >
             {w}
           </span>
@@ -126,7 +126,7 @@ export function DatePanel({ settings }: { settings: Settings }) {
           {weekday && <Eyebrow>{weekday}</Eyebrow>}
           <p className="font-serif text-[2rem] font-medium leading-tight">{dayMonth ?? settings.wedding_date}</p>
           {times.length > 0 && (
-            <p className="mt-0.5 font-code text-xs text-muted">
+            <p className="mt-0.5 font-code text-xs text-ink-soft">
               {times.join(" · ")} {zone}
             </p>
           )}
@@ -140,7 +140,7 @@ export function DatePanel({ settings }: { settings: Settings }) {
             <CountdownClassic target={settings.wedding_date} />
           </div>
         </div>
-        <p className="font-script mt-3 text-center text-2xl leading-snug text-muted">
+        <p className="font-script mt-3 text-center text-2xl leading-snug text-ink-soft">
           Satu hari yang kami tunggu sejak lama, dan kami ingin Anda ada di dalamnya.
         </p>
       </div>
@@ -206,7 +206,7 @@ function Person({
       </span>
       <Eyebrow className="mt-3 justify-center text-[10px]">{role}</Eyebrow>
       <h4 className="mt-0.5 font-serif text-2xl font-semibold leading-tight">{full || name}</h4>
-      {parents && <p className="mt-1 text-xs leading-relaxed text-muted">{parents}</p>}
+      {parents && <p className="mt-1 text-xs leading-relaxed text-ink-soft">{parents}</p>}
       {instagram && (
         <a
           href={`https://instagram.com/${instagram.replace("@", "")}`}
@@ -255,7 +255,7 @@ export function CouplePanel({ settings }: { settings: Settings }) {
       </div>
       <div className="flex flex-col items-center gap-2 pt-1" style={{ color: colors.ink }}>
         <Ornament />
-        <span className="font-script text-2xl text-muted">bersama, mulai hari itu</span>
+        <span className="font-script text-2xl text-ink-soft">bersama, mulai hari itu</span>
       </div>
     </div>
   );
@@ -268,7 +268,7 @@ export function ContactPanel({ settings }: { settings: Settings }) {
     name ? `https://wa.me/?text=${encodeURIComponent(`Halo ${name}, selamat ya!`)}` : "";
   return (
     <div className="space-y-3" style={{ color: colors.ink }}>
-      <p className="font-script text-2xl leading-snug text-muted">
+      <p className="font-script text-2xl leading-snug text-ink-soft">
         Ada yang ingin ditanyakan soal acara? Sapa kami lewat kanal ini.
       </p>
       <div className="rounded-[6px] border border-line bg-mist-soft px-4 py-3">

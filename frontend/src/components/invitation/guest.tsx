@@ -64,7 +64,7 @@ export function KnownName({
         <button
           type="button"
           onClick={onChange}
-          className="flex-none font-code text-xs text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
+          className="flex-none font-code text-xs text-ink-soft underline decoration-line underline-offset-4 transition-colors hover:text-ink"
         >
           bukan saya?
         </button>

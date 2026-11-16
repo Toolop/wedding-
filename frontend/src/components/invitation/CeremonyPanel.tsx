@@ -546,13 +546,13 @@ function MapSection({
       {/* footer: the address, a hint, and the two things a guest actually does here */}
       <div className="px-2 pb-2 pt-4 text-center">
         {map.address && (
-          <p className="flex items-start justify-center gap-1.5 text-sm leading-snug text-muted">
+          <p className="flex items-start justify-center gap-1.5 text-sm leading-snug text-ink-soft">
             <MapPin className="mt-0.5 h-4 w-4 flex-none text-gold-ink" strokeWidth={1.5} />
             <span>{map.address}</span>
           </p>
         )}
         {hasLayer && (
-          <p className="font-script mt-1.5 text-lg leading-tight text-muted">
+          <p className="font-script mt-1.5 text-lg leading-tight text-ink-soft">
             {map.meta.pin ? "ketuk pin merah untuk melihat sekitarnya" : "buka keterangan untuk melihat sekitarnya"}
           </p>
         )}
@@ -754,7 +754,7 @@ export function CeremonyPanel({
       {/* a closing note, set like a line of small print: no box */}
       <div className={`flex flex-col items-center gap-3 px-4 pt-2 text-center ${scroll ? "mx-auto max-w-[340px]" : ""}`}>
         <Ornament />
-        <p className="font-script text-xl leading-snug text-muted">
+        <p className="font-script text-xl leading-snug text-ink-soft">
           Mohon hadir sedikit lebih awal agar tidak melewatkan momen pentingnya.
         </p>
       </div>

@@ -119,7 +119,7 @@ export function Bubble({ me, who, text }: { me: boolean; who: string; text: stri
 }
 
 export function Hint({ children }: { children: ReactNode }) {
-  return <span className="font-eyebrow pointer-events-none text-[10px] text-muted sm:text-[11px]">{children}</span>;
+  return <span className="font-eyebrow pointer-events-none text-[10px] text-ink-soft sm:text-[11px]">{children}</span>;
 }
 
 /** step dots under a tap-through inset */

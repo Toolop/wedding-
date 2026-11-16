@@ -191,7 +191,7 @@ export function CountdownClassic({ target, light = false }: { target: string; li
           <span className="relative block h-[1.05em] min-w-[2ch] font-serif text-[clamp(2rem,3.2vw,2.9rem)] font-medium leading-none tabular-nums [clip-path:inset(0)]">
             <RollingValue value={u.value} inClass="digit-roll-in" outClass="digit-roll-out" className="block text-center" />
           </span>
-          <span className={`font-script text-[15px] leading-none ${light ? "text-muted" : "text-on-brand-muted"}`}>{u.label}</span>
+          <span className={`font-script text-[15px] leading-none ${light ? "text-ink-soft" : "text-on-brand-muted"}`}>{u.label}</span>
         </span>
       ))}
     </span>

@@ -288,7 +288,7 @@ function InsetCard({
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <span className="font-eyebrow pointer-events-none whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-muted">
+    <span className="font-eyebrow pointer-events-none whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-ink-soft">
       {children}
     </span>
   );
@@ -371,13 +371,13 @@ function EnvelopeInset({ done, onDone, onFinish }: InsetProps) {
 function CoverArt({ groom, bride }: { groom: string; bride: string }) {
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center bg-page px-6 pb-[16%] text-center">
-      <Eyebrow className="absolute left-4 top-4 !text-[10px] !text-muted">
+      <Eyebrow className="absolute left-4 top-4 !text-[10px] !text-ink-soft">
         Chapter I
       </Eyebrow>
-      <Eyebrow className="absolute right-4 top-4 !text-[10px] !text-muted">
+      <Eyebrow className="absolute right-4 top-4 !text-[10px] !text-ink-soft">
         Sebuah kisah
       </Eyebrow>
-      <span className="font-serif text-2xl italic leading-none tracking-[0.1em] text-muted sm:text-3xl">
+      <span className="font-serif text-2xl italic leading-none tracking-[0.1em] text-ink-soft sm:text-3xl">
         Our
       </span>
       <h1 className="font-flourish text-[clamp(3.2rem,12vw,5.5rem)] leading-[1.05] text-brand">
@@ -560,7 +560,7 @@ function ScenePanel({
               <div className="absolute right-full top-[46%] mr-24 hidden w-[220px] flex-col gap-3.5 text-left xl:flex">
                 <Eyebrow>Prolog</Eyebrow>
                 <span aria-hidden className="h-px w-10 bg-gold" />
-                <p className="font-script text-2xl leading-[1.35] text-muted">
+                <p className="font-script text-2xl leading-[1.35] text-ink-soft">
                   Setiap kisah punya awal. Inilah awal kisah kami.
                 </p>
               </div>
@@ -774,7 +774,7 @@ function CalendarRoll({
             initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
             animate={{ x: sh.dx, y: sh.dy, opacity: 0, scale: 0.85 }}
             transition={{ duration: 0.95, ease: [0.2, 0.7, 0.4, 1] }}
-            className="pointer-events-none absolute left-1/2 top-1 z-0 -ml-9 grid h-12 w-[4.5rem] place-items-center rounded-[3px] border border-line bg-paper font-serif text-lg tracking-[0.18em] text-muted"
+            className="pointer-events-none absolute left-1/2 top-1 z-0 -ml-9 grid h-12 w-[4.5rem] place-items-center rounded-[3px] border border-line bg-paper font-serif text-lg tracking-[0.18em] text-ink-soft"
           >
             {sh.label}
           </motion.div>
