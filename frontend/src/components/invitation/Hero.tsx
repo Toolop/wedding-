@@ -521,8 +521,8 @@ export default function Hero({ data }: { data: InvitationData }) {
                         )}
                       </span>
                       <span className="font-eyebrow text-[10px] uppercase tracking-[0.25em] text-gold-ink">{p.label}</span>
-                      <span className="line-clamp-2 font-serif text-lg font-semibold leading-[1.1] sm:text-[22px]">{p.full || p.name}</span>
-                      {p.parents && <span className="line-clamp-2 text-xs leading-snug text-ink-soft">{p.parents}</span>}
+                      <span className="lg:line-clamp-2 font-serif text-lg font-semibold leading-[1.1] sm:text-[22px]">{p.full || p.name}</span>
+                      {p.parents && <span className="lg:line-clamp-3 text-xs leading-snug text-ink-soft">{p.parents}</span>}
                     </span>
                   ),
                 )}
